@@ -5,6 +5,7 @@ import {
   connectSnap,
   getSnap,
   sendHello,
+  sendVc,
   shouldDisplayReconnectButton,
 } from '../utils';
 import {
@@ -126,6 +127,15 @@ const Index = () => {
     }
   };
 
+  const handleImportVcClick = async () => {
+    try {
+      await sendVc();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
   return (
     <Container>
       <Heading>
@@ -191,6 +201,25 @@ const Index = () => {
             button: (
               <SendHelloButton
                 onClick={handleSendHelloClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Import VC',
+            description:
+              'Display a custom message within a confirmation screen in MetaMask.',
+            button: (
+              <SendHelloButton
+                onClick={handleImportVcClick}
                 disabled={!state.installedSnap}
               />
             ),
