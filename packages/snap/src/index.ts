@@ -14,6 +14,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 }): Promise<unknown> => {
   switch (request.method) {
     case 'save_credentials': {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
       const offer = request.params as any as ClaimOffer;
 
       const dialogContent = [
@@ -38,11 +43,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
-        const identityStorage = await getItemFromStore(StorageKeys.identity);
-        if (!identityStorage) {
-          throw new Error('Identity not created');
-        }
-
         const identity = await Identity.create(identityStorage.privateKeyHex);
         const authProof = new AuthZkp(identity, offer);
         const credentials = await authProof.getVerifiableCredentials();
