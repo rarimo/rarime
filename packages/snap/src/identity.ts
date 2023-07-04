@@ -16,18 +16,13 @@ import {
 } from '@iden3/js-merkletree';
 
 import { initPrivateKey } from './helpers';
+import { config } from './config';
 
 export type TreeState = {
   state: string;
   claimsRoot: string;
   revocationRoot: string;
   rootOfRoots: string;
-};
-
-export type IdentityConfig = {
-  AUTH_BJJ_CREDENTIAL_HASH: string;
-  ID_TYPE: Uint8Array;
-  CLAIM_PROOF_SIBLINGS_COUNT: number;
 };
 
 export class Identity {
@@ -42,16 +37,6 @@ export class Identity {
   treeState: TreeState = {} as TreeState;
 
   coreAuthClaim: Claim = {} as Claim;
-
-  public static config: IdentityConfig = {
-    AUTH_BJJ_CREDENTIAL_HASH: 'cca3371a6cb1b715004407e325bd993c',
-    ID_TYPE: Uint8Array.from([1, 0]),
-    CLAIM_PROOF_SIBLINGS_COUNT: 40,
-  };
-
-  public static setConfig(config: Partial<IdentityConfig>) {
-    this.config = Object.assign(this.config, config);
-  }
 
   public static async create(privateKeyHex?: string): Promise<Identity> {
     const identity = new Identity(privateKeyHex);
@@ -121,7 +106,7 @@ export class Identity {
       rootsTreeRoot.bigInt(),
     );
 
-    this.did = DID.fromGenesisFromIdenState(Identity.config.ID_TYPE, identity);
+    this.did = DID.fromGenesisFromIdenState(config.ID_TYPE, identity);
 
     const authClaimIncProof = await claimsTree.generateProof(
       this.coreAuthClaim.hIndex(),
@@ -130,7 +115,7 @@ export class Identity {
 
     const authClaimIncProofSiblings = circomSiblingsFromSiblings(
       authClaimIncProof.proof.siblings,
-      Identity.config.CLAIM_PROOF_SIBLINGS_COUNT,
+      config.CLAIM_PROOF_SIBLINGS_COUNT,
     );
 
     const authClaimNonRevProof = await revocationsTree.generateProof(
@@ -140,7 +125,7 @@ export class Identity {
 
     const authClaimNonRevProofSiblings = circomSiblingsFromSiblings(
       authClaimNonRevProof.proof.siblings,
-      Identity.config.CLAIM_PROOF_SIBLINGS_COUNT,
+      config.CLAIM_PROOF_SIBLINGS_COUNT,
     );
 
     this.authClaimIncProofSiblings = authClaimIncProofSiblings;
@@ -162,7 +147,7 @@ export class Identity {
 
   createCoreAuthClaim() {
     const hash = SchemaHash.newSchemaHashFromHex(
-      Identity.config.AUTH_BJJ_CREDENTIAL_HASH,
+      config.AUTH_BJJ_CREDENTIAL_HASH,
     );
     const revNonce = new Uint8Array(64);
     const key = this.privateKey.public();

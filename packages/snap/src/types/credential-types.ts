@@ -22,3 +22,21 @@ export type W3CCredential = {
   credentialSchema: CredentialSchema;
   proof?: object;
 };
+
+export type ClaimOffer = {
+  body: {
+    credentials: [
+      {
+        description: string;
+        id: string;
+      },
+    ];
+    url: string;
+  };
+  from: string;
+  id: string;
+  thid: string;
+  to: string;
+  typ: string;
+  type: string;
+};

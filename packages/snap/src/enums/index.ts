@@ -1,1 +1,1 @@
-export * from './storage-enums'
+export * from './storage-enums';

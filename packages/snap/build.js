@@ -1,9 +1,13 @@
 const esbuild = require('esbuild');
 const plugin = require('node-stdlib-browser/helpers/esbuild/plugin');
 let stdLibBrowser = require('node-stdlib-browser');
+const path = require('path');
 
 stdLibBrowser = {
   ...stdLibBrowser,
+  "@iden3/js-iden3-core": path.join(__dirname, '../../node_modules/@iden3/js-iden3-core/dist/esm_esbuild/index.js'),
+  "@iden3/js-jwz": path.join(__dirname, '../../node_modules/@iden3/js-jwz/dist/esm_esbuild/index.js'),
+  "@iden3/js-crypto": path.join(__dirname, '../../node_modules/@iden3/js-crypto/dist/esm_esbuild/index.js'),
 };
 
 console.log('START building ESM bundle...');
@@ -18,9 +22,6 @@ esbuild.build({
   legalComments: 'none',
   plugins: [
     plugin(stdLibBrowser),
-  ],
-  external: [
-    '@syntect/wasm'
   ],
   define: {
     Buffer: 'Buffer',

@@ -18,7 +18,7 @@ export const saveCredential = async (
   } else {
     items[itemIndex] = value;
   }
-  await setItemInStore(StorageKeys.credentials, JSON.stringify(items));
+  await setItemInStore(StorageKeys.credentials, items);
 };
 
 export const saveCredentials = async (
