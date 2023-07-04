@@ -7,9 +7,9 @@ const getState = async () => {
 
 export const getItemFromStore = async (key: string): Promise<any> => {
   const state = await getState();
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  return state && state[key] ? JSON.parse(state[key]) : null;
-
+  return state?.[key] ? JSON.parse(state[key]) : null;
 };
 
 export const setItemInStore = async (key: string, inputData: any) => {

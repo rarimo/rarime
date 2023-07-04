@@ -1,1 +1,1 @@
-export * from './identity-helpers'
+export * from './identity-helpers';

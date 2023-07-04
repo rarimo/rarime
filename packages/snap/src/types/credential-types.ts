@@ -1,17 +1,16 @@
-
-export interface CredentialStatus {
+export type CredentialStatus = {
   id: string;
   type: string;
   revocationNonce?: number;
   statusIssuer?: CredentialStatus;
-}
+};
 
-export interface CredentialSchema {
+export type CredentialSchema = {
   id: string;
   type: string;
-}
+};
 
-export interface W3CCredential{
+export type W3CCredential = {
   id: string;
   '@context': string[];
   type: string[];
@@ -22,4 +21,4 @@ export interface W3CCredential{
   issuer: string;
   credentialSchema: CredentialSchema;
   proof?: object;
-}
+};
