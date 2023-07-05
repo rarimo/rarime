@@ -5,9 +5,9 @@ import { panel, text, divider, heading } from '@metamask/snaps-ui';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
-import { ClaimOffer } from './types';
+import { ClaimOffer, CreateProofRequest } from './types';
 import { AuthZkp } from './auth-zkp';
-import { saveCredentials } from './helpers';
+import { findCredentialsByQuery, saveCredentials } from './helpers';
 import { ZkpGen } from './zkp-gen';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
@@ -89,7 +89,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw new Error('Identity not created');
       }
 
-      const credentials = await getItemFromStore(StorageKeys.credentials);
+      const params = request.params as any as CreateProofRequest;
+
+      const credentials = (await findCredentialsByQuery(params.query)).filter(
+        (cred) => cred.credentialSubject.id === identityStorage.did,
+      );
 
       if (!credentials.length) {
         throw new Error(

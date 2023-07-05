@@ -118,7 +118,23 @@ export const createProof = async () => {
     method: 'wallet_invokeSnap',
     params: {
       snapId: defaultSnapOrigin,
-      request: { method: 'create_proof' },
+      request: {
+        method: 'create_proof',
+        params: {
+          circuitId: 'credentialAtomicQueryMTPV2',
+          query: {
+            allowedIssuers: ['*'],
+            context:
+              'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
+            credentialSubject: {
+              isNatural: {
+                $eq: 1,
+              },
+            },
+            type: 'NaturalPerson',
+          },
+        },
+      },
     },
   });
 

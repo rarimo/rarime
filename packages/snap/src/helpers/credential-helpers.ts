@@ -1,6 +1,7 @@
 import { StorageKeys } from '../enums';
 import { getItemFromStore, setItemInStore } from '../rpc';
-import { W3CCredential } from '../types';
+import { ProofQuery, W3CCredential } from '../types';
+import { StandardJSONCredentialsQueryFilter } from './json-query-helpers';
 
 export const saveCredential = async (
   key: string,
@@ -28,4 +29,16 @@ export const saveCredentials = async (
   for (const credential of value) {
     await saveCredential(credential.id, credential, keyName);
   }
+};
+
+export const findCredentialsByQuery = async (
+  query: ProofQuery,
+): Promise<W3CCredential[]> => {
+  const filters = StandardJSONCredentialsQueryFilter(query);
+  const credentials = await getItemFromStore(StorageKeys.credentials);
+  const creds = credentials.filter((credential: W3CCredential) =>
+    filters.every((filter) => filter.execute(credential)),
+  );
+
+  return creds;
 };
