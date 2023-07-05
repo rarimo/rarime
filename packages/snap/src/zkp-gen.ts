@@ -61,7 +61,6 @@ export class ZkpGen {
       readBytesFile(config.CIRCUIT_MTP_WASM_URL),
       readBytesFile(config.CIRCUIT_MTP_FINAL_KEY_URL),
     ]);
-    console.log(inputs);
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
       new TextEncoder().encode(inputs),
       provingKey,
@@ -281,7 +280,6 @@ export class ZkpGen {
   async #getSchemaHash(): Promise<SchemaHash> {
     const response = await fetch(this.verifiableCredential.credentialSchema.id);
     const data = await response.json();
-    console.log(data);
     const schemaString = `${data?.$metadata.uris.jsonLdContext}#${this.verifiableCredential.credentialSubject.type}`;
     const schemaBytes = new TextEncoder().encode(schemaString);
     const keccakString = arrayify(keccak256(Buffer.from(schemaBytes)));
@@ -294,7 +292,6 @@ export class ZkpGen {
     );
 
     const data = await response.json();
-    console.log(data);
 
     return data as ClaimStatus;
   }
