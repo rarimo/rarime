@@ -17,6 +17,7 @@ import {
 
 import { initPrivateKey } from './helpers';
 import { config } from './config';
+import { defaultMTLevels } from './const';
 
 export type TreeState = {
   state: string;
@@ -115,7 +116,7 @@ export class Identity {
 
     const authClaimIncProofSiblings = circomSiblingsFromSiblings(
       authClaimIncProof.proof.siblings,
-      config.CLAIM_PROOF_SIBLINGS_COUNT,
+      defaultMTLevels,
     );
 
     const authClaimNonRevProof = await revocationsTree.generateProof(
@@ -125,7 +126,7 @@ export class Identity {
 
     const authClaimNonRevProofSiblings = circomSiblingsFromSiblings(
       authClaimNonRevProof.proof.siblings,
-      config.CLAIM_PROOF_SIBLINGS_COUNT,
+      defaultMTLevels,
     );
 
     this.authClaimIncProofSiblings = authClaimIncProofSiblings;

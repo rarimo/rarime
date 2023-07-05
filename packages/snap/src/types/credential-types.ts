@@ -20,7 +20,7 @@ export type W3CCredential = {
   credentialStatus: CredentialStatus;
   issuer: string;
   credentialSchema: CredentialSchema;
-  proof?: object;
+  proof?: any[];
 };
 
 export type ClaimOffer = {

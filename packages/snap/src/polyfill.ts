@@ -1,3 +1,7 @@
+import intl from 'intl/lib/core';
+
+global.Intl = intl;
+
 // eslint-disable-next-line import/unambiguous
 if (typeof global.crypto.getRandomValues !== 'function') {
   global.crypto.getRandomValues = (array: any) => {

@@ -44,8 +44,8 @@ export class AuthZkp {
       );
 
       const [wasm, provingKey] = await Promise.all([
-        readBytesFile(config.CIRCUIT_WASM_URL),
-        readBytesFile(config.CIRCUIT_FINAL_KEY_URL),
+        readBytesFile(config.CIRCUIT_AUTH_WASM_URL),
+        readBytesFile(config.CIRCUIT_AUTH_FINAL_KEY_URL),
       ]);
 
       const jwzTokenRaw = await token2.prove(provingKey, wasm);

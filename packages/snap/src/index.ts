@@ -8,6 +8,7 @@ import { StorageKeys } from './enums';
 import { ClaimOffer } from './types';
 import { AuthZkp } from './auth-zkp';
 import { saveCredentials } from './helpers';
+import { ZkpGen } from './zkp-gen';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
@@ -78,6 +79,41 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           did: identity.didString,
         });
         return identity.didString;
+      }
+      throw new Error('User rejected request');
+    }
+
+    case 'create_proof': {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
+      const credentials = await getItemFromStore(StorageKeys.credentials);
+
+      if (!credentials.length) {
+        throw new Error(
+          `no credential were issued on the given id ${identityStorage.did}`,
+        );
+      }
+
+      const res = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([
+            heading('Create proof'),
+            divider(),
+            text(`Would you like to create?`),
+          ]),
+        },
+      });
+
+      if (res) {
+        const identity = await Identity.create(identityStorage.privateKeyHex);
+
+        const zkpGen = new ZkpGen(identity, credentials[0]);
+        return await zkpGen.generateProof();
       }
       throw new Error('User rejected request');
     }

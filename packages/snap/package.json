@@ -30,15 +30,19 @@
   },
   "dependencies": {
     "@ethersproject/abi": "^5.0.0",
+    "@ethersproject/bytes": "^5.7.0",
+    "@ethersproject/keccak256": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "@iden3/js-crypto": "^1.0.0-beta.1",
     "@iden3/js-iden3-core": "^1.0.0-beta.2",
+    "@iden3/js-jsonld-merklization": "^1.0.0-beta.14",
     "@iden3/js-jwz": "^1.0.0-beta.2",
     "@iden3/js-merkletree": "^1.0.0-beta.1",
     "@metamask/snaps-types": "^0.32.2",
     "@metamask/snaps-ui": "^0.32.2",
     "buffer": "^6.0.3",
     "ethers": "^5.7.2",
+    "intl": "^1.2.5",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
@@ -50,6 +54,7 @@
     "@metamask/eslint-config-nodejs": "^10.0.0",
     "@metamask/eslint-config-typescript": "^10.0.0",
     "@metamask/snaps-cli": "^0.32.2",
+    "@types/intl": "^1.2.0",
     "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
