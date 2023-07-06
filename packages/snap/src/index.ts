@@ -65,8 +65,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           content: panel([
             heading('Identity creation'),
             divider(),
-            text(`You have not identity`),
-            text(`Would you like to create?`),
+            text(`You don't have an identity yet`),
+            text('Would you like to create?'),
           ]),
         },
       });

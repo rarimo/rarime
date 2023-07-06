@@ -4,7 +4,7 @@ import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
   getSnap,
-  sendHello,
+  createIdentity,
   sendVc,
   shouldDisplayReconnectButton,
 } from '../utils';
@@ -118,9 +118,9 @@ const Index = () => {
     }
   };
 
-  const handleSendHelloClick = async () => {
+  const handleCreateIdentityClick = async () => {
     try {
-      await sendHello();
+      await createIdentity();
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -195,12 +195,11 @@ const Index = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+            title: 'Create an identity',
+            description: 'Creating an identity in a snap',
             button: (
               <SendHelloButton
-                onClick={handleSendHelloClick}
+                onClick={handleCreateIdentityClick}
                 disabled={!state.installedSnap}
               />
             ),
@@ -215,8 +214,7 @@ const Index = () => {
         <Card
           content={{
             title: 'Import VC',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+            description: 'Saving verifiable credentials to snap',
             button: (
               <SendHelloButton
                 onClick={handleImportVcClick}
