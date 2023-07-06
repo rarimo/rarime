@@ -9,5 +9,8 @@ stages:
 - test
 sast:
   stage: test
+  tags:
+  - tokend
+
 include:
 - template: Security/SAST.gitlab-ci.yml
