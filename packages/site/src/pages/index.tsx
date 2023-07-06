@@ -4,7 +4,8 @@ import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
   getSnap,
-  sendHello,
+  createIdentity,
+  sendVc,
   shouldDisplayReconnectButton,
 } from '../utils';
 import {
@@ -117,9 +118,18 @@ const Index = () => {
     }
   };
 
-  const handleSendHelloClick = async () => {
+  const handleCreateIdentityClick = async () => {
     try {
-      await sendHello();
+      await createIdentity();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleImportVcClick = async () => {
+    try {
+      await sendVc();
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -185,12 +195,29 @@ const Index = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+            title: 'Create an identity',
+            description: 'Creating an identity in a snap',
             button: (
               <SendHelloButton
-                onClick={handleSendHelloClick}
+                onClick={handleCreateIdentityClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Import VC',
+            description: 'Saving verifiable credentials to snap',
+            button: (
+              <SendHelloButton
+                onClick={handleImportVcClick}
                 disabled={!state.installedSnap}
               />
             ),

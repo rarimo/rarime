@@ -54,11 +54,45 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
  * Invoke the "hello" method from the example snap.
  */
 
-export const sendHello = async () => {
-  await window.ethereum.request({
+export const createIdentity = async () => {
+  const data = await window.ethereum.request({
     method: 'wallet_invokeSnap',
-    params: { snapId: defaultSnapOrigin, request: { method: 'hello' } },
+    params: {
+      snapId: defaultSnapOrigin,
+      request: { method: 'create_identity' },
+    },
   });
+  console.log(data);
+};
+
+export const sendVc = async () => {
+  const data = await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: defaultSnapOrigin,
+      request: {
+        method: 'save_credentials',
+        params: {
+          body: {
+            credentials: [
+              {
+                description: 'Natural Person',
+                id: '86531650-023c-4c6c-a437-a82e137ead68',
+              },
+            ],
+            url: 'http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/callback',
+          },
+          from: 'did:iden3:tJnRoZ1KqUPbsfVGrk8io51iqoRc5dGhj5LLMHSrD',
+          id: '026035f6-42f6-4a2d-b516-0b11d2674850',
+          thid: '348b7198-7cb1-46f4-bc0a-98a358f65539',
+          to: 'did:iden3:tTxif8ahrSqRWavS8Qatrp4ZEJvPdu3ELSMgqTEQN',
+          typ: 'application/iden3comm-plain-json',
+          type: 'https://iden3-communication.io/credentials/1.0/offer',
+        },
+      },
+    },
+  });
+  console.log(data);
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
