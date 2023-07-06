@@ -241,9 +241,8 @@ const Index = () => {
         />
         <Card
           content={{
-            title: 'Create proof',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+            title: 'Create a proof',
+            description: 'Creating a proof in a snap',
             button: (
               <SendHelloButton
                 onClick={handleCreateProofClick}
