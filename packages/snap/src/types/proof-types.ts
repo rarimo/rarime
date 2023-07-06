@@ -1,6 +1,6 @@
 export type ProofQuery = {
   allowedIssuers?: string[];
-  credentialSubject?: { [key: string]: unknown };
+  credentialSubject?: { [key: string]: any };
   schema?: string; // string url
   claimId?: string;
   credentialSubjectId?: string;

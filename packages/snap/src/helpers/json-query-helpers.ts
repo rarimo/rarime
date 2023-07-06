@@ -29,8 +29,10 @@ const comparatorOptions: {
   $ne: (a, b) => a !== b,
 };
 
+type PathObject = { [key: string]: any };
+
 export const resolvePath = (
-  object: object,
+  object: PathObject,
   path: string,
   defaultValue = null,
 ) => path.split('.').reduce((o, p) => (o ? o[p] : defaultValue), object);
@@ -63,14 +65,14 @@ export const StandardJSONCredentialsQueryFilter = (
   query: ProofQuery,
 ): FilterQuery[] => {
   return Object.keys(query).reduce((acc: FilterQuery[], queryKey) => {
-    const queryValue = query[queryKey];
+    const queryValue = query[queryKey as keyof ProofQuery];
     switch (queryKey) {
       case 'claimId':
         return acc.concat(
           new FilterQuery('id', comparatorOptions.$eq, queryValue),
         );
       case 'allowedIssuers': {
-        const [first] = queryValue || [];
+        const [first] = (queryValue as string[]) || [];
         if (first && first === '*') {
           return acc;
         }
@@ -105,15 +107,16 @@ export const StandardJSONCredentialsQueryFilter = (
       case 'skipClaimRevocationCheck':
         return acc;
       case 'credentialSubject': {
-        const reqFilters = Object.keys(queryValue).reduce(
+        const queryVal = queryValue as { [key: string]: any };
+        const reqFilters = Object.keys(queryVal).reduce(
           (arr: FilterQuery[], fieldKey) => {
-            const fieldParams = queryValue[fieldKey];
+            const fieldParams = queryVal[fieldKey];
             const res = Object.keys(fieldParams).map((comparator) => {
               const value = fieldParams[comparator];
               const path = `credentialSubject.${fieldKey}`;
               return new FilterQuery(
                 path,
-                comparatorOptions[comparator],
+                comparatorOptions[comparator as FilterOperatorMethod],
                 value,
               );
             });

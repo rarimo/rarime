@@ -13,7 +13,7 @@ export const saveCredential = async (
   )) as W3CCredential[];
   const items = data || [];
 
-  const itemIndex = data?.findIndex((i) => i[keyName] === key);
+  const itemIndex = items.findIndex((i) => i[keyName] === key);
   if (itemIndex === -1) {
     items.push(value);
   } else {
@@ -36,9 +36,7 @@ export const findCredentialsByQuery = async (
 ): Promise<W3CCredential[]> => {
   const filters = StandardJSONCredentialsQueryFilter(query);
   const credentials = await getItemFromStore(StorageKeys.credentials);
-  const creds = credentials.filter((credential: W3CCredential) =>
+  return credentials.filter((credential: W3CCredential) =>
     filters.every((filter) => filter.execute(credential)),
   );
-
-  return creds;
 };
