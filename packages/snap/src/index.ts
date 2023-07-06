@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { panel, text, divider, heading } from '@metamask/snaps-ui';
+import { panel, text, divider, heading, NodeType } from '@metamask/snaps-ui';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
@@ -107,8 +107,36 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           type: 'confirmation',
           content: panel([
             heading('Create proof'),
-            divider(),
-            text(`Would you like to create?`),
+            ...(params.query.type
+              ? [divider(), text('Credential type'), text(params.query.type)]
+              : []),
+            ...(params.query.credentialSubject
+              ? [
+                  divider(),
+                  text('Requirements'),
+                  ...Object.keys(params.query.credentialSubject).reduce(
+                    (
+                      acc: {
+                        value: string;
+                        type: NodeType.Text;
+                      }[],
+                      field,
+                    ) => {
+                      const filter = params.query.credentialSubject?.[field];
+                      const filterStr = Object.keys(filter).map((operator) => {
+                        return text(
+                          `${field} - ${operator} ${filter[operator]}\n`,
+                        );
+                      });
+                      return acc.concat(filterStr);
+                    },
+                    [],
+                  ),
+                ]
+              : []),
+            ...(params.circuitId
+              ? [divider(), text('Proof type'), text(params.circuitId)]
+              : []),
           ]),
         },
       });
