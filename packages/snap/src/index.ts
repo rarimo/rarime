@@ -144,7 +144,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       if (res) {
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
-        const zkpGen = new ZkpGen(identity, credentials[0]);
+        const zkpGen = new ZkpGen(identity, params, credentials[0]);
         return await zkpGen.generateProof();
       }
       throw new Error('User rejected request');

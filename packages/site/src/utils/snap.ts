@@ -121,7 +121,7 @@ export const createProof = async () => {
       request: {
         method: 'create_proof',
         params: {
-          circuitId: 'credentialAtomicQueryMTPV2',
+          circuitId: 'credentialAtomicQuerySigV2OnChain',
           query: {
             allowedIssuers: ['*'],
             context:

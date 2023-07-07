@@ -1,3 +1,5 @@
+import { Proof } from '@iden3/js-merkletree';
+
 export type CredentialStatus = {
   id: string;
   type: string;
@@ -20,7 +22,7 @@ export type W3CCredential = {
   credentialStatus: CredentialStatus;
   issuer: string;
   credentialSchema: CredentialSchema;
-  proof?: any[];
+  proof?: { [key: string]: any } | any[];
 };
 
 export type ClaimOffer = {
@@ -39,4 +41,16 @@ export type ClaimOffer = {
   to: string;
   typ: string;
   type: string;
+};
+
+export type Issuer = {
+  state?: string;
+  rootOfRoots?: string;
+  claimsTreeRoot?: string;
+  revocationTreeRoot?: string;
+};
+
+export type RevocationStatus = {
+  mtp: Proof;
+  issuer: Issuer;
 };

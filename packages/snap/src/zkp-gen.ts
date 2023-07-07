@@ -1,31 +1,21 @@
-import { Buffer } from 'buffer';
-import { arrayify } from '@ethersproject/bytes';
-import { keccak256 } from '@ethersproject/keccak256';
-import { Hex, Signature } from '@iden3/js-crypto';
-import {
-  Claim,
-  ClaimOptions,
-  DID,
-  fromLittleEndian,
-  SchemaHash,
-} from '@iden3/js-iden3-core';
-import {
-  Merklizer,
-  type MtValue,
-  type Path,
-} from '@iden3/js-jsonld-merklization';
+import { Hex } from '@iden3/js-crypto';
+import { fromLittleEndian } from '@iden3/js-iden3-core';
+
 import { proving, type ZKProof } from '@iden3/js-jwz';
-import {
-  circomSiblingsFromSiblings,
-  hashElems,
-  newHashFromHex,
-  Proof,
-} from '@iden3/js-merkletree';
+import { newHashFromHex } from '@iden3/js-merkletree';
 
 import { type Identity } from './identity';
 
-import { getGISTProof, readBytesFile, unmarshalBinary } from './helpers';
-import type { ClaimStatus, IssuerState, W3CCredential } from './types';
+import {
+  getGISTProof,
+  getPreparedCredential,
+  newCircuitClaimData,
+  prepareCircuitArrayValues,
+  prepareSiblingsStr,
+  readBytesFile,
+  toCircuitsQuery,
+} from './helpers';
+import type { CreateProofRequest, W3CCredential } from './types';
 import { config } from './config';
 import {
   defaultMTLevels,
@@ -33,6 +23,7 @@ import {
   defaultMTLevelsOnChain,
   defaultValueArraySize,
 } from './const';
+import { CircuitId } from './enums';
 
 const ensureArraySize = (arr: string[], size: number): string[] => {
   if (arr.length < size) {
@@ -49,13 +40,20 @@ export class ZkpGen {
 
   subjectProof: ZKProof = {} as ZKProof;
 
-  constructor(identity: Identity, verifiableCredential: W3CCredential) {
+  proofRequest: CreateProofRequest = {} as CreateProofRequest;
+
+  constructor(
+    identity: Identity,
+    proofRequest: CreateProofRequest,
+    verifiableCredential: W3CCredential,
+  ) {
     this.identity = identity;
     this.verifiableCredential = verifiableCredential;
+    this.proofRequest = proofRequest;
   }
 
   async generateProof() {
-    const inputs = await this.#prepareInputs();
+    const inputs = await this.generateInputs();
 
     const [wasm, provingKey] = await Promise.all([
       readBytesFile(config.CIRCUIT_MTP_WASM_URL),
@@ -70,11 +68,52 @@ export class ZkpGen {
     return this.subjectProof;
   }
 
-  async #prepareInputs() {
-    // ==================== USER SIDE ======================
-    const challenge = fromLittleEndian(Hex.decodeString('')); // TODO
+  async generateInputs(): Promise<string> {
+    let generateInputFn;
+    switch (this.proofRequest.circuitId) {
+      case CircuitId.AtomicQuerySigV2OnChain:
+        generateInputFn = this.generateQuerySigV2OnChainInputs.bind(this);
+        break;
+      default:
+        throw new Error(
+          `circuit with id ${this.proofRequest.circuitId} is not supported by issuer`,
+        );
+    }
 
-    const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
+    return generateInputFn();
+  }
+
+  async generateQuerySigV2OnChainInputs() {
+    const preparedCredential = await getPreparedCredential(
+      this.verifiableCredential,
+    );
+
+    const circuitClaimData = await newCircuitClaimData(
+      preparedCredential.credential,
+      preparedCredential.credentialCoreClaim,
+    );
+
+    const query = await toCircuitsQuery(
+      this.proofRequest.query,
+      preparedCredential.credential,
+      preparedCredential.credentialCoreClaim,
+    );
+
+    const nonRevProof = {
+      proof: preparedCredential.revStatus.mtp,
+      treeState: {
+        state: newHashFromHex(preparedCredential.revStatus.issuer.state!),
+        claimsRoot: newHashFromHex(
+          preparedCredential.revStatus.issuer.claimsTreeRoot!,
+        ),
+        revocationRoot: newHashFromHex(
+          preparedCredential.revStatus.issuer.revocationTreeRoot!,
+        ),
+        rootOfRoots: newHashFromHex(
+          preparedCredential.revStatus.issuer.rootOfRoots!,
+        ),
+      },
+    };
 
     const gistInfo = await getGISTProof({
       rpcUrl: config.RPC_URL,
@@ -82,44 +121,25 @@ export class ZkpGen {
       userId: this.identity.identityIdBigIntString,
     });
 
-    const userClaimStatus = await this.#requestClaimRevocationStatus(
-      this.verifiableCredential.credentialStatus.revocationNonce!,
+    const challenge = fromLittleEndian(
+      Hex.decodeString(this.proofRequest.challenge || '0n'),
     );
 
-    // ==================== ISSUER SIDE ======================
+    const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
 
-    const [credentialSigProof] = this.verifiableCredential.proof!;
-
-    const issuerAuthCoreClaim = new Claim();
-    issuerAuthCoreClaim.fromHex(credentialSigProof.coreClaim);
-
-    const issuerRevNonce = issuerAuthCoreClaim.getRevocationNonce();
-
-    const issuerAuthClaimStatus = await this.#requestClaimRevocationStatus(
-      Number(issuerRevNonce),
-    );
-
-    const issuerID = DID.parse(this.verifiableCredential.issuer).id;
-    const signatureProof = this.#parseBJJSignatureProof();
-
-    const { path, claimProof } = await this.#createCoreClaimFromIssuer();
-
-    // ==================== SETUP SIDE ======================
+    console.log(preparedCredential);
 
     const timestamp = Math.floor(Date.now() / 1000);
 
-    const value = new Array(defaultValueArraySize);
-    value.fill('0');
-    value[0] =
-      this.verifiableCredential.credentialSubject?.isNatural.toString();
-
-    const dd = this.verifiableCredential.proof?.[1]?.coreClaim;
-    const claim = new Claim().fromHex(dd as string);
+    const value = prepareCircuitArrayValues(
+      query.values,
+      defaultValueArraySize,
+    ).map((a) => a.toString());
 
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
-      requestID: '1',
+      requestID: this.proofRequest.id?.toString || '1',
 
       /* userID ownership signals */
       userGenesisID: this.identity.identityIdBigIntString,
@@ -132,18 +152,14 @@ export class ZkpGen {
       userRootsTreeRoot: this.identity.treeState.rootOfRoots,
 
       /* Auth claim */
-      authClaim: [...this.identity.authClaimInput],
+      authClaim: this.identity.coreAuthClaim.marshalJson(), // TODO check
 
       /* auth claim. merkle tree proof of inclusion to claim tree */
-      authClaimIncMtp: [
-        ...this.identity.authClaimIncProofSiblings.map((el) => el.string()),
-      ],
+      authClaimIncMtp: this.identity.authClaimIncProofSiblings,
 
       /* auth claim - rev nonce. merkle tree proof of non-inclusion to rev tree */
-      authClaimNonRevMtp: [
-        ...this.identity.authClaimNonRevProofSiblings.map((el) => el.string()),
-      ],
-      authClaimNonRevMtpNoAux: '1',
+      authClaimNonRevMtp: this.identity.authClaimNonRevProofSiblings,
+      authClaimNonRevMtpNoAux: '1', // TODO
       authClaimNonRevMtpAuxHi: '0',
       authClaimNonRevMtpAuxHv: '0',
 
@@ -159,7 +175,7 @@ export class ZkpGen {
       gistMtp: ensureArraySize(
         gistInfo?.siblings.map((el) => el.toString()),
         defaultMTLevelsOnChain,
-      ),
+      ), // TODO
       gistMtpAuxHi: gistInfo?.auxIndex.toString(),
       gistMtpAuxHv: gistInfo?.auxValue.toString(),
       gistMtpNoAux: gistInfo?.auxExistence ? '0' : '1',
@@ -168,177 +184,92 @@ export class ZkpGen {
       claimSubjectProfileNonce: '0',
 
       /* issuer ID */
-      issuerID: issuerID.bigInt().toString(),
+      issuerID: circuitClaimData.issuerId.bigInt().toString(),
 
       /* issuer auth proof of existence */
-      issuerAuthClaim: signatureProof.issuerAuthClaim,
-      issuerAuthClaimMtp: signatureProof.issuerAuthClaimIncProof,
-      issuerAuthClaimsTreeRoot: signatureProof.claimsTreeRoot.string(),
-      issuerAuthRevTreeRoot: signatureProof.revocationTreeRoot.string(),
-      issuerAuthRootsTreeRoot: signatureProof.rootOfRoots.string(),
-      // issuerAuthState: signatureProof.issuerState.state.string(),
-
-      /* issuer auth claim non rev proof */
-      issuerAuthClaimNonRevMtp: ensureArraySize(
-        issuerAuthClaimStatus.mtp.siblings.map((el) => el.string()),
+      issuerAuthClaim:
+        circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
+      issuerAuthClaimMtp: prepareSiblingsStr(
+        circuitClaimData.signatureProof.issuerAuthIncProof.proof,
         defaultMTLevels,
       ),
-      issuerAuthClaimNonRevMtpNoAux: '1',
+      issuerAuthClaimsTreeRoot:
+        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot
+          .bigInt()
+          .toString(),
+      issuerAuthRevTreeRoot:
+        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot
+          .bigInt()
+          .toString(),
+      issuerAuthRootsTreeRoot:
+        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots
+          .bigInt()
+          .toString(),
+
+      /* issuer auth claim non rev proof */
+      issuerAuthClaimNonRevMtp: prepareSiblingsStr(
+        circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
+        defaultMTLevels,
+      ),
+      issuerAuthClaimNonRevMtpNoAux: '1', // TODO
       issuerAuthClaimNonRevMtpAuxHi: '0',
       issuerAuthClaimNonRevMtpAuxHv: '0',
 
       /* claim issued by issuer to the user */
-      issuerClaim: claim.marshalJson(),
+      issuerClaim: circuitClaimData.claim.marshalJson(),
       /* issuerClaim non rev inputs */
       isRevocationChecked: '1',
-      issuerClaimNonRevMtp: ensureArraySize(
-        userClaimStatus.mtp.siblings.map((el) => el.string()),
+      issuerClaimNonRevMtp: prepareSiblingsStr(
+        nonRevProof.proof,
         defaultMTLevels,
       ),
+      // TODO
       issuerClaimNonRevMtpNoAux:
-        Boolean(userClaimStatus.mtp?.nodeAux?.key) &&
-        Boolean(userClaimStatus.mtp?.nodeAux?.value)
+        Boolean(nonRevProof.proof.nodeAux?.key) &&
+        Boolean(nonRevProof.proof.nodeAux?.value)
           ? 0
           : 1,
-      issuerClaimNonRevMtpAuxHi: userClaimStatus.mtp?.nodeAux?.key ?? 0,
-      issuerClaimNonRevMtpAuxHv: userClaimStatus.mtp?.nodeAux?.value ?? 0,
-      issuerClaimNonRevClaimsTreeRoot: newHashFromHex(
-        String(userClaimStatus.issuer.claimsTreeRoot),
-      ).string(),
-      issuerClaimNonRevRevTreeRoot: newHashFromHex(
-        String(userClaimStatus.issuer.revocationTreeRoot),
-      ).string(),
-      issuerClaimNonRevRootsTreeRoot: newHashFromHex(
-        String(userClaimStatus.issuer.rootOfRoots),
-      ).string(),
-      issuerClaimNonRevState: newHashFromHex(
-        String(userClaimStatus.issuer.state),
-      ).string(),
+      issuerClaimNonRevMtpAuxHi: nonRevProof.proof.nodeAux?.key ?? 0,
+      issuerClaimNonRevMtpAuxHv: nonRevProof.proof.nodeAux?.value ?? 0,
+      issuerClaimNonRevClaimsTreeRoot: nonRevProof.treeState.claimsRoot
+        .bigInt()
+        .toString(),
+      issuerClaimNonRevRevTreeRoot: nonRevProof.treeState.revocationRoot
+        .bigInt()
+        .toString(),
+      issuerClaimNonRevRootsTreeRoot: nonRevProof.treeState.rootOfRoots
+        .bigInt()
+        .toString(),
+      issuerClaimNonRevState: nonRevProof.treeState.state.bigInt().toString(),
 
       /* issuerClaim signature */
-      issuerClaimSignatureR8x: signatureProof.signature.R8[0].toString(),
-      issuerClaimSignatureR8y: signatureProof.signature.R8[1].toString(),
-      issuerClaimSignatureS: signatureProof.signature.S.toString(),
+      issuerClaimSignatureR8x:
+        circuitClaimData.signatureProof.signature.R8[0].toString(),
+      issuerClaimSignatureR8y:
+        circuitClaimData.signatureProof.signature.R8[1].toString(),
+      issuerClaimSignatureS:
+        circuitClaimData.signatureProof.signature.S.toString(),
 
       /* current time */
       timestamp,
 
       /* Query */
-      claimSchema: claim.getSchemaHash().bigInt().toString(),
+      claimSchema: circuitClaimData.claim.getSchemaHash().bigInt().toString(),
 
-      claimPathNotExists: '0',
-      claimPathMtp: ensureArraySize(
-        claimProof.proof.siblings.map((el) => el.string()),
+      claimPathNotExists: query.valueProof?.mtp.existence ? 0 : 1,
+      claimPathMtp: prepareSiblingsStr(
+        query.valueProof!.mtp,
         defaultMTLevelsClaimsMerklization,
       ),
-      claimPathMtpNoAux: '0',
+      claimPathMtpNoAux: '0', // TODO
       claimPathMtpAuxHi: '0',
       claimPathMtpAuxHv: '0',
-      claimPathKey: (await path.mtEntry()).toString(),
-      claimPathValue: claimProof.value?.value,
+      claimPathKey: query.valueProof?.path.toString(),
+      claimPathValue: query.valueProof?.value?.toString(),
 
-      slotIndex: '0',
-      operator: '1',
+      slotIndex: query.slotIndex,
+      operator: query.operator,
       value,
     });
-  }
-
-  async #createCoreClaimFromIssuer(): Promise<{
-    path: Path;
-    coreClaim: Claim;
-    claimProof: {
-      proof: Proof;
-      value?: MtValue;
-    };
-  }> {
-    const schemaHash = await this.#getSchemaHash();
-
-    const credential = { ...this.verifiableCredential };
-    delete credential.proof;
-
-    const mz = await Merklizer.merklizeJSONLD(JSON.stringify(credential));
-    const path: Path = await mz.resolveDocPath(`credentialSubject.isNatural`);
-    const claimProof = await mz.proof(path);
-
-    claimProof.proof.siblings = circomSiblingsFromSiblings(
-      claimProof.proof.siblings,
-      defaultMTLevelsClaimsMerklization,
-    );
-
-    const coreClaim = Claim.newClaim(
-      schemaHash,
-      ClaimOptions.withValueMerklizedRoot((await mz.root()).bigInt()),
-      ClaimOptions.withIndexId(this.identity.identityId),
-      ClaimOptions.withRevocationNonce(
-        BigInt(this.verifiableCredential.credentialStatus.revocationNonce!),
-      ),
-    );
-
-    return { path, coreClaim, claimProof };
-  }
-
-  async #getSchemaHash(): Promise<SchemaHash> {
-    const response = await fetch(this.verifiableCredential.credentialSchema.id);
-    const data = await response.json();
-    const schemaString = `${data?.$metadata.uris.jsonLdContext}#${this.verifiableCredential.credentialSubject.type}`;
-    const schemaBytes = new TextEncoder().encode(schemaString);
-    const keccakString = arrayify(keccak256(Buffer.from(schemaBytes)));
-    return new SchemaHash(keccakString.subarray(keccakString.byteLength - 16));
-  }
-
-  async #requestClaimRevocationStatus(revNonce: number) {
-    const response = await fetch(
-      `http://127.0.0.1:8000/integrations/issuer/v1/public/claims/revocations/check/${revNonce}`,
-    );
-
-    const data = await response.json();
-
-    return data as ClaimStatus;
-  }
-
-  #parseBJJSignatureProof() {
-    const [credentialSigProof] = this.verifiableCredential.proof!;
-
-    const issuerData = credentialSigProof.issuerData.state;
-
-    const claimsTreeRoot = newHashFromHex(String(issuerData.claimsTreeRoot));
-    const revocationTreeRoot = newHashFromHex(
-      String(issuerData.revocationTreeRoot),
-    );
-    const rootOfRoots = newHashFromHex(String(issuerData.rootOfRoots));
-
-    const state = hashElems([
-      claimsTreeRoot.bigInt(),
-      revocationTreeRoot.bigInt(),
-      rootOfRoots.bigInt(),
-    ]);
-
-    const issuerState: IssuerState = {
-      claimsTreeRoot,
-      revocationTreeRoot,
-      rootOfRoots,
-      state,
-    };
-    const decodedSignature = Hex.decodeString(credentialSigProof.signature);
-    const signature = Signature.newFromCompressed(decodedSignature);
-
-    const issuerAuthClaimIncProof = ensureArraySize(
-      [...credentialSigProof.issuerData.mtp.siblings],
-      defaultMTLevels,
-    );
-
-    return {
-      claimsTreeRoot,
-      revocationTreeRoot,
-      rootOfRoots,
-      issuerState,
-
-      signature,
-
-      issuerAuthClaim: unmarshalBinary(
-        Hex.decodeString(credentialSigProof.issuerData.authCoreClaim),
-      ),
-      issuerAuthClaimIncProof,
-    };
   }
 }

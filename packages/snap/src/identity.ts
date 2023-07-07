@@ -7,15 +7,9 @@ import {
   idenState,
   SchemaHash,
 } from '@iden3/js-iden3-core';
-import {
-  circomSiblingsFromSiblings,
-  hashElems,
-  InMemoryDB,
-  Merkletree,
-  type Siblings,
-} from '@iden3/js-merkletree';
+import { hashElems, InMemoryDB, Merkletree } from '@iden3/js-merkletree';
 
-import { initPrivateKey } from './helpers';
+import { initPrivateKey, prepareSiblingsStr } from './helpers';
 import { config } from './config';
 import { defaultMTLevels } from './const';
 
@@ -31,9 +25,9 @@ export class Identity {
 
   did: DID = {} as DID;
 
-  authClaimIncProofSiblings: Siblings = [] as Siblings;
+  authClaimIncProofSiblings: string[] = [];
 
-  authClaimNonRevProofSiblings: Siblings = [] as Siblings;
+  authClaimNonRevProofSiblings: string[] = [];
 
   treeState: TreeState = {} as TreeState;
 
@@ -69,13 +63,6 @@ export class Identity {
 
   public get identityIdBigIntString() {
     return this.identityId.bigInt().toString();
-  }
-
-  public get authClaimInput() {
-    return [
-      ...this.coreAuthClaim.index.map((el) => el.toBigInt().toString()),
-      ...this.coreAuthClaim.value.map((el) => el.toBigInt().toString()),
-    ];
   }
 
   async createIdentity() {
@@ -114,8 +101,8 @@ export class Identity {
       claimsTreeRoot,
     );
 
-    const authClaimIncProofSiblings = circomSiblingsFromSiblings(
-      authClaimIncProof.proof.siblings,
+    const authClaimIncProofSiblings = prepareSiblingsStr(
+      authClaimIncProof.proof,
       defaultMTLevels,
     );
 
@@ -124,8 +111,8 @@ export class Identity {
       revocationsTreeRoot,
     );
 
-    const authClaimNonRevProofSiblings = circomSiblingsFromSiblings(
-      authClaimNonRevProof.proof.siblings,
+    const authClaimNonRevProofSiblings = prepareSiblingsStr(
+      authClaimNonRevProof.proof,
       defaultMTLevels,
     );
 

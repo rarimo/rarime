@@ -78,13 +78,9 @@ export class AuthZkp {
     });
 
     const preparedInputs = {
-      authClaim: [...this.identity.authClaimInput],
-      authClaimIncMtp: [
-        ...this.identity.authClaimIncProofSiblings.map((el) => el.string()),
-      ],
-      authClaimNonRevMtp: [
-        ...this.identity.authClaimNonRevProofSiblings.map((el) => el.string()),
-      ],
+      authClaim: this.identity.coreAuthClaim.marshalJson(),
+      authClaimIncMtp: this.identity.authClaimIncProofSiblings,
+      authClaimNonRevMtp: this.identity.authClaimNonRevProofSiblings,
       authClaimNonRevMtpAuxHi: '0',
       authClaimNonRevMtpAuxHv: '0',
       authClaimNonRevMtpNoAux: '1',
