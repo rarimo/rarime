@@ -1,6 +1,3 @@
-import { Hex } from '@iden3/js-crypto';
-import { fromLittleEndian } from '@iden3/js-iden3-core';
-
 import { proving, type ZKProof } from '@iden3/js-jwz';
 import { newHashFromHex } from '@iden3/js-merkletree';
 
@@ -121,13 +118,10 @@ export class ZkpGen {
       userId: this.identity.identityIdBigIntString,
     });
 
-    const challenge = fromLittleEndian(
-      Hex.decodeString(this.proofRequest.challenge || '0n'),
-    );
+    const challenge =
+      this.proofRequest.challenge ?? BigInt(this.proofRequest.id || 1);
 
     const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
-
-    console.log(preparedCredential);
 
     const timestamp = Math.floor(Date.now() / 1000);
 
