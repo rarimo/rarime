@@ -111,9 +111,7 @@ export class ZkpGen {
       contractAddress: config.STATE_V2_ADDRESS,
       userId: this.identity.identityIdBigIntString,
     });
-    console.log(1);
     const gistProof = toGISTProof(gistInfo);
-    console.log(3);
 
     const challenge =
       this.proofRequest.challenge ?? BigInt(this.proofRequest.id || 1);
@@ -125,19 +123,11 @@ export class ZkpGen {
     const nodeAuxIssuerAuthNonRev = getNodeAuxValue(
       circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
     );
-    console.log(nodeAuxIssuerAuthNonRev);
 
     const nodeAuxNonRev = getNodeAuxValue(nonRevProof.proof);
-    console.log(nodeAuxNonRev);
-
     const nodAuxJSONLD = getNodeAuxValue(query.valueProof!.mtp);
-    console.log(nodAuxJSONLD);
-
     const globalNodeAux = getNodeAuxValue(gistProof.proof);
-    console.log(globalNodeAux);
-
     const nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
-    console.log(nodeAuxAuth);
 
     const value = prepareCircuitArrayValues(
       query.values,
@@ -182,7 +172,7 @@ export class ZkpGen {
 
       claimSubjectProfileNonce: '0',
 
-      issuerID: circuitClaimData.issuerId.string(),
+      issuerID: circuitClaimData.issuerId.bigInt().toString(),
 
       issuerAuthClaim:
         circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
