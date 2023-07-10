@@ -79,3 +79,25 @@ export type JSONSchema = {
   $schema: string;
   type: string;
 };
+
+export type NodeAuxValue = {
+  key: Hash;
+  value: Hash;
+  noAux: string;
+};
+
+export type StateProof = {
+  root: bigint;
+  existence: boolean;
+  siblings: bigint[];
+  index: bigint;
+  value: bigint;
+  auxExistence: boolean;
+  auxIndex: bigint;
+  auxValue: bigint;
+};
+
+export type GISTProof = {
+  root: Hash;
+  proof: Proof;
+};

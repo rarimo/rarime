@@ -7,7 +7,7 @@ import {
   idenState,
   SchemaHash,
 } from '@iden3/js-iden3-core';
-import { hashElems, InMemoryDB, Merkletree } from '@iden3/js-merkletree';
+import { hashElems, InMemoryDB, Merkletree, Proof } from '@iden3/js-merkletree';
 
 import { initPrivateKey, prepareSiblingsStr } from './helpers';
 import { config } from './config';
@@ -27,7 +27,7 @@ export class Identity {
 
   authClaimIncProofSiblings: string[] = [];
 
-  authClaimNonRevProofSiblings: string[] = [];
+  authClaimNonRevProof: Proof = {} as Proof;
 
   treeState: TreeState = {} as TreeState;
 
@@ -111,13 +111,8 @@ export class Identity {
       revocationsTreeRoot,
     );
 
-    const authClaimNonRevProofSiblings = prepareSiblingsStr(
-      authClaimNonRevProof.proof,
-      defaultMTLevels,
-    );
-
     this.authClaimIncProofSiblings = authClaimIncProofSiblings;
-    this.authClaimNonRevProofSiblings = authClaimNonRevProofSiblings;
+    this.authClaimNonRevProof = authClaimNonRevProof.proof;
 
     const stateHash = hashElems([
       claimsTreeRoot.bigInt(),

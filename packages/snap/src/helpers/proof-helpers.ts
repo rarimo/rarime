@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { Hex, Signature } from '@iden3/js-crypto';
 import { Claim, DID, MerklizedRootPosition } from '@iden3/js-iden3-core';
-import { Proof, ZERO_HASH, newHashFromHex } from '@iden3/js-merkletree';
+import {
+  Hash,
+  NodeAux,
+  Proof,
+  ZERO_HASH,
+  newHashFromBigInt,
+  newHashFromHex,
+  setBitBigEndian,
+} from '@iden3/js-merkletree';
 import {
   Merklizer,
   MtValue,
@@ -9,11 +17,14 @@ import {
   getDocumentLoader,
 } from '@iden3/js-jsonld-merklization';
 import {
+  GISTProof,
   JSONSchema,
   MTProof,
+  NodeAuxValue,
   ProofQuery,
   QueryWithFieldName,
   RevocationStatus,
+  StateProof,
   W3CCredential,
 } from '../types';
 import { ProofType } from '../enums';
@@ -439,4 +450,78 @@ export const prepareCircuitArrayValues = (
   }
 
   return arr;
+};
+
+export const getNodeAuxValue = (p: Proof | undefined): NodeAuxValue => {
+  // proof of inclusion
+  if (p?.existence) {
+    return {
+      key: ZERO_HASH,
+      value: ZERO_HASH,
+      noAux: '0',
+    };
+  }
+
+  // proof of non-inclusion (NodeAux exists)
+  if (p?.nodeAux?.value !== undefined && p?.nodeAux?.key !== undefined) {
+    return {
+      key: p.nodeAux.key,
+      value: p.nodeAux.value,
+      noAux: '0',
+    };
+  }
+  // proof of non-inclusion (NodeAux does not exist)
+  return {
+    key: ZERO_HASH,
+    value: ZERO_HASH,
+    noAux: '1',
+  };
+};
+
+const newProofFromData = (
+  existence: boolean,
+  allSiblings: Hash[],
+  nodeAux?: NodeAux,
+): Proof => {
+  const p = new Proof();
+  p.existence = existence;
+  p.nodeAux = nodeAux;
+  p.depth = allSiblings.length;
+  const siblings: Hash[] = [];
+  for (let lvl = 0; lvl < allSiblings.length; lvl++) {
+    const sibling = allSiblings[lvl];
+    if (!sibling.bytes.every((b) => b === 0)) {
+      setBitBigEndian(p.notEmpties, lvl);
+      siblings.push(sibling);
+    }
+  }
+  p.siblings = siblings;
+  return p;
+};
+
+export const toGISTProof = (smtProof: StateProof): GISTProof => {
+  let existence = false;
+  let nodeAux;
+
+  if (smtProof.existence) {
+    existence = true;
+  } else if (smtProof.auxExistence) {
+    nodeAux = {
+      key: newHashFromBigInt(smtProof.auxIndex),
+      value: newHashFromBigInt(smtProof.auxValue),
+    };
+  }
+
+  const allSiblings: Hash[] = smtProof.siblings.map((s) =>
+    newHashFromBigInt(s),
+  );
+
+  const proof = newProofFromData(existence, allSiblings, nodeAux);
+
+  const root = newHashFromBigInt(smtProof.root);
+
+  return {
+    root,
+    proof,
+  };
 };

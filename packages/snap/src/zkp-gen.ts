@@ -5,12 +5,14 @@ import { type Identity } from './identity';
 
 import {
   getGISTProof,
+  getNodeAuxValue,
   getPreparedCredential,
   newCircuitClaimData,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
   readBytesFile,
   toCircuitsQuery,
+  toGISTProof,
 } from './helpers';
 import type { CreateProofRequest, W3CCredential } from './types';
 import { config } from './config';
@@ -21,14 +23,6 @@ import {
   defaultValueArraySize,
 } from './const';
 import { CircuitId } from './enums';
-
-const ensureArraySize = (arr: string[], size: number): string[] => {
-  if (arr.length < size) {
-    const newArr = new Array(size - arr.length).fill('0');
-    return arr.concat(newArr);
-  }
-  return arr;
-};
 
 export class ZkpGen {
   identity: Identity = {} as Identity;
@@ -117,6 +111,9 @@ export class ZkpGen {
       contractAddress: config.STATE_V2_ADDRESS,
       userId: this.identity.identityIdBigIntString,
     });
+    console.log(1);
+    const gistProof = toGISTProof(gistInfo);
+    console.log(3);
 
     const challenge =
       this.proofRequest.challenge ?? BigInt(this.proofRequest.id || 1);
@@ -124,6 +121,23 @@ export class ZkpGen {
     const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
 
     const timestamp = Math.floor(Date.now() / 1000);
+
+    const nodeAuxIssuerAuthNonRev = getNodeAuxValue(
+      circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
+    );
+    console.log(nodeAuxIssuerAuthNonRev);
+
+    const nodeAuxNonRev = getNodeAuxValue(nonRevProof.proof);
+    console.log(nodeAuxNonRev);
+
+    const nodAuxJSONLD = getNodeAuxValue(query.valueProof!.mtp);
+    console.log(nodAuxJSONLD);
+
+    const globalNodeAux = getNodeAuxValue(gistProof.proof);
+    console.log(globalNodeAux);
+
+    const nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
+    console.log(nodeAuxAuth);
 
     const value = prepareCircuitArrayValues(
       query.values,
@@ -135,52 +149,41 @@ export class ZkpGen {
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
       requestID: this.proofRequest.id?.toString || '1',
 
-      /* userID ownership signals */
       userGenesisID: this.identity.identityIdBigIntString,
       profileNonce: '0',
 
-      /* user state */
       userState: this.identity.treeState.state,
       userClaimsTreeRoot: this.identity.treeState.claimsRoot,
       userRevTreeRoot: this.identity.treeState.revocationRoot,
       userRootsTreeRoot: this.identity.treeState.rootOfRoots,
 
-      /* Auth claim */
-      authClaim: this.identity.coreAuthClaim.marshalJson(), // TODO check
+      authClaim: this.identity.coreAuthClaim.marshalJson(),
 
-      /* auth claim. merkle tree proof of inclusion to claim tree */
       authClaimIncMtp: this.identity.authClaimIncProofSiblings,
 
-      /* auth claim - rev nonce. merkle tree proof of non-inclusion to rev tree */
-      authClaimNonRevMtp: this.identity.authClaimNonRevProofSiblings,
-      authClaimNonRevMtpNoAux: '1', // TODO
-      authClaimNonRevMtpAuxHi: '0',
-      authClaimNonRevMtpAuxHv: '0',
+      authClaimNonRevMtp: prepareSiblingsStr(
+        this.identity.authClaimNonRevProof,
+        defaultMTLevels,
+      ),
+      authClaimNonRevMtpAuxHi: nodeAuxAuth.key.string(),
+      authClaimNonRevMtpAuxHv: nodeAuxAuth.value.string(),
+      authClaimNonRevMtpNoAux: nodeAuxAuth.noAux,
 
-      /* challenge signature */
       challenge: challenge.toString(),
       challengeSignatureR8x: signatureChallenge!.R8[0].toString(),
       challengeSignatureR8y: signatureChallenge!.R8[1].toString(),
       challengeSignatureS: signatureChallenge!.S.toString(),
 
-      // global identity state tree on chain
-      gistRoot: gistInfo?.root.toString(),
-      /* proof of inclusion or exclusion of the user in the global state */
-      gistMtp: ensureArraySize(
-        gistInfo?.siblings.map((el) => el.toString()),
-        defaultMTLevelsOnChain,
-      ), // TODO
-      gistMtpAuxHi: gistInfo?.auxIndex.toString(),
-      gistMtpAuxHv: gistInfo?.auxValue.toString(),
-      gistMtpNoAux: gistInfo?.auxExistence ? '0' : '1',
+      gistRoot: gistProof.root.string(),
+      gistMtp: prepareSiblingsStr(gistProof.proof, defaultMTLevelsOnChain),
+      gistMtpAuxHi: globalNodeAux?.key.string(),
+      gistMtpAuxHv: globalNodeAux?.value.string(),
+      gistMtpNoAux: globalNodeAux.noAux,
 
-      /* issuerClaim signals */
       claimSubjectProfileNonce: '0',
 
-      /* issuer ID */
-      issuerID: circuitClaimData.issuerId.bigInt().toString(),
+      issuerID: circuitClaimData.issuerId.string(),
 
-      /* issuer auth proof of existence */
       issuerAuthClaim:
         circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
       issuerAuthClaimMtp: prepareSiblingsStr(
@@ -188,55 +191,37 @@ export class ZkpGen {
         defaultMTLevels,
       ),
       issuerAuthClaimsTreeRoot:
-        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot
-          .bigInt()
-          .toString(),
+        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
       issuerAuthRevTreeRoot:
-        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot
-          .bigInt()
-          .toString(),
+        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
       issuerAuthRootsTreeRoot:
-        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots
-          .bigInt()
-          .toString(),
+        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
 
-      /* issuer auth claim non rev proof */
       issuerAuthClaimNonRevMtp: prepareSiblingsStr(
         circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
         defaultMTLevels,
       ),
-      issuerAuthClaimNonRevMtpNoAux: '1', // TODO
-      issuerAuthClaimNonRevMtpAuxHi: '0',
-      issuerAuthClaimNonRevMtpAuxHv: '0',
+      issuerAuthClaimNonRevMtpNoAux: nodeAuxIssuerAuthNonRev.noAux,
+      issuerAuthClaimNonRevMtpAuxHi: nodeAuxIssuerAuthNonRev.key.string(),
+      issuerAuthClaimNonRevMtpAuxHv: nodeAuxIssuerAuthNonRev.value.string(),
 
-      /* claim issued by issuer to the user */
       issuerClaim: circuitClaimData.claim.marshalJson(),
-      /* issuerClaim non rev inputs */
       isRevocationChecked: '1',
       issuerClaimNonRevMtp: prepareSiblingsStr(
         nonRevProof.proof,
         defaultMTLevels,
       ),
-      // TODO
-      issuerClaimNonRevMtpNoAux:
-        Boolean(nonRevProof.proof.nodeAux?.key) &&
-        Boolean(nonRevProof.proof.nodeAux?.value)
-          ? 0
-          : 1,
-      issuerClaimNonRevMtpAuxHi: nonRevProof.proof.nodeAux?.key ?? 0,
-      issuerClaimNonRevMtpAuxHv: nonRevProof.proof.nodeAux?.value ?? 0,
-      issuerClaimNonRevClaimsTreeRoot: nonRevProof.treeState.claimsRoot
-        .bigInt()
-        .toString(),
-      issuerClaimNonRevRevTreeRoot: nonRevProof.treeState.revocationRoot
-        .bigInt()
-        .toString(),
-      issuerClaimNonRevRootsTreeRoot: nonRevProof.treeState.rootOfRoots
-        .bigInt()
-        .toString(),
-      issuerClaimNonRevState: nonRevProof.treeState.state.bigInt().toString(),
+      issuerClaimNonRevMtpNoAux: nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi: nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv: nodeAuxNonRev.value.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevState: nonRevProof.treeState.state.string(),
 
-      /* issuerClaim signature */
       issuerClaimSignatureR8x:
         circuitClaimData.signatureProof.signature.R8[0].toString(),
       issuerClaimSignatureR8y:
@@ -244,20 +229,17 @@ export class ZkpGen {
       issuerClaimSignatureS:
         circuitClaimData.signatureProof.signature.S.toString(),
 
-      /* current time */
       timestamp,
 
-      /* Query */
       claimSchema: circuitClaimData.claim.getSchemaHash().bigInt().toString(),
-
       claimPathNotExists: query.valueProof?.mtp.existence ? 0 : 1,
       claimPathMtp: prepareSiblingsStr(
         query.valueProof!.mtp,
         defaultMTLevelsClaimsMerklization,
       ),
-      claimPathMtpNoAux: '0', // TODO
-      claimPathMtpAuxHi: '0',
-      claimPathMtpAuxHv: '0',
+      claimPathMtpNoAux: nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: nodAuxJSONLD.value.string(),
       claimPathKey: query.valueProof?.path.toString(),
       claimPathValue: query.valueProof?.value?.toString(),
 
