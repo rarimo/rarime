@@ -101,6 +101,9 @@ export class ZkpGen {
       case CircuitId.AtomicQueryMTPV2:
         generateInputFn = this.generateQueryMTPV2Inputs.bind(this);
         break;
+      case CircuitId.AtomicQueryMTPV2OnChain:
+        generateInputFn = this.generateQueryMTPV2OnChainInputs.bind(this);
+        break;
       default:
         throw new Error(
           `circuit with id ${this.proofRequest.circuitId} is not supported by issuer`,
@@ -448,6 +451,152 @@ export class ZkpGen {
 
       userGenesisID: this.identity.identityIdBigIntString,
       profileNonce: '0',
+
+      claimSubjectProfileNonce: '0',
+
+      issuerID: circuitClaimData.issuerId.bigInt().toString(),
+
+      issuerClaim: circuitClaimData.claim.marshalJson(),
+      isRevocationChecked: '1',
+      issuerClaimNonRevMtp: prepareSiblingsStr(
+        nonRevProof.proof,
+        defaultMTLevels,
+      ),
+      issuerClaimNonRevMtpNoAux: nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi: nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv: nodeAuxNonRev.value.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevState: nonRevProof.treeState.state.string(),
+
+      issuerClaimMtp: prepareSiblingsStr(
+        circuitClaimData.incProof.proof,
+        defaultMTLevels,
+      ),
+      issuerClaimClaimsTreeRoot:
+        circuitClaimData.incProof.treeState?.claimsRoot.string(),
+      issuerClaimRevTreeRoot:
+        circuitClaimData.incProof.treeState?.revocationRoot.string(),
+      issuerClaimRootsTreeRoot:
+        circuitClaimData.incProof.treeState?.rootOfRoots.string(),
+      issuerClaimIdenState: circuitClaimData.incProof.treeState?.state.string(),
+
+      timestamp,
+
+      claimSchema: circuitClaimData.claim.getSchemaHash().bigInt().toString(),
+      claimPathNotExists: query.valueProof?.mtp.existence ? 0 : 1,
+      claimPathMtp: prepareSiblingsStr(
+        query.valueProof!.mtp,
+        defaultMTLevelsClaimsMerklization,
+      ),
+      claimPathMtpNoAux: nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: nodAuxJSONLD.value.string(),
+      claimPathKey: query.valueProof?.path.toString(),
+      claimPathValue: query.valueProof?.value?.toString(),
+
+      slotIndex: this.proofRequest.slotIndex ?? query.slotIndex,
+      operator: query.operator,
+      value,
+    });
+  }
+
+  async generateQueryMTPV2OnChainInputs() {
+    const preparedCredential = await getPreparedCredential(
+      this.verifiableCredential,
+    );
+
+    const circuitClaimData = await newCircuitClaimData(
+      preparedCredential.credential,
+      preparedCredential.credentialCoreClaim,
+    );
+
+    const query = await toCircuitsQuery(
+      this.proofRequest.query,
+      preparedCredential.credential,
+      preparedCredential.credentialCoreClaim,
+    );
+
+    const nonRevProof = {
+      proof: preparedCredential.revStatus.mtp,
+      treeState: {
+        state: newHashFromHex(preparedCredential.revStatus.issuer.state!),
+        claimsRoot: newHashFromHex(
+          preparedCredential.revStatus.issuer.claimsTreeRoot!,
+        ),
+        revocationRoot: newHashFromHex(
+          preparedCredential.revStatus.issuer.revocationTreeRoot!,
+        ),
+        rootOfRoots: newHashFromHex(
+          preparedCredential.revStatus.issuer.rootOfRoots!,
+        ),
+      },
+    };
+
+    const gistInfo = await getGISTProof({
+      rpcUrl: config.RPC_URL,
+      contractAddress: config.STATE_V2_ADDRESS,
+      userId: this.identity.identityIdBigIntString,
+    });
+    const gistProof = toGISTProof(gistInfo);
+
+    const challenge = BigInt(
+      this.proofRequest.challenge ?? (this.proofRequest.id || 1),
+    );
+
+    const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
+
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    const nodeAuxNonRev = getNodeAuxValue(nonRevProof.proof);
+    const nodAuxJSONLD = getNodeAuxValue(query.valueProof!.mtp);
+    const globalNodeAux = getNodeAuxValue(gistProof.proof);
+    const nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
+
+    const value = prepareCircuitArrayValues(
+      query.values,
+      defaultValueArraySize,
+    ).map((a) => a.toString());
+
+    return JSON.stringify({
+      /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
+      /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
+      requestID: this.proofRequest.id?.toString || '1',
+
+      userGenesisID: this.identity.identityIdBigIntString,
+      profileNonce: '0',
+
+      userState: this.identity.treeState.state,
+      userClaimsTreeRoot: this.identity.treeState.claimsRoot,
+      userRevTreeRoot: this.identity.treeState.revocationRoot,
+      userRootsTreeRoot: this.identity.treeState.rootOfRoots,
+
+      authClaim: this.identity.coreAuthClaim.marshalJson(),
+
+      authClaimIncMtp: this.identity.authClaimIncProofSiblings,
+
+      authClaimNonRevMtp: prepareSiblingsStr(
+        this.identity.authClaimNonRevProof,
+        defaultMTLevels,
+      ),
+      authClaimNonRevMtpAuxHi: nodeAuxAuth.key.string(),
+      authClaimNonRevMtpAuxHv: nodeAuxAuth.value.string(),
+      authClaimNonRevMtpNoAux: nodeAuxAuth.noAux,
+
+      challenge: challenge.toString(),
+      challengeSignatureR8x: signatureChallenge!.R8[0].toString(),
+      challengeSignatureR8y: signatureChallenge!.R8[1].toString(),
+      challengeSignatureS: signatureChallenge!.S.toString(),
+
+      gistRoot: gistProof.root.string(),
+      gistMtp: prepareSiblingsStr(gistProof.proof, defaultMTLevelsOnChain),
+      gistMtpAuxHi: globalNodeAux?.key.string(),
+      gistMtpAuxHv: globalNodeAux?.value.string(),
+      gistMtpNoAux: globalNodeAux.noAux,
 
       claimSubjectProfileNonce: '0',
 
