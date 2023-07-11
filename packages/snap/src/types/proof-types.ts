@@ -16,7 +16,8 @@ export type ProofQuery = {
 export type CreateProofRequest = {
   id?: number;
   circuitId?: string;
-  challenge?: bigint;
+  slotIndex?: number;
+  challenge?: string;
   optional?: boolean;
   query: ProofQuery;
 };

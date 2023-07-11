@@ -113,8 +113,9 @@ export class ZkpGen {
     });
     const gistProof = toGISTProof(gistInfo);
 
-    const challenge =
-      this.proofRequest.challenge ?? BigInt(this.proofRequest.id || 1);
+    const challenge = BigInt(
+      this.proofRequest.challenge ?? (this.proofRequest.id || 1),
+    );
 
     const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
 
@@ -233,7 +234,7 @@ export class ZkpGen {
       claimPathKey: query.valueProof?.path.toString(),
       claimPathValue: query.valueProof?.value?.toString(),
 
-      slotIndex: query.slotIndex,
+      slotIndex: this.proofRequest.slotIndex ?? query.slotIndex,
       operator: query.operator,
       value,
     });

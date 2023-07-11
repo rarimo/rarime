@@ -122,6 +122,8 @@ export const createProof = async () => {
         method: 'create_proof',
         params: {
           circuitId: 'credentialAtomicQuerySigV2OnChain',
+          challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
+          slotIndex: 0,
           query: {
             allowedIssuers: ['*'],
             context:
