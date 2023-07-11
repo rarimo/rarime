@@ -1,11 +1,11 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { panel, text, divider, heading, NodeType } from '@metamask/snaps-ui';
+import { panel, text, divider, heading } from '@metamask/snaps-ui';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
-import { ClaimOffer, CreateProofRequest } from './types';
+import { ClaimOffer, CreateProofRequest, TextField } from './types';
 import { AuthZkp } from './auth-zkp';
 import { findCredentialsByQuery, saveCredentials } from './helpers';
 import { ZkpGen } from './zkp-gen';
@@ -101,41 +101,41 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         );
       }
 
+      const credentialType = params.query.type;
+      const { credentialSubject } = params.query;
+      const { circuitId } = params;
+
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
           type: 'confirmation',
           content: panel([
             heading('Create proof'),
-            ...(params.query.type
-              ? [divider(), text('Credential type'), text(params.query.type)]
+            ...(credentialType
+              ? [divider(), text('Credential type'), text(credentialType)]
               : []),
-            ...(params.query.credentialSubject
+            ...(credentialSubject
               ? [
                   divider(),
                   text('Requirements'),
-                  ...Object.keys(params.query.credentialSubject).reduce(
-                    (
-                      acc: {
-                        value: string;
-                        type: NodeType.Text;
-                      }[],
-                      field,
-                    ) => {
-                      const filter = params.query.credentialSubject?.[field];
-                      const filterStr = Object.keys(filter).map((operator) => {
-                        return text(
-                          `${field} - ${operator} ${filter[operator]}\n`,
-                        );
-                      });
-                      return acc.concat(filterStr);
+                  ...Object.keys(credentialSubject).reduce(
+                    (acc: TextField[], fieldName) => {
+                      const fieldOperators = credentialSubject?.[fieldName];
+                      const textField = Object.keys(fieldOperators).map(
+                        (operator) => {
+                          return text(
+                            `${fieldName} - ${operator} ${fieldOperators[operator]}\n`,
+                          );
+                        },
+                      );
+                      return acc.concat(textField);
                     },
                     [],
                   ),
                 ]
               : []),
-            ...(params.circuitId
-              ? [divider(), text('Proof type'), text(params.circuitId)]
+            ...(circuitId
+              ? [divider(), text('Proof type'), text(circuitId)]
               : []),
           ]),
         },
