@@ -206,7 +206,7 @@ export const newCircuitClaimData = async (
           sigProof.issuerData.state?.value,
           sigProof.issuerData.state?.claimsTreeRoot,
           sigProof.issuerData.state?.revocationTreeRoot,
-          sigProof.issuerData.authCoreClaim,
+          sigProof.issuerData.state?.rootOfRoots,
         ),
       },
       issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
