@@ -116,6 +116,26 @@ export const getBJJSignature2021Proof = (
   return null;
 };
 
+export const getIden3SparseMerkleTreeProof = (
+  credentialProof: object | any[],
+): Iden3SparseMerkleTreeProof | null => {
+  const proofType: ProofType = ProofType.Iden3SparseMerkleTreeProof;
+  if (Array.isArray(credentialProof)) {
+    for (const proof of credentialProof) {
+      const { proofType: extractedProofType } = extractProof(proof);
+      if (proofType === extractedProofType) {
+        return proof as Iden3SparseMerkleTreeProof;
+      }
+    }
+  } else if (typeof credentialProof === 'object') {
+    const { proofType: extractedProofType } = extractProof(credentialProof);
+    if (extractedProofType === proofType) {
+      return credentialProof as Iden3SparseMerkleTreeProof;
+    }
+  }
+  return null;
+};
+
 export const newCircuitClaimData = async (
   credential: W3CCredential,
   coreClaim: Claim,
@@ -123,6 +143,22 @@ export const newCircuitClaimData = async (
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
   circuitClaim.issuerId = DID.parse(credential.issuer).id;
+
+  const smtProof = getIden3SparseMerkleTreeProof(credential.proof!);
+
+  if (smtProof) {
+    circuitClaim.incProof = {
+      proof: smtProof.mtp,
+      treeState: {
+        state: newHashFromHex(smtProof.issuerData.state?.value),
+        claimsRoot: newHashFromHex(smtProof.issuerData.state?.claimsTreeRoot),
+        revocationRoot: newHashFromHex(
+          smtProof.issuerData.state?.revocationTreeRoot,
+        ),
+        rootOfRoots: newHashFromHex(smtProof.issuerData.state?.rootOfRoots),
+      },
+    };
+  }
 
   const sigProof = getBJJSignature2021Proof(credential.proof!);
 

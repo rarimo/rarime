@@ -1,7 +1,12 @@
 import { Proof } from '@iden3/js-merkletree';
 import { Claim as CoreClaim, Id } from '@iden3/js-iden3-core';
 import { ProofType } from '../enums';
-import { BJJSignatureProof, CredentialStatus, State } from '../types';
+import {
+  BJJSignatureProof,
+  CredentialStatus,
+  State,
+  TreeState,
+} from '../types';
 
 export class IssuerData {
   id!: string;
@@ -41,6 +46,11 @@ export class CircuitClaim {
   claim!: CoreClaim;
 
   signatureProof!: BJJSignatureProof;
+
+  incProof!: {
+    proof: Proof;
+    treeState: TreeState;
+  };
 }
 
 export class ValueProof {
