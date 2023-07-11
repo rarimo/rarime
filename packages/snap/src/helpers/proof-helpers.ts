@@ -25,6 +25,7 @@ import {
   QueryWithFieldName,
   RevocationStatus,
   StateProof,
+  TreeState,
   W3CCredential,
 } from '../types';
 import { ProofType } from '../enums';
@@ -136,6 +137,18 @@ export const getIden3SparseMerkleTreeProof = (
   return null;
 };
 
+export const buildTreeState = (
+  state: string,
+  claimsTreeRoot: string,
+  revocationTreeRoot: string,
+  rootOfRoots: string,
+): TreeState => ({
+  state: newHashFromHex(state),
+  claimsRoot: newHashFromHex(claimsTreeRoot),
+  revocationRoot: newHashFromHex(revocationTreeRoot),
+  rootOfRoots: newHashFromHex(rootOfRoots),
+});
+
 export const newCircuitClaimData = async (
   credential: W3CCredential,
   coreClaim: Claim,
@@ -149,14 +162,12 @@ export const newCircuitClaimData = async (
   if (smtProof) {
     circuitClaim.incProof = {
       proof: smtProof.mtp,
-      treeState: {
-        state: newHashFromHex(smtProof.issuerData.state?.value),
-        claimsRoot: newHashFromHex(smtProof.issuerData.state?.claimsTreeRoot),
-        revocationRoot: newHashFromHex(
-          smtProof.issuerData.state?.revocationTreeRoot,
-        ),
-        rootOfRoots: newHashFromHex(smtProof.issuerData.state?.rootOfRoots),
-      },
+      treeState: buildTreeState(
+        smtProof.issuerData.state?.value,
+        smtProof.issuerData.state?.claimsTreeRoot,
+        smtProof.issuerData.state?.revocationTreeRoot,
+        smtProof.issuerData.state?.rootOfRoots,
+      ),
     };
   }
 
@@ -171,12 +182,12 @@ export const newCircuitClaimData = async (
     );
 
     const issuerAuthNonRevProof: MTProof = {
-      treeState: {
-        state: newHashFromHex(rs.issuer.state!),
-        claimsRoot: newHashFromHex(rs.issuer.claimsTreeRoot!),
-        revocationRoot: newHashFromHex(rs.issuer.revocationTreeRoot!),
-        rootOfRoots: newHashFromHex(rs.issuer.rootOfRoots!),
-      },
+      treeState: buildTreeState(
+        rs.issuer.state!,
+        rs.issuer.claimsTreeRoot!,
+        rs.issuer.revocationTreeRoot!,
+        rs.issuer.rootOfRoots!,
+      ),
       proof: rs.mtp,
     };
     if (!sigProof.issuerData.mtp) {
@@ -191,14 +202,12 @@ export const newCircuitClaimData = async (
       signature,
       issuerAuthIncProof: {
         proof: sigProof.issuerData.mtp,
-        treeState: {
-          state: newHashFromHex(sigProof.issuerData.state?.value),
-          claimsRoot: newHashFromHex(sigProof.issuerData.state?.claimsTreeRoot),
-          revocationRoot: newHashFromHex(
-            sigProof.issuerData.state?.revocationTreeRoot,
-          ),
-          rootOfRoots: newHashFromHex(sigProof.issuerData.state?.rootOfRoots),
-        },
+        treeState: buildTreeState(
+          sigProof.issuerData.state?.value,
+          sigProof.issuerData.state?.claimsTreeRoot,
+          sigProof.issuerData.state?.revocationTreeRoot,
+          sigProof.issuerData.authCoreClaim,
+        ),
       },
       issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
       issuerAuthNonRevProof,
