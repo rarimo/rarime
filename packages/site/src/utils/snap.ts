@@ -55,43 +55,91 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
  */
 
 export const createIdentity = async () => {
-  const data = await window.ethereum.request({
+  const did = await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: {
       snapId: defaultSnapOrigin,
       request: { method: 'create_identity' },
     },
   });
-  console.log(data);
+
+  await fetch(
+    `http://127.0.0.1:8000/integrations/issuer/v1/private/claims/issue/${
+      did.split(':')[2]
+    }/NaturalPerson`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        data: {
+          attributes: {
+            credential_subject: {
+              is_natural: '1',
+            },
+            expiration: '2024-01-16T17:34:29+00:00',
+          },
+        },
+      }),
+    },
+  );
+  console.log(did);
 };
 
 export const sendVc = async () => {
+  const did = await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: defaultSnapOrigin,
+      request: { method: 'create_identity' },
+    },
+  });
+
+  const response = await fetch(
+    `http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/${
+      did.split(':')[2]
+    }/NaturalPerson`,
+  );
+  const offer = await response.json();
+
   const data = await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: {
       snapId: defaultSnapOrigin,
       request: {
         method: 'save_credentials',
+        params: offer.data.attributes,
+      },
+    },
+  });
+  console.log(data);
+};
+
+export const createProof = async () => {
+  const data = await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: defaultSnapOrigin,
+      request: {
+        method: 'create_proof',
         params: {
-          body: {
-            credentials: [
-              {
-                description: 'Natural Person',
-                id: '86531650-023c-4c6c-a437-a82e137ead68',
+          circuitId: 'credentialAtomicQuerySigV2OnChain',
+          challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
+          slotIndex: 0,
+          query: {
+            allowedIssuers: ['*'],
+            context:
+              'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
+            credentialSubject: {
+              isNatural: {
+                $eq: 1,
               },
-            ],
-            url: 'http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/callback',
+            },
+            type: 'NaturalPerson',
           },
-          from: 'did:iden3:tJnRoZ1KqUPbsfVGrk8io51iqoRc5dGhj5LLMHSrD',
-          id: '026035f6-42f6-4a2d-b516-0b11d2674850',
-          thid: '348b7198-7cb1-46f4-bc0a-98a358f65539',
-          to: 'did:iden3:tTxif8ahrSqRWavS8Qatrp4ZEJvPdu3ELSMgqTEQN',
-          typ: 'application/iden3comm-plain-json',
-          type: 'https://iden3-communication.io/credentials/1.0/offer',
         },
       },
     },
   });
+
   console.log(data);
 };
 

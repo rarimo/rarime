@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
+  createProof,
   getSnap,
   createIdentity,
   sendVc,
@@ -136,6 +137,15 @@ const Index = () => {
     }
   };
 
+  const handleCreateProofClick = async () => {
+    try {
+      await createProof();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
   return (
     <Container>
       <Heading>
@@ -218,6 +228,24 @@ const Index = () => {
             button: (
               <SendHelloButton
                 onClick={handleImportVcClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Create a proof',
+            description: 'Creating a zero-knowledge proof of identity',
+            button: (
+              <SendHelloButton
+                onClick={handleCreateProofClick}
                 disabled={!state.installedSnap}
               />
             ),

@@ -7,16 +7,11 @@ import {
   idenState,
   SchemaHash,
 } from '@iden3/js-iden3-core';
-import {
-  circomSiblingsFromSiblings,
-  hashElems,
-  InMemoryDB,
-  Merkletree,
-  type Siblings,
-} from '@iden3/js-merkletree';
+import { hashElems, InMemoryDB, Merkletree, Proof } from '@iden3/js-merkletree';
 
-import { initPrivateKey } from './helpers';
+import { initPrivateKey, prepareSiblingsStr } from './helpers';
 import { config } from './config';
+import { defaultMTLevels } from './const';
 
 export type TreeState = {
   state: string;
@@ -30,9 +25,9 @@ export class Identity {
 
   did: DID = {} as DID;
 
-  authClaimIncProofSiblings: Siblings = [] as Siblings;
+  authClaimIncProofSiblings: string[] = [];
 
-  authClaimNonRevProofSiblings: Siblings = [] as Siblings;
+  authClaimNonRevProof: Proof = {} as Proof;
 
   treeState: TreeState = {} as TreeState;
 
@@ -68,13 +63,6 @@ export class Identity {
 
   public get identityIdBigIntString() {
     return this.identityId.bigInt().toString();
-  }
-
-  public get authClaimInput() {
-    return [
-      ...this.coreAuthClaim.index.map((el) => el.toBigInt().toString()),
-      ...this.coreAuthClaim.value.map((el) => el.toBigInt().toString()),
-    ];
   }
 
   async createIdentity() {
@@ -113,9 +101,9 @@ export class Identity {
       claimsTreeRoot,
     );
 
-    const authClaimIncProofSiblings = circomSiblingsFromSiblings(
-      authClaimIncProof.proof.siblings,
-      config.CLAIM_PROOF_SIBLINGS_COUNT,
+    const authClaimIncProofSiblings = prepareSiblingsStr(
+      authClaimIncProof.proof,
+      defaultMTLevels,
     );
 
     const authClaimNonRevProof = await revocationsTree.generateProof(
@@ -123,13 +111,8 @@ export class Identity {
       revocationsTreeRoot,
     );
 
-    const authClaimNonRevProofSiblings = circomSiblingsFromSiblings(
-      authClaimNonRevProof.proof.siblings,
-      config.CLAIM_PROOF_SIBLINGS_COUNT,
-    );
-
     this.authClaimIncProofSiblings = authClaimIncProofSiblings;
-    this.authClaimNonRevProofSiblings = authClaimNonRevProofSiblings;
+    this.authClaimNonRevProof = authClaimNonRevProof.proof;
 
     const stateHash = hashElems([
       claimsTreeRoot.bigInt(),

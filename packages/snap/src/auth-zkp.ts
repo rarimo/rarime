@@ -5,7 +5,14 @@ import { type Identity } from './identity';
 
 import { config } from './config';
 import { W3CCredential, ClaimOffer } from './types';
-import { getGISTProof, readBytesFile } from './helpers';
+import {
+  getGISTProof,
+  getNodeAuxValue,
+  prepareSiblingsStr,
+  readBytesFile,
+  toGISTProof,
+} from './helpers';
+import { defaultMTLevels, defaultMTLevelsOnChain } from './const';
 
 export class AuthZkp {
   identity: Identity = {} as Identity;
@@ -44,8 +51,8 @@ export class AuthZkp {
       );
 
       const [wasm, provingKey] = await Promise.all([
-        readBytesFile(config.CIRCUIT_WASM_URL),
-        readBytesFile(config.CIRCUIT_FINAL_KEY_URL),
+        readBytesFile(config.CIRCUIT_AUTH_WASM_URL),
+        readBytesFile(config.CIRCUIT_AUTH_FINAL_KEY_URL),
       ]);
 
       const jwzTokenRaw = await token2.prove(provingKey, wasm);
@@ -77,17 +84,20 @@ export class AuthZkp {
       userId: this.identity.identityIdBigIntString,
     });
 
+    const gistProof = toGISTProof(gistInfo);
+    const globalNodeAux = getNodeAuxValue(gistProof.proof);
+    const nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
+
     const preparedInputs = {
-      authClaim: [...this.identity.authClaimInput],
-      authClaimIncMtp: [
-        ...this.identity.authClaimIncProofSiblings.map((el) => el.string()),
-      ],
-      authClaimNonRevMtp: [
-        ...this.identity.authClaimNonRevProofSiblings.map((el) => el.string()),
-      ],
-      authClaimNonRevMtpAuxHi: '0',
-      authClaimNonRevMtpAuxHv: '0',
-      authClaimNonRevMtpNoAux: '1',
+      authClaim: this.identity.coreAuthClaim.marshalJson(),
+      authClaimIncMtp: this.identity.authClaimIncProofSiblings,
+      authClaimNonRevMtp: prepareSiblingsStr(
+        this.identity.authClaimNonRevProof,
+        defaultMTLevels,
+      ),
+      authClaimNonRevMtpAuxHi: nodeAuxAuth.key.string(),
+      authClaimNonRevMtpAuxHv: nodeAuxAuth.value.string(),
+      authClaimNonRevMtpNoAux: nodeAuxAuth.noAux,
       challenge: messageHashBigInt.toString(),
       challengeSignatureR8x: signature.R8[0].toString(),
       challengeSignatureR8y: signature.R8[1].toString(),
@@ -98,11 +108,11 @@ export class AuthZkp {
       rootsTreeRoot: this.identity.treeState.rootOfRoots,
       state: this.identity.treeState.state,
       profileNonce: '0',
-      gistRoot: gistInfo?.root.toString(),
-      gistMtp: gistInfo?.siblings?.map?.((el: unknown) => el?.toString()) ?? [],
-      gistMtpAuxHi: gistInfo?.auxIndex.toString(),
-      gistMtpAuxHv: gistInfo?.auxValue.toString(),
-      gistMtpNoAux: gistInfo?.auxExistence ? '0' : '1',
+      gistRoot: gistProof.root.string(),
+      gistMtp: prepareSiblingsStr(gistProof.proof, defaultMTLevelsOnChain),
+      gistMtpAuxHi: globalNodeAux?.key.string(),
+      gistMtpAuxHv: globalNodeAux?.value.string(),
+      gistMtpNoAux: globalNodeAux.noAux,
     };
 
     return new TextEncoder().encode(JSON.stringify(preparedInputs));

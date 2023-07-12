@@ -5,9 +5,10 @@ import { panel, text, divider, heading } from '@metamask/snaps-ui';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
-import { ClaimOffer } from './types';
+import { ClaimOffer, CreateProofRequest, TextField } from './types';
 import { AuthZkp } from './auth-zkp';
-import { saveCredentials } from './helpers';
+import { findCredentialsByQuery, saveCredentials } from './helpers';
+import { ZkpGen } from './zkp-gen';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
@@ -78,6 +79,73 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           did: identity.didString,
         });
         return identity.didString;
+      }
+      throw new Error('User rejected request');
+    }
+
+    case 'create_proof': {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
+      const params = request.params as any as CreateProofRequest;
+
+      const credentials = (await findCredentialsByQuery(params.query)).filter(
+        (cred) => cred.credentialSubject.id === identityStorage.did,
+      );
+
+      if (!credentials.length) {
+        throw new Error(
+          `no credential were issued on the given id ${identityStorage.did}`,
+        );
+      }
+
+      const credentialType = params.query.type;
+      const { credentialSubject } = params.query;
+      const { circuitId } = params;
+
+      const res = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([
+            heading('Create proof'),
+            ...(credentialType
+              ? [divider(), text('Credential type'), text(credentialType)]
+              : []),
+            ...(credentialSubject
+              ? [
+                  divider(),
+                  text('Requirements'),
+                  ...Object.keys(credentialSubject).reduce(
+                    (acc: TextField[], fieldName) => {
+                      const fieldOperators = credentialSubject?.[fieldName];
+                      const textField = Object.keys(fieldOperators).map(
+                        (operator) => {
+                          return text(
+                            `${fieldName} - ${operator} ${fieldOperators[operator]}\n`,
+                          );
+                        },
+                      );
+                      return acc.concat(textField);
+                    },
+                    [],
+                  ),
+                ]
+              : []),
+            ...(circuitId
+              ? [divider(), text('Proof type'), text(circuitId)]
+              : []),
+          ]),
+        },
+      });
+
+      if (res) {
+        const identity = await Identity.create(identityStorage.privateKeyHex);
+
+        const zkpGen = new ZkpGen(identity, params, credentials[0]);
+        return await zkpGen.generateProof();
       }
       throw new Error('User rejected request');
     }
