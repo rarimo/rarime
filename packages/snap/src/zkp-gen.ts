@@ -139,15 +139,14 @@ export class ZkpGen {
       this.nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
     }
 
-    const inputs = this.generateInputs();
-    const files = this.getCircuitFiles();
+    const circuiInfo = this.getCircuitInfo();
 
     const [wasm, provingKey] = await Promise.all([
-      readBytesFile(files.wasm),
-      readBytesFile(files.finalKey),
+      readBytesFile(circuiInfo.wasm),
+      readBytesFile(circuiInfo.finalKey),
     ]);
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
-      new TextEncoder().encode(inputs),
+      new TextEncoder().encode(circuiInfo.generateInputFn()),
       provingKey,
       wasm,
     );
@@ -155,57 +154,37 @@ export class ZkpGen {
     return this.subjectProof;
   }
 
-  getCircuitFiles() {
+  getCircuitInfo() {
     switch (this.proofRequest.circuitId) {
       case CircuitId.AtomicQuerySigV2OnChain:
         return {
           wasm: config.CIRCUIT_SIG_V2_ON_CHAIN_WASM_URL,
           finalKey: config.CIRCUIT_SIG_V2_ON_CHAIN_FINAL_KEY_URL,
+          generateInputFn: this.generateQuerySigV2OnChainInputs.bind(this),
         };
       case CircuitId.AtomicQuerySigV2:
         return {
           wasm: config.CIRCUIT_SIG_V2_WASM_URL,
           finalKey: config.CIRCUIT_SIG_V2_FINAL_KEY_URL,
+          generateInputFn: this.generateQuerySigV2Inputs.bind(this),
         };
       case CircuitId.AtomicQueryMTPV2:
         return {
           wasm: config.CIRCUIT_MTP_V2_WASM_URL,
           finalKey: config.CIRCUIT_MTP_V2_FINAL_KEY_URL,
+          generateInputFn: this.generateQueryMTPV2Inputs.bind(this),
         };
       case CircuitId.AtomicQueryMTPV2OnChain:
         return {
           wasm: config.CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL,
           finalKey: config.CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL,
+          generateInputFn: this.generateQueryMTPV2OnChainInputs.bind(this),
         };
       default:
         throw new Error(
           `circuit with id ${this.proofRequest.circuitId} is not supported by issuer`,
         );
     }
-  }
-
-  generateInputs() {
-    let generateInputFn;
-    switch (this.proofRequest.circuitId) {
-      case CircuitId.AtomicQuerySigV2OnChain:
-        generateInputFn = this.generateQuerySigV2OnChainInputs.bind(this);
-        break;
-      case CircuitId.AtomicQuerySigV2:
-        generateInputFn = this.generateQuerySigV2Inputs.bind(this);
-        break;
-      case CircuitId.AtomicQueryMTPV2:
-        generateInputFn = this.generateQueryMTPV2Inputs.bind(this);
-        break;
-      case CircuitId.AtomicQueryMTPV2OnChain:
-        generateInputFn = this.generateQueryMTPV2OnChainInputs.bind(this);
-        break;
-      default:
-        throw new Error(
-          `circuit with id ${this.proofRequest.circuitId} is not supported by issuer`,
-        );
-    }
-
-    return generateInputFn();
   }
 
   generateQuerySigV2OnChainInputs() {
