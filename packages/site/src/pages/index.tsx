@@ -242,7 +242,7 @@ const Index = () => {
         <Card
           content={{
             title: 'Create a proof',
-            description: 'Creating a proof in a snap',
+            description: 'Creating a zero-knowledge proof of identity',
             button: (
               <SendHelloButton
                 onClick={handleCreateProofClick}

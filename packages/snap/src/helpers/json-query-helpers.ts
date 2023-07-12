@@ -72,7 +72,7 @@ export const StandardJSONCredentialsQueryFilter = (
           new FilterQuery('id', comparatorOptions.$eq, queryValue),
         );
       case 'allowedIssuers': {
-        const [first] = (queryValue as string[]) || [];
+        const [first] = (queryValue as string[]) ?? [];
         if (first && first === '*') {
           return acc;
         }
