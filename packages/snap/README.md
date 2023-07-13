@@ -6,44 +6,44 @@ MetaMask Snap(extension) that implements an SSI wallet for Rarimo Identity Syste
 ### Create an identity
 To create an identity you need to call this method:
 ```javascript
- await window.ethereum.request({
-	 method: 'wallet_invokeSnap',
-	 params: {
-		 snapId: 'snapId',
-		 request: { method: 'create_identity' },
-	 },
- });
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: { method: 'create_identity' },
+  },
+});
 ```
 
 ### Save Verifiable Credentials
 To save Verifiable Credentials you need to call this method with params:
 ```javascript
- await window.ethereum.request({
-	 method: 'wallet_invokeSnap',
-	 params: {
-		 snapId: 'snapId',
-		 request: {
-			 method: 'save_credentials',
-			 params: {
-				 body: {
-					 credentials: [
-						 {
-							 description: 'Natural Person',
-							 id: '86531650-023c-4c6c-a437-a82e137ead68',
-						 },
-					 ],
-					 url: 'http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/callback',
-				 },
-				 from: 'did:iden3:tJnRoZ1KqUPbsfVGrk8io51iqoRc5dGhj5LLMHSrD',
-				 id: '026035f6-42f6-4a2d-b516-0b11d2674850',
-				 thid: '348b7198-7cb1-46f4-bc0a-98a358f65539',
-				 to: 'did:iden3:tTxif8ahrSqRWavS8Qatrp4ZEJvPdu3ELSMgqTEQN',
-				 typ: 'application/iden3comm-plain-json',
-				 type: 'https://iden3-communication.io/credentials/1.0/offer',
-			 },
-		 },
-	 },
- });
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+    snapId: 'snapId',
+    request: {
+      method: 'save_credentials',
+      params: {
+        body: {
+          credentials: [
+            {
+              description: 'Natural Person',
+              id: '86531650-023c-4c6c-a437-a82e137ead68',
+            },
+          ],
+          url: 'http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/callback',
+        },
+        from: 'did:iden3:tJnRoZ1KqUPbsfVGrk8io51iqoRc5dGhj5LLMHSrD',
+        id: '026035f6-42f6-4a2d-b516-0b11d2674850',
+        thid: '348b7198-7cb1-46f4-bc0a-98a358f65539',
+        to: 'did:iden3:tTxif8ahrSqRWavS8Qatrp4ZEJvPdu3ELSMgqTEQN',
+        typ: 'application/iden3comm-plain-json',
+        type: 'https://iden3-communication.io/credentials/1.0/offer',
+      },
+    },
+  },
+});
 ```
 where:
 - **id**: request identifier
@@ -71,7 +71,7 @@ await window.ethereum.request({
 			params: {
 				circuitId: 'credentialAtomicQuerySigV2OnChain',
 				challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
-				slotIndex: 0, // optional
+				slotIndex: 0,
 				query: {
 					allowedIssuers: ['*'],
 					context:
@@ -89,15 +89,15 @@ await window.ethereum.request({
 });
 ```
 where:
-- **circuitId**: type of proof; in the above example, it is credentialAtomicQuerySigV2OnChain
+- **circuitId**: type of proof
 - **challenge**(optional): text that will be signed
 - **slotIndex**(optional): value in this path in merklized json-ld document
 - **query**
 	- **allowedIssuers**: types of issuers allowed
-		- *****: all types of Issuers are allowed
+		- **\***: all types of Issuers are allowed
 	- **context**: URL for getting the vocabulary for the credential
 	- **type**: type of credentials allowed
-	- **credentialSubject **: a query request to a query circuit
+	- **credentialSubject**: query request to a query circuit
 
 
 
