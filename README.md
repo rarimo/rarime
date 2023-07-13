@@ -1,4 +1,4 @@
-# @metamask/template-snap-monorepo
+# @metamask-snap-monorepo
 
 This repository demonstrates how to develop a snap with TypeScript. For detailed instructions, see [the MetaMask documentation](https://docs.metamask.io/guide/snaps.html#serving-a-snap-to-your-local-environment).
 
@@ -10,7 +10,7 @@ To interact with (your) Snaps, you will need to install [MetaMask Flask](https:/
 
 ## Getting Started
 
-Clone the template-snap repository:
+Clone the metamask-snap repository:
 
 ```shell
 yarn install && yarn start
