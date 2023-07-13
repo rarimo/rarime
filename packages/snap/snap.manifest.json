@@ -4,7 +4,7 @@
   "proposedName": "TypeScript Example Snap",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/template-snap-monorepo.git"
+    "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
   },
   "source": {
     "shasum": "UFXoyvtHFqvcSrMWZ1FNPSA92dPStZVw9qLAj7pq3WU=",
