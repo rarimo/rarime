@@ -63,29 +63,29 @@ To create a proof you need to call this method with params:
 
 ```javascript
 await window.ethereum.request({
-	method: 'wallet_invokeSnap',
-	params: {
-		snapId: 'snapId',
-		request: {
-			method: 'create_proof',
-			params: {
-				circuitId: 'credentialAtomicQuerySigV2OnChain',
-				challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
-				slotIndex: 0,
-				query: {
-					allowedIssuers: ['*'],
-					context:
-					'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
-					credentialSubject: {
-						isNatural: {
-							$eq: 1,
-						},
-					},
-					type: 'NaturalPerson',
-				},
-			},
-		},
-	},
+  method: 'wallet_invokeSnap',
+  params: {
+    snapId: 'snapId',
+    request: {
+      method: 'create_proof',
+      params: {
+        circuitId: 'credentialAtomicQuerySigV2OnChain',
+        challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
+        slotIndex: 0,
+        query: {
+          allowedIssuers: ['*'],
+          context:
+          'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
+          credentialSubject: {
+            isNatural: {
+              $eq: 1,
+            },
+          },
+          type: 'NaturalPerson',
+        },
+      },
+    },
+  },
 });
 ```
 where:
