@@ -143,4 +143,16 @@ export const createProof = async () => {
   console.log(data);
 };
 
+export const createBackup = async () => {
+  await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: defaultSnapOrigin,
+      request: {
+        method: 'create_backup',
+      },
+    },
+  });
+};
+
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
