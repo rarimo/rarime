@@ -99,7 +99,17 @@ where:
 	- **type**: type of credentials allowed
 	- **credentialSubject**: query request to a query circuit
 
-
+### Create a backup
+To create a backup of keys and credentials:
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: { method: 'create_backup' },
+  },
+});
+```
 
 
 ## Testing
