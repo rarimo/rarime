@@ -1,20 +1,29 @@
 import { proving, type ZKProof } from '@iden3/js-jwz';
-import { newHashFromHex } from '@iden3/js-merkletree';
 
+import { Signature } from '@iden3/js-crypto';
 import { type Identity } from './identity';
 
 import {
+  buildTreeState,
+  CircuitClaim,
   getGISTProof,
   getNodeAuxValue,
   getPreparedCredential,
   newCircuitClaimData,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
+  Query,
   readBytesFile,
   toCircuitsQuery,
   toGISTProof,
 } from './helpers';
-import type { CreateProofRequest, W3CCredential } from './types';
+import type {
+  ClaimNonRevStatus,
+  CreateProofRequest,
+  GISTProof,
+  NodeAuxValue,
+  W3CCredential,
+} from './types';
 import { config } from './config';
 import {
   defaultMTLevels,
@@ -33,6 +42,32 @@ export class ZkpGen {
 
   proofRequest: CreateProofRequest = {} as CreateProofRequest;
 
+  circuitClaimData: CircuitClaim = {} as CircuitClaim;
+
+  query: Query = {} as Query;
+
+  nodeAuxIssuerAuthNonRev: NodeAuxValue = {} as NodeAuxValue;
+
+  nodeAuxNonRev: NodeAuxValue = {} as NodeAuxValue;
+
+  nodAuxJSONLD: NodeAuxValue = {} as NodeAuxValue;
+
+  nonRevProof: ClaimNonRevStatus = {} as ClaimNonRevStatus;
+
+  value: string[] = [];
+
+  timestamp?: number;
+
+  gistProof?: GISTProof;
+
+  challenge?: bigint;
+
+  signatureChallenge?: Signature;
+
+  globalNodeAux?: NodeAuxValue;
+
+  nodeAuxAuth?: NodeAuxValue;
+
   constructor(
     identity: Identity,
     proofRequest: CreateProofRequest,
@@ -44,14 +79,74 @@ export class ZkpGen {
   }
 
   async generateProof() {
-    const inputs = await this.generateInputs();
+    const preparedCredential = await getPreparedCredential(
+      this.verifiableCredential,
+    );
+
+    this.circuitClaimData = await newCircuitClaimData(
+      preparedCredential.credential,
+      preparedCredential.credentialCoreClaim,
+    );
+
+    this.query = await toCircuitsQuery(
+      this.proofRequest.query,
+      preparedCredential.credential,
+      preparedCredential.credentialCoreClaim,
+    );
+
+    this.nonRevProof = {
+      proof: preparedCredential.revStatus.mtp,
+      treeState: buildTreeState(
+        preparedCredential.revStatus.issuer.state!,
+        preparedCredential.revStatus.issuer.claimsTreeRoot!,
+        preparedCredential.revStatus.issuer.revocationTreeRoot!,
+        preparedCredential.revStatus.issuer.rootOfRoots!,
+      ),
+    };
+
+    this.timestamp = Math.floor(Date.now() / 1000);
+
+    this.nodeAuxIssuerAuthNonRev = getNodeAuxValue(
+      this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
+    );
+    this.nodeAuxNonRev = getNodeAuxValue(this.nonRevProof.proof);
+    this.nodAuxJSONLD = getNodeAuxValue(this.query.valueProof!.mtp);
+    this.value = prepareCircuitArrayValues(
+      this.query.values,
+      defaultValueArraySize,
+    ).map((a) => a.toString());
+
+    if (
+      this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
+      this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
+    ) {
+      const gistInfo = await getGISTProof({
+        rpcUrl: config.RPC_URL,
+        contractAddress: config.STATE_V2_ADDRESS,
+        userId: this.identity.identityIdBigIntString,
+      });
+      this.gistProof = toGISTProof(gistInfo);
+
+      this.challenge = BigInt(
+        this.proofRequest.challenge ?? (this.proofRequest.id || 1),
+      );
+
+      this.signatureChallenge = this.identity.privateKey.signPoseidon(
+        this.challenge,
+      );
+
+      this.globalNodeAux = getNodeAuxValue(this.gistProof.proof);
+      this.nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
+    }
+
+    const circuiInfo = this.getCircuitInfo();
 
     const [wasm, provingKey] = await Promise.all([
-      readBytesFile(config.CIRCUIT_MTP_WASM_URL),
-      readBytesFile(config.CIRCUIT_MTP_FINAL_KEY_URL),
+      readBytesFile(circuiInfo.wasm),
+      readBytesFile(circuiInfo.finalKey),
     ]);
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
-      new TextEncoder().encode(inputs),
+      new TextEncoder().encode(circuiInfo.generateInputFn()),
       provingKey,
       wasm,
     );
@@ -59,82 +154,40 @@ export class ZkpGen {
     return this.subjectProof;
   }
 
-  async generateInputs(): Promise<string> {
-    let generateInputFn;
+  getCircuitInfo() {
     switch (this.proofRequest.circuitId) {
       case CircuitId.AtomicQuerySigV2OnChain:
-        generateInputFn = this.generateQuerySigV2OnChainInputs.bind(this);
-        break;
+        return {
+          wasm: config.CIRCUIT_SIG_V2_ON_CHAIN_WASM_URL,
+          finalKey: config.CIRCUIT_SIG_V2_ON_CHAIN_FINAL_KEY_URL,
+          generateInputFn: this.generateQuerySigV2OnChainInputs.bind(this),
+        };
+      case CircuitId.AtomicQuerySigV2:
+        return {
+          wasm: config.CIRCUIT_SIG_V2_WASM_URL,
+          finalKey: config.CIRCUIT_SIG_V2_FINAL_KEY_URL,
+          generateInputFn: this.generateQuerySigV2Inputs.bind(this),
+        };
+      case CircuitId.AtomicQueryMTPV2:
+        return {
+          wasm: config.CIRCUIT_MTP_V2_WASM_URL,
+          finalKey: config.CIRCUIT_MTP_V2_FINAL_KEY_URL,
+          generateInputFn: this.generateQueryMTPV2Inputs.bind(this),
+        };
+      case CircuitId.AtomicQueryMTPV2OnChain:
+        return {
+          wasm: config.CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL,
+          finalKey: config.CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL,
+          generateInputFn: this.generateQueryMTPV2OnChainInputs.bind(this),
+        };
       default:
         throw new Error(
           `circuit with id ${this.proofRequest.circuitId} is not supported by issuer`,
         );
     }
-
-    return generateInputFn();
   }
 
-  async generateQuerySigV2OnChainInputs() {
-    const preparedCredential = await getPreparedCredential(
-      this.verifiableCredential,
-    );
-
-    const circuitClaimData = await newCircuitClaimData(
-      preparedCredential.credential,
-      preparedCredential.credentialCoreClaim,
-    );
-
-    const query = await toCircuitsQuery(
-      this.proofRequest.query,
-      preparedCredential.credential,
-      preparedCredential.credentialCoreClaim,
-    );
-
-    const nonRevProof = {
-      proof: preparedCredential.revStatus.mtp,
-      treeState: {
-        state: newHashFromHex(preparedCredential.revStatus.issuer.state!),
-        claimsRoot: newHashFromHex(
-          preparedCredential.revStatus.issuer.claimsTreeRoot!,
-        ),
-        revocationRoot: newHashFromHex(
-          preparedCredential.revStatus.issuer.revocationTreeRoot!,
-        ),
-        rootOfRoots: newHashFromHex(
-          preparedCredential.revStatus.issuer.rootOfRoots!,
-        ),
-      },
-    };
-
-    const gistInfo = await getGISTProof({
-      rpcUrl: config.RPC_URL,
-      contractAddress: config.STATE_V2_ADDRESS,
-      userId: this.identity.identityIdBigIntString,
-    });
-    const gistProof = toGISTProof(gistInfo);
-
-    const challenge = BigInt(
-      this.proofRequest.challenge ?? (this.proofRequest.id || 1),
-    );
-
-    const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
-
-    const timestamp = Math.floor(Date.now() / 1000);
-
-    const nodeAuxIssuerAuthNonRev = getNodeAuxValue(
-      circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
-    );
-
-    const nodeAuxNonRev = getNodeAuxValue(nonRevProof.proof);
-    const nodAuxJSONLD = getNodeAuxValue(query.valueProof!.mtp);
-    const globalNodeAux = getNodeAuxValue(gistProof.proof);
-    const nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
-
-    const value = prepareCircuitArrayValues(
-      query.values,
-      defaultValueArraySize,
-    ).map((a) => a.toString());
-
+  generateQuerySigV2OnChainInputs() {
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
@@ -156,87 +209,339 @@ export class ZkpGen {
         this.identity.authClaimNonRevProof,
         defaultMTLevels,
       ),
-      authClaimNonRevMtpAuxHi: nodeAuxAuth.key.string(),
-      authClaimNonRevMtpAuxHv: nodeAuxAuth.value.string(),
-      authClaimNonRevMtpNoAux: nodeAuxAuth.noAux,
+      authClaimNonRevMtpAuxHi: this.nodeAuxAuth?.key.string(),
+      authClaimNonRevMtpAuxHv: this.nodeAuxAuth?.value.string(),
+      authClaimNonRevMtpNoAux: this.nodeAuxAuth?.noAux,
 
-      challenge: challenge.toString(),
-      challengeSignatureR8x: signatureChallenge!.R8[0].toString(),
-      challengeSignatureR8y: signatureChallenge!.R8[1].toString(),
-      challengeSignatureS: signatureChallenge!.S.toString(),
+      challenge: this.challenge?.toString(),
+      challengeSignatureR8x: this.signatureChallenge?.R8[0].toString(),
+      challengeSignatureR8y: this.signatureChallenge?.R8[1].toString(),
+      challengeSignatureS: this.signatureChallenge?.S.toString(),
 
-      gistRoot: gistProof.root.string(),
-      gistMtp: prepareSiblingsStr(gistProof.proof, defaultMTLevelsOnChain),
-      gistMtpAuxHi: globalNodeAux?.key.string(),
-      gistMtpAuxHv: globalNodeAux?.value.string(),
-      gistMtpNoAux: globalNodeAux.noAux,
+      gistRoot: this.gistProof?.root.string(),
+      gistMtp: prepareSiblingsStr(
+        this.gistProof!.proof,
+        defaultMTLevelsOnChain,
+      ),
+      gistMtpAuxHi: this.globalNodeAux?.key.string(),
+      gistMtpAuxHv: this.globalNodeAux?.value.string(),
+      gistMtpNoAux: this.globalNodeAux?.noAux,
 
       claimSubjectProfileNonce: '0',
 
-      issuerID: circuitClaimData.issuerId.bigInt().toString(),
+      issuerID: this.circuitClaimData.issuerId.bigInt().toString(),
 
       issuerAuthClaim:
-        circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
+        this.circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
       issuerAuthClaimMtp: prepareSiblingsStr(
-        circuitClaimData.signatureProof.issuerAuthIncProof.proof,
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.proof,
         defaultMTLevels,
       ),
       issuerAuthClaimsTreeRoot:
-        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
       issuerAuthRevTreeRoot:
-        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
       issuerAuthRootsTreeRoot:
-        circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
 
       issuerAuthClaimNonRevMtp: prepareSiblingsStr(
-        circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
+        this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
         defaultMTLevels,
       ),
-      issuerAuthClaimNonRevMtpNoAux: nodeAuxIssuerAuthNonRev.noAux,
-      issuerAuthClaimNonRevMtpAuxHi: nodeAuxIssuerAuthNonRev.key.string(),
-      issuerAuthClaimNonRevMtpAuxHv: nodeAuxIssuerAuthNonRev.value.string(),
+      issuerAuthClaimNonRevMtpNoAux: this.nodeAuxIssuerAuthNonRev.noAux,
+      issuerAuthClaimNonRevMtpAuxHi: this.nodeAuxIssuerAuthNonRev.key.string(),
+      issuerAuthClaimNonRevMtpAuxHv:
+        this.nodeAuxIssuerAuthNonRev.value.string(),
 
-      issuerClaim: circuitClaimData.claim.marshalJson(),
+      issuerClaim: this.circuitClaimData.claim.marshalJson(),
       isRevocationChecked: '1',
       issuerClaimNonRevMtp: prepareSiblingsStr(
-        nonRevProof.proof,
+        this.nonRevProof.proof,
         defaultMTLevels,
       ),
-      issuerClaimNonRevMtpNoAux: nodeAuxNonRev.noAux,
-      issuerClaimNonRevMtpAuxHi: nodeAuxNonRev.key.string(),
-      issuerClaimNonRevMtpAuxHv: nodeAuxNonRev.value.string(),
+      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
       issuerClaimNonRevClaimsTreeRoot:
-        nonRevProof.treeState.claimsRoot.string(),
+        this.nonRevProof.treeState.claimsRoot.string(),
       issuerClaimNonRevRevTreeRoot:
-        nonRevProof.treeState.revocationRoot.string(),
+        this.nonRevProof.treeState.revocationRoot.string(),
       issuerClaimNonRevRootsTreeRoot:
-        nonRevProof.treeState.rootOfRoots.string(),
-      issuerClaimNonRevState: nonRevProof.treeState.state.string(),
+        this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
 
       issuerClaimSignatureR8x:
-        circuitClaimData.signatureProof.signature.R8[0].toString(),
+        this.circuitClaimData.signatureProof.signature.R8[0].toString(),
       issuerClaimSignatureR8y:
-        circuitClaimData.signatureProof.signature.R8[1].toString(),
+        this.circuitClaimData.signatureProof.signature.R8[1].toString(),
       issuerClaimSignatureS:
-        circuitClaimData.signatureProof.signature.S.toString(),
+        this.circuitClaimData.signatureProof.signature.S.toString(),
 
-      timestamp,
+      timestamp: this.timestamp,
 
-      claimSchema: circuitClaimData.claim.getSchemaHash().bigInt().toString(),
-      claimPathNotExists: query.valueProof?.mtp.existence ? 0 : 1,
+      claimSchema: this.circuitClaimData.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
       claimPathMtp: prepareSiblingsStr(
-        query.valueProof!.mtp,
+        this.query.valueProof!.mtp,
         defaultMTLevelsClaimsMerklization,
       ),
-      claimPathMtpNoAux: nodAuxJSONLD.noAux,
-      claimPathMtpAuxHi: nodAuxJSONLD.key.string(),
-      claimPathMtpAuxHv: nodAuxJSONLD.value.string(),
-      claimPathKey: query.valueProof?.path.toString(),
-      claimPathValue: query.valueProof?.value?.toString(),
+      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
+      claimPathKey: this.query.valueProof?.path.toString(),
+      claimPathValue: this.query.valueProof?.value?.toString(),
 
-      slotIndex: this.proofRequest.slotIndex ?? query.slotIndex,
-      operator: query.operator,
-      value,
+      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      operator: this.query.operator,
+      value: this.value,
+    });
+  }
+
+  generateQuerySigV2Inputs() {
+    return JSON.stringify({
+      /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
+      /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
+      requestID: this.proofRequest.id?.toString || '1',
+
+      userGenesisID: this.identity.identityIdBigIntString,
+      profileNonce: '0',
+
+      claimSubjectProfileNonce: '0',
+
+      issuerID: this.circuitClaimData.issuerId.bigInt().toString(),
+
+      issuerAuthClaim:
+        this.circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
+      issuerAuthClaimMtp: prepareSiblingsStr(
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.proof,
+        defaultMTLevels,
+      ),
+      issuerAuthClaimsTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
+      issuerAuthRevTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
+      issuerAuthRootsTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
+
+      issuerAuthClaimNonRevMtp: prepareSiblingsStr(
+        this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
+        defaultMTLevels,
+      ),
+      issuerAuthClaimNonRevMtpNoAux: this.nodeAuxIssuerAuthNonRev.noAux,
+      issuerAuthClaimNonRevMtpAuxHi: this.nodeAuxIssuerAuthNonRev.key.string(),
+      issuerAuthClaimNonRevMtpAuxHv:
+        this.nodeAuxIssuerAuthNonRev.value.string(),
+
+      issuerClaim: this.circuitClaimData.claim.marshalJson(),
+      isRevocationChecked: '1',
+      issuerClaimNonRevMtp: prepareSiblingsStr(
+        this.nonRevProof.proof,
+        defaultMTLevels,
+      ),
+      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        this.nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        this.nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
+
+      issuerClaimSignatureR8x:
+        this.circuitClaimData.signatureProof.signature.R8[0].toString(),
+      issuerClaimSignatureR8y:
+        this.circuitClaimData.signatureProof.signature.R8[1].toString(),
+      issuerClaimSignatureS:
+        this.circuitClaimData.signatureProof.signature.S.toString(),
+
+      timestamp: this.timestamp,
+
+      claimSchema: this.circuitClaimData.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
+      claimPathMtp: prepareSiblingsStr(
+        this.query.valueProof!.mtp,
+        defaultMTLevelsClaimsMerklization,
+      ),
+      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
+      claimPathKey: this.query.valueProof?.path.toString(),
+      claimPathValue: this.query.valueProof?.value?.toString(),
+
+      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      operator: this.query.operator,
+      value: this.value,
+    });
+  }
+
+  generateQueryMTPV2Inputs() {
+    return JSON.stringify({
+      /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
+      /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
+      requestID: this.proofRequest.id?.toString || '1',
+
+      userGenesisID: this.identity.identityIdBigIntString,
+      profileNonce: '0',
+
+      claimSubjectProfileNonce: '0',
+
+      issuerID: this.circuitClaimData.issuerId.bigInt().toString(),
+
+      issuerClaim: this.circuitClaimData.claim.marshalJson(),
+      isRevocationChecked: '1',
+      issuerClaimNonRevMtp: prepareSiblingsStr(
+        this.nonRevProof.proof,
+        defaultMTLevels,
+      ),
+      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        this.nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        this.nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
+
+      issuerClaimMtp: prepareSiblingsStr(
+        this.circuitClaimData.incProof.proof,
+        defaultMTLevels,
+      ),
+      issuerClaimClaimsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.claimsRoot.string(),
+      issuerClaimRevTreeRoot:
+        this.circuitClaimData.incProof.treeState?.revocationRoot.string(),
+      issuerClaimRootsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.rootOfRoots.string(),
+      issuerClaimIdenState:
+        this.circuitClaimData.incProof.treeState?.state.string(),
+
+      timestamp: this.timestamp,
+
+      claimSchema: this.circuitClaimData.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
+      claimPathMtp: prepareSiblingsStr(
+        this.query.valueProof!.mtp,
+        defaultMTLevelsClaimsMerklization,
+      ),
+      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
+      claimPathKey: this.query.valueProof?.path.toString(),
+      claimPathValue: this.query.valueProof?.value?.toString(),
+
+      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      operator: this.query.operator,
+      value: this.value,
+    });
+  }
+
+  generateQueryMTPV2OnChainInputs() {
+    return JSON.stringify({
+      /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
+      /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
+      requestID: this.proofRequest.id?.toString || '1',
+
+      userGenesisID: this.identity.identityIdBigIntString,
+      profileNonce: '0',
+
+      userState: this.identity.treeState.state,
+      userClaimsTreeRoot: this.identity.treeState.claimsRoot,
+      userRevTreeRoot: this.identity.treeState.revocationRoot,
+      userRootsTreeRoot: this.identity.treeState.rootOfRoots,
+
+      authClaim: this.identity.coreAuthClaim.marshalJson(),
+
+      authClaimIncMtp: this.identity.authClaimIncProofSiblings,
+
+      authClaimNonRevMtp: prepareSiblingsStr(
+        this.identity.authClaimNonRevProof,
+        defaultMTLevels,
+      ),
+      authClaimNonRevMtpAuxHi: this.nodeAuxAuth?.key.string(),
+      authClaimNonRevMtpAuxHv: this.nodeAuxAuth?.value.string(),
+      authClaimNonRevMtpNoAux: this.nodeAuxAuth?.noAux,
+
+      challenge: this.challenge?.toString(),
+      challengeSignatureR8x: this.signatureChallenge?.R8[0].toString(),
+      challengeSignatureR8y: this.signatureChallenge?.R8[1].toString(),
+      challengeSignatureS: this.signatureChallenge?.S.toString(),
+
+      gistRoot: this.gistProof?.root.string(),
+      gistMtp: prepareSiblingsStr(
+        this.gistProof!.proof,
+        defaultMTLevelsOnChain,
+      ),
+      gistMtpAuxHi: this.globalNodeAux?.key.string(),
+      gistMtpAuxHv: this.globalNodeAux?.value.string(),
+      gistMtpNoAux: this.globalNodeAux?.noAux,
+
+      claimSubjectProfileNonce: '0',
+
+      issuerID: this.circuitClaimData.issuerId.bigInt().toString(),
+
+      issuerClaim: this.circuitClaimData.claim.marshalJson(),
+      isRevocationChecked: '1',
+      issuerClaimNonRevMtp: prepareSiblingsStr(
+        this.nonRevProof.proof,
+        defaultMTLevels,
+      ),
+      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        this.nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        this.nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
+
+      issuerClaimMtp: prepareSiblingsStr(
+        this.circuitClaimData.incProof.proof,
+        defaultMTLevels,
+      ),
+      issuerClaimClaimsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.claimsRoot.string(),
+      issuerClaimRevTreeRoot:
+        this.circuitClaimData.incProof.treeState?.revocationRoot.string(),
+      issuerClaimRootsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.rootOfRoots.string(),
+      issuerClaimIdenState:
+        this.circuitClaimData.incProof.treeState?.state.string(),
+
+      timestamp: this.timestamp,
+
+      claimSchema: this.circuitClaimData.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
+      claimPathMtp: prepareSiblingsStr(
+        this.query.valueProof!.mtp,
+        defaultMTLevelsClaimsMerklization,
+      ),
+      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
+      claimPathKey: this.query.valueProof?.path.toString(),
+      claimPathValue: this.query.valueProof?.value?.toString(),
+
+      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      operator: this.query.operator,
+      value: this.value,
     });
   }
 }

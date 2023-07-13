@@ -2,6 +2,7 @@ import { Signature } from '@iden3/js-crypto';
 import { Claim } from '@iden3/js-iden3-core';
 import { Hash, Proof } from '@iden3/js-merkletree';
 import { Query } from '../helpers';
+import { CircuitId } from '../enums';
 
 export type ProofQuery = {
   allowedIssuers?: string[];
@@ -15,10 +16,9 @@ export type ProofQuery = {
 
 export type CreateProofRequest = {
   id?: number;
-  circuitId?: string;
+  circuitId: CircuitId;
   slotIndex?: number;
-  challenge?: string;
-  optional?: boolean;
+  challenge?: string; // bigint string
   query: ProofQuery;
 };
 

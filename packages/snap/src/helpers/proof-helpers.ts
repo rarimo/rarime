@@ -25,6 +25,7 @@ import {
   QueryWithFieldName,
   RevocationStatus,
   StateProof,
+  TreeState,
   W3CCredential,
 } from '../types';
 import { ProofType } from '../enums';
@@ -116,6 +117,38 @@ export const getBJJSignature2021Proof = (
   return null;
 };
 
+export const getIden3SparseMerkleTreeProof = (
+  credentialProof: object | any[],
+): Iden3SparseMerkleTreeProof | null => {
+  const proofType: ProofType = ProofType.Iden3SparseMerkleTreeProof;
+  if (Array.isArray(credentialProof)) {
+    for (const proof of credentialProof) {
+      const { proofType: extractedProofType } = extractProof(proof);
+      if (proofType === extractedProofType) {
+        return proof as Iden3SparseMerkleTreeProof;
+      }
+    }
+  } else if (typeof credentialProof === 'object') {
+    const { proofType: extractedProofType } = extractProof(credentialProof);
+    if (extractedProofType === proofType) {
+      return credentialProof as Iden3SparseMerkleTreeProof;
+    }
+  }
+  return null;
+};
+
+export const buildTreeState = (
+  state: string,
+  claimsTreeRoot: string,
+  revocationTreeRoot: string,
+  rootOfRoots: string,
+): TreeState => ({
+  state: newHashFromHex(state),
+  claimsRoot: newHashFromHex(claimsTreeRoot),
+  revocationRoot: newHashFromHex(revocationTreeRoot),
+  rootOfRoots: newHashFromHex(rootOfRoots),
+});
+
 export const newCircuitClaimData = async (
   credential: W3CCredential,
   coreClaim: Claim,
@@ -123,6 +156,20 @@ export const newCircuitClaimData = async (
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
   circuitClaim.issuerId = DID.parse(credential.issuer).id;
+
+  const smtProof = getIden3SparseMerkleTreeProof(credential.proof!);
+
+  if (smtProof) {
+    circuitClaim.incProof = {
+      proof: smtProof.mtp,
+      treeState: buildTreeState(
+        smtProof.issuerData.state?.value,
+        smtProof.issuerData.state?.claimsTreeRoot,
+        smtProof.issuerData.state?.revocationTreeRoot,
+        smtProof.issuerData.state?.rootOfRoots,
+      ),
+    };
+  }
 
   const sigProof = getBJJSignature2021Proof(credential.proof!);
 
@@ -135,12 +182,12 @@ export const newCircuitClaimData = async (
     );
 
     const issuerAuthNonRevProof: MTProof = {
-      treeState: {
-        state: newHashFromHex(rs.issuer.state!),
-        claimsRoot: newHashFromHex(rs.issuer.claimsTreeRoot!),
-        revocationRoot: newHashFromHex(rs.issuer.revocationTreeRoot!),
-        rootOfRoots: newHashFromHex(rs.issuer.rootOfRoots!),
-      },
+      treeState: buildTreeState(
+        rs.issuer.state!,
+        rs.issuer.claimsTreeRoot!,
+        rs.issuer.revocationTreeRoot!,
+        rs.issuer.rootOfRoots!,
+      ),
       proof: rs.mtp,
     };
     if (!sigProof.issuerData.mtp) {
@@ -155,14 +202,12 @@ export const newCircuitClaimData = async (
       signature,
       issuerAuthIncProof: {
         proof: sigProof.issuerData.mtp,
-        treeState: {
-          state: newHashFromHex(sigProof.issuerData.state?.value),
-          claimsRoot: newHashFromHex(sigProof.issuerData.state?.claimsTreeRoot),
-          revocationRoot: newHashFromHex(
-            sigProof.issuerData.state?.revocationTreeRoot,
-          ),
-          rootOfRoots: newHashFromHex(sigProof.issuerData.state?.rootOfRoots),
-        },
+        treeState: buildTreeState(
+          sigProof.issuerData.state?.value,
+          sigProof.issuerData.state?.claimsTreeRoot,
+          sigProof.issuerData.state?.revocationTreeRoot,
+          sigProof.issuerData.state?.rootOfRoots,
+        ),
       },
       issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
       issuerAuthNonRevProof,

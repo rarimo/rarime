@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { panel, text, divider, heading } from '@metamask/snaps-ui';
+import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
@@ -78,6 +78,22 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           privateKeyHex: identity.privateKeyHex,
           did: identity.didString,
         });
+
+        snap.request({
+          method: 'snap_dialog',
+          params: {
+            type: 'alert',
+            content: panel([
+              heading('Identity info'),
+              divider(),
+              text('Private key:'),
+              copyable(identity.privateKeyHex),
+              text('DID:'),
+              copyable(identity.didString),
+            ]),
+          },
+        });
+
         return identity.didString;
       }
       throw new Error('User rejected request');

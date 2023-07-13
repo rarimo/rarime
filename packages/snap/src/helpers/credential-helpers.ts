@@ -42,7 +42,7 @@ export const findCredentialsByQuery = async (
   query: ProofQuery,
 ): Promise<W3CCredential[]> => {
   const filters = StandardJSONCredentialsQueryFilter(query);
-  const credentials = await getItemFromStore(StorageKeys.credentials);
+  const credentials = (await getItemFromStore(StorageKeys.credentials)) || [];
   return credentials.filter((credential: W3CCredential) =>
     filters.every((filter) => filter.execute(credential)),
   );

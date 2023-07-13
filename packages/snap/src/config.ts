@@ -4,11 +4,23 @@ export const config = {
   RPC_URL: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
   STATE_V2_ADDRESS: '0x803a77bD7aB650aBF6D562260bCc5b32Aa08aD09',
   CIRCUIT_AUTH_WASM_URL:
-    'https://raw.githubusercontent.com/rarimo/js-sdk/feature/zk-proof-flow/packages/auth-zkp-iden3/assets/auth/circuit.wasm',
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/authV2/circuit.wasm',
   CIRCUIT_AUTH_FINAL_KEY_URL:
-    'https://raw.githubusercontent.com/rarimo/js-sdk/feature/zk-proof-flow/packages/auth-zkp-iden3/assets/auth/circuit_final.zkey',
-  CIRCUIT_MTP_WASM_URL:
-    'https://raw.githubusercontent.com/rarimo/js-sdk/feature/zk-proof-flow/packages/zkp-gen-iden3/assets/credentials/circuit.wasm',
-  CIRCUIT_MTP_FINAL_KEY_URL:
-    'https://raw.githubusercontent.com/rarimo/js-sdk/feature/zk-proof-flow/packages/zkp-gen-iden3/assets/credentials/circuit_final.zkey',
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/authV2/circuit_final.zkey',
+  CIRCUIT_SIG_V2_ON_CHAIN_WASM_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQuerySigV2OnChain/circuit.wasm',
+  CIRCUIT_SIG_V2_ON_CHAIN_FINAL_KEY_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQuerySigV2OnChain/circuit_final.zkey',
+  CIRCUIT_SIG_V2_WASM_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQuerySigV2/circuit.wasm',
+  CIRCUIT_SIG_V2_FINAL_KEY_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQuerySigV2/circuit_final.zkey',
+  CIRCUIT_MTP_V2_WASM_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQueryMTPV2/circuit.wasm',
+  CIRCUIT_MTP_V2_FINAL_KEY_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQueryMTPV2/circuit_final.zkey',
+  CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQueryMTPV2OnChain/circuit.wasm',
+  CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL:
+    'https://raw.githubusercontent.com/Electr1Xx/circuits/main/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey',
 };

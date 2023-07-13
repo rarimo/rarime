@@ -37,9 +37,9 @@ export type ClaimOffer = {
   };
   from: string;
   id: string;
-  thid: string;
+  thid?: string;
   to: string;
-  typ: string;
+  typ?: string;
   type: string;
 };
 
