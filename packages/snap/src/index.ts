@@ -178,6 +178,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           content: panel([
             heading('Export keys and credentials'),
             divider(),
+            text('Backup provides full access to your snap'),
+            text('Do not share this with anyone'),
+            text('Make sure no one is looking at your screen'),
+            divider(),
             text('Would you like to export keys and credentials?'),
           ]),
         },
