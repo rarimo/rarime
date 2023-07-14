@@ -1,5 +1,4 @@
-import { Hex } from '@iden3/js-crypto';
-import { StorageKeys } from '../enums';
+import { JSONLDSchemas, StorageKeys } from '../enums';
 import { Identity } from '../identity';
 import { getItemFromStore, setItemInStore } from '../rpc';
 import { BackupData, W3CCredential } from '../types';
@@ -18,7 +17,16 @@ export const validateCredentials = (
   credentials: W3CCredential[],
   did: string,
 ) => {
-  return credentials.some((cred) => cred?.credentialSubject?.id === did);
+  if (!Array.isArray(credentials)) {
+    return false;
+  } else if (!credentials.length) {
+    return true;
+  }
+  return credentials.some(
+    (cred) =>
+      cred?.credentialSubject?.id === did &&
+      cred?.['@context']?.[1] === JSONLDSchemas.Iden3Credential,
+  );
 };
 
 export const importKeysAndCredentials = async (backupData: BackupData) => {
