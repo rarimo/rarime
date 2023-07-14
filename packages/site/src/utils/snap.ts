@@ -155,13 +155,13 @@ export const createBackup = async () => {
   });
 };
 
-export const recoveryBackup = async () => {
+export const recoverBackup = async () => {
   await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: {
       snapId: defaultSnapOrigin,
       request: {
-        method: 'recovery_backup',
+        method: 'recover_backup',
       },
     },
   });

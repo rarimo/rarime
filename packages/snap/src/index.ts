@@ -208,13 +208,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       throw new Error('User rejected request');
     }
 
-    case 'recovery_backup': {
+    case 'recover_backup': {
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
           type: 'prompt',
           content: panel([
-            heading('Recovery keys and credentials'),
+            heading('Recover your identity and credentials'),
+            divider(),
+            text('Your current identity will be overwritten!'),
             divider(),
             text('Enter your JSON string from the backup here:'),
           ]),
