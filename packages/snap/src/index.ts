@@ -10,6 +10,7 @@ import { AuthZkp } from './auth-zkp';
 import {
   exportKeysAndCredentials,
   findCredentialsByQuery,
+  importKeysAndCredentials,
   saveCredentials,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
@@ -202,6 +203,27 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           },
         });
 
+        return true;
+      }
+      throw new Error('User rejected request');
+    }
+
+    case 'recovery_backup': {
+      const res = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'prompt',
+          content: panel([
+            heading('Recovery keys and credentials'),
+            divider(),
+            text('Enter your JSON string from the backup here:'),
+          ]),
+          placeholder: 'Backup data',
+        },
+      });
+
+      if (res !== null) {
+        await importKeysAndCredentials(JSON.parse(res as string));
         return true;
       }
       throw new Error('User rejected request');

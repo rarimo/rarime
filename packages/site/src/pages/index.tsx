@@ -9,6 +9,7 @@ import {
   sendVc,
   shouldDisplayReconnectButton,
   createBackup,
+  recoveryBackup,
 } from '../utils';
 import {
   ConnectButton,
@@ -156,6 +157,15 @@ const Index = () => {
     }
   };
 
+  const handleRecoveryBackupClick = async () => {
+    try {
+      await recoveryBackup();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
   return (
     <Container>
       <Heading>
@@ -274,6 +284,24 @@ const Index = () => {
             button: (
               <SendHelloButton
                 onClick={handleCreateBackupClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Recovery a backup',
+            description: 'Recovering a backup of keys and credentials',
+            button: (
+              <SendHelloButton
+                onClick={handleRecoveryBackupClick}
                 disabled={!state.installedSnap}
               />
             ),

@@ -111,6 +111,18 @@ await window.ethereum.request({
 });
 ```
 
+### Recovey a backup
+To recovery a backup of keys and credentials:
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: { method: 'recovery_backup' },
+  },
+});
+```
+
 
 ## Testing
 

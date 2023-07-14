@@ -5,4 +5,4 @@ export * from './credential-helpers';
 export * from './json-query-helpers';
 export * from './proof-helpers';
 export * from './model-helpers';
-export * from './export-helpers';
+export * from './backup-helpers';
