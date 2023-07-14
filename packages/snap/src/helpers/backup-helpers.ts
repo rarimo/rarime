@@ -31,7 +31,7 @@ export const importKeysAndCredentials = async (backupData: BackupData) => {
   const identity = await Identity.create(backupData.privateKey);
 
   if (!validateCredentials(backupData.credentials, identity.didString)) {
-    throw new Error('The backup scheme is not valid');
+    throw new Error('Credentials is not valid');
   }
 
   await setItemInStore(StorageKeys.identity, {
