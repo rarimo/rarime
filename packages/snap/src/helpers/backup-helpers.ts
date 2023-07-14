@@ -22,7 +22,7 @@ export const validateCredentials = (
   } else if (!credentials.length) {
     return true;
   }
-  return credentials.some(
+  return credentials.every(
     (cred) =>
       cred?.credentialSubject?.id === did &&
       cred?.['@context']?.[1] === JSONLDSchemas.Iden3Credential,
