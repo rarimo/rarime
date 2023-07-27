@@ -1,67 +1,18 @@
-import { defaultSnapOrigin } from '../config';
-import { GetSnapsResponse, Snap } from '../types';
+/* eslint-disable import/no-extraneous-dependencies */
+import { enableSnap, SnapConnector } from '@rarimo/connector';
+import { Hex } from '@iden3/js-crypto';
+import { fromLittleEndian } from '@iden3/js-iden3-core';
 
-/**
- * Get the installed snaps in MetaMask.
- *
- * @returns The snaps installed in MetaMask.
- */
-export const getSnaps = async (): Promise<GetSnapsResponse> => {
-  return (await window.ethereum.request({
-    method: 'wallet_getSnaps',
-  })) as unknown as GetSnapsResponse;
+let connector: SnapConnector;
+
+export const connectSnap = async () => {
+  const snap = await enableSnap();
+  connector = await snap.getConnector();
+  return snap;
 };
-
-/**
- * Connect a snap to MetaMask.
- *
- * @param snapId - The ID of the snap.
- * @param params - The params to pass with the snap to connect.
- */
-export const connectSnap = async (
-  snapId: string = defaultSnapOrigin,
-  params: Record<'version' | string, unknown> = {},
-) => {
-  await window.ethereum.request({
-    method: 'wallet_requestSnaps',
-    params: {
-      [snapId]: params,
-    },
-  });
-};
-
-/**
- * Get the snap from MetaMask.
- *
- * @param version - The version of the snap to install (optional).
- * @returns The snap object returned by the extension.
- */
-export const getSnap = async (version?: string): Promise<Snap | undefined> => {
-  try {
-    const snaps = await getSnaps();
-
-    return Object.values(snaps).find(
-      (snap) =>
-        snap.id === defaultSnapOrigin && (!version || snap.version === version),
-    );
-  } catch (e) {
-    console.log('Failed to obtain installed snap', e);
-    return undefined;
-  }
-};
-
-/**
- * Invoke the "hello" method from the example snap.
- */
 
 export const createIdentity = async () => {
-  const did = await window.ethereum.request({
-    method: 'wallet_invokeSnap',
-    params: {
-      snapId: defaultSnapOrigin,
-      request: { method: 'create_identity' },
-    },
-  });
+  const did = await connector.createIdentity();
 
   await fetch(
     `http://127.0.0.1:8000/integrations/issuer/v1/private/claims/issue/${
@@ -85,13 +36,7 @@ export const createIdentity = async () => {
 };
 
 export const sendVc = async () => {
-  const did = await window.ethereum.request({
-    method: 'wallet_invokeSnap',
-    params: {
-      snapId: defaultSnapOrigin,
-      request: { method: 'create_identity' },
-    },
-  });
+  const did = await connector.createIdentity();
 
   const response = await fetch(
     `http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/${
@@ -100,43 +45,33 @@ export const sendVc = async () => {
   );
   const offer = await response.json();
 
-  const data = await window.ethereum.request({
-    method: 'wallet_invokeSnap',
-    params: {
-      snapId: defaultSnapOrigin,
-      request: {
-        method: 'save_credentials',
-        params: offer.data.attributes,
-      },
-    },
-  });
+  const data = await connector.saveCredentials(offer.data.attributes);
+
   console.log(data);
 };
 
 export const createProof = async () => {
-  const data = await window.ethereum.request({
-    method: 'wallet_invokeSnap',
-    params: {
-      snapId: defaultSnapOrigin,
-      request: {
-        method: 'create_proof',
-        params: {
-          circuitId: 'credentialAtomicQuerySigV2OnChain',
-          challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
-          slotIndex: 0,
-          query: {
-            allowedIssuers: ['*'],
-            context:
-              'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
-            credentialSubject: {
-              isNatural: {
-                $eq: 1,
-              },
-            },
-            type: 'NaturalPerson',
-          },
+  const accounts = (await window.ethereum.request({
+    method: 'eth_requestAccounts',
+  })) as string[];
+  const challenge = fromLittleEndian(
+    Hex.decodeString(String(accounts[0]).substring(2)),
+  ).toString();
+
+  const data = await connector.createProof({
+    circuitId: 'credentialAtomicQuerySigV2OnChain',
+    challenge, // BigInt string
+    slotIndex: 0,
+    query: {
+      allowedIssuers: ['*'],
+      context:
+        'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
+      credentialSubject: {
+        isNatural: {
+          $eq: 1,
         },
       },
+      type: 'NaturalPerson',
     },
   });
 
@@ -144,27 +79,23 @@ export const createProof = async () => {
 };
 
 export const createBackup = async () => {
-  await window.ethereum.request({
-    method: 'wallet_invokeSnap',
-    params: {
-      snapId: defaultSnapOrigin,
-      request: {
-        method: 'create_backup',
-      },
-    },
-  });
+  await connector.createBackup();
 };
 
 export const recoverBackup = async () => {
-  await window.ethereum.request({
-    method: 'wallet_invokeSnap',
-    params: {
-      snapId: defaultSnapOrigin,
-      request: {
-        method: 'recover_backup',
-      },
-    },
-  });
+  await connector.recoverBackup();
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
+
+export const reconnectSnap = async (
+  snapId: string,
+  params: Record<'version' | string, unknown> = {},
+) => {
+  await window.ethereum.request({
+    method: 'wallet_requestSnaps',
+    params: {
+      [snapId]: params,
+    },
+  });
+};
