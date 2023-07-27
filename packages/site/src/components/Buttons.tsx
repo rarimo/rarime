@@ -101,9 +101,11 @@ export const SendHelloButton = (props: ComponentProps<typeof Button>) => {
 export const HeaderButtons = ({
   state,
   onConnectClick,
+  onReconnectClick,
 }: {
   state: MetamaskState;
   onConnectClick(): unknown;
+  onReconnectClick(): unknown;
 }) => {
   if (!state.isFlask && !state.installedSnap) {
     return <InstallFlaskButton />;
@@ -114,7 +116,7 @@ export const HeaderButtons = ({
   }
 
   if (shouldDisplayReconnectButton(state.installedSnap)) {
-    return <ReconnectButton onClick={onConnectClick} />;
+    return <ReconnectButton onClick={onReconnectClick} />;
   }
 
   return (

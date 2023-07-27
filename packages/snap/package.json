@@ -12,7 +12,8 @@
   "files": [
     "dist/",
     "images/",
-    "snap.manifest.json"
+    "snap.manifest.json",
+    "README.md"
   ],
   "scripts": {
     "build": "yarn clean && node build.js && yarn build:post && yarn bundle:eval && yarn bundle:manifest",

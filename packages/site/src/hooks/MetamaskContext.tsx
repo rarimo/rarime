@@ -6,12 +6,13 @@ import {
   useEffect,
   useReducer,
 } from 'react';
-import { Snap } from '../types';
-import { isFlask, getSnap } from '../utils';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { isSnapInstalled, MetamaskSnap } from '@rarimo/connector';
+import { isFlask, connectSnap } from '../utils';
 
 export type MetamaskState = {
   isFlask: boolean;
-  installedSnap?: Snap;
+  installedSnap?: MetamaskSnap;
   error?: Error;
 };
 
@@ -87,7 +88,10 @@ export const MetaMaskProvider = ({ children }: { children: ReactNode }) => {
     }
 
     async function detectSnapInstalled() {
-      const installedSnap = await getSnap();
+      const isInstalled = await isSnapInstalled();
+
+      const installedSnap = isInstalled ? await connectSnap() : undefined;
+
       dispatch({
         type: MetamaskActions.SetInstalled,
         payload: installedSnap,

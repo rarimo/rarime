@@ -1,19 +1,18 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { isMetamaskInstalled, isMetamaskFlask } from '@rarimo/connector';
+
 /**
  * Detect if the wallet injecting the ethereum object is Flask.
  *
  * @returns True if the MetaMask version is Flask, false otherwise.
  */
 export const isFlask = async () => {
-  const provider = window.ethereum;
-
   try {
-    const clientVersion = await provider?.request({
-      method: 'web3_clientVersion',
-    });
+    const isMetamask = isMetamaskInstalled();
 
-    const isFlaskDetected = (clientVersion as string[])?.includes('flask');
+    const isFlaskDetected = await isMetamaskFlask();
 
-    return Boolean(provider && isFlaskDetected);
+    return Boolean(isMetamask && isFlaskDetected);
   } catch {
     return false;
   }

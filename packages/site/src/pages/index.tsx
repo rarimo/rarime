@@ -4,12 +4,12 @@ import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
   createProof,
-  getSnap,
   createIdentity,
   sendVc,
   shouldDisplayReconnectButton,
   createBackup,
   recoverBackup,
+  reconnectSnap,
 } from '../utils';
 import {
   ConnectButton,
@@ -108,13 +108,21 @@ const Index = () => {
 
   const handleConnectClick = async () => {
     try {
-      await connectSnap();
-      const installedSnap = await getSnap();
+      const snap = await connectSnap();
 
       dispatch({
         type: MetamaskActions.SetInstalled,
-        payload: installedSnap,
+        payload: snap,
       });
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleReconnectClick = async () => {
+    try {
+      await reconnectSnap(state.installedSnap!.snapId);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -215,7 +223,7 @@ const Index = () => {
                 'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
               button: (
                 <ReconnectButton
-                  onClick={handleConnectClick}
+                  onClick={handleReconnectClick}
                   disabled={!state.installedSnap}
                 />
               ),
