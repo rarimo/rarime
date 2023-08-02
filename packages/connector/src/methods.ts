@@ -57,7 +57,7 @@ export const createProof = async function (
   return await sendSnapMethod({ method: RPCMethods.CreateProof, params }, this.snapId);
 };
 
-export const CheckStateContractSync = async function (
+export const сheckStateContractSync = async function (
   this: MetamaskSnap,
   params: CheckStateContractSyncRequestParams,
 ): Promise<boolean> {

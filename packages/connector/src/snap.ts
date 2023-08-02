@@ -5,7 +5,7 @@ import {
   createProof,
   recoverBackup,
   saveCredentials,
-  CheckStateContractSync
+  сheckStateContractSync
 } from './methods';
 
 export class MetamaskSnap {
@@ -22,7 +22,7 @@ export class MetamaskSnap {
       recoverBackup: recoverBackup.bind(this),
       saveCredentials: saveCredentials.bind(this),
       createProof: createProof.bind(this),
-      checkStateContractSync: CheckStateContractSync.bind(this),
+      checkStateContractSync: сheckStateContractSync.bind(this),
     };
   };
 }
