@@ -6,7 +6,7 @@ import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
 import { CheckStateContractSyncRequest, ClaimOffer, CreateProofRequest, TextField } from './types';
-import { RPCMethods } from '../../connector/src/types';
+import { RPCMethods } from '@rarimo/connector';
 import { AuthZkp } from './auth-zkp';
 import {
   exportKeysAndCredentials,

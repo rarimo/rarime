@@ -44,6 +44,7 @@
     "@metamask/snaps-jest": "^0.35.2-flask.1",
     "@metamask/snaps-types": "^0.32.2",
     "@metamask/snaps-ui": "^0.32.2",
+    "@rarimo/connector": "workspace:^",
     "@typechain/ethers-v5": "^11.1.1",
     "buffer": "^6.0.3",
     "ethers": "^5.7.2",
