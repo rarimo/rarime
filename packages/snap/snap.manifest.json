@@ -26,7 +26,8 @@
     "snap_manageState": {},
     "endowment:network-access": {},
     "endowment:webassembly": {},
-    "endowment:long-running": {}
+    "endowment:long-running": {},
+    "endowment:ethereum": {}
   },
   "manifestVersion": "0.1"
 }
