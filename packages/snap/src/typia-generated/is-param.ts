@@ -1,5 +1,5 @@
 import typia from 'typia';
-import { ClaimOffer } from "../types";
+import { ClaimOffer, CreateProofRequest } from "../types" ;
 const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
     let errorMessage = 'invalid_argument: ';
     for (let i = 0; i < errors.length; i += 1) {
@@ -21,24 +21,24 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
         const errors = [] as any[];
         const __is = (input: any, _exceptionable: boolean = true): input is ClaimOffer => {
             const $is_url = (typia.createValidateEquals as any).is_url;
-            const $io0 = (input: any, _exceptionable: boolean = true): boolean => "object" === typeof input.body && null !== input.body && $io1(input.body, true && _exceptionable) && "string" === typeof input.from && "string" === typeof input.id && (undefined === input.thid || "string" === typeof input.thid) && "string" === typeof input.to && (undefined === input.typ || "string" === typeof input.typ) && "string" === typeof input.type && (5 === Object.keys(input).length || Object.keys(input).every((key: any) => {
-                if (["body", "from", "id", "thid", "to", "typ", "type"].some((prop: any) => key === prop))
+            const $io0 = (input: any, _exceptionable: boolean = true): boolean => "object" === typeof input.body && null !== input.body && $io1(input.body, true && _exceptionable) && "string" === typeof input.from && "string" === typeof input.id && (undefined === input.thid || "string" === typeof input.thid) && "string" === typeof input.to && (undefined === input.typ || "string" === typeof input.typ) && "string" === typeof input.type && (5 === Object.keys(input).length || Object.keys(input).every(key => {
+                if (["body", "from", "id", "thid", "to", "typ", "type"].some(prop => key === prop))
                     return true;
                 const value = input[key];
                 if (undefined === value)
                     return true;
                 return false;
             }));
-            const $io1 = (input: any, _exceptionable: boolean = true): boolean => Array.isArray(input.credentials) && (input.credentials.length === 1 && ("object" === typeof input.credentials[0] && null !== input.credentials[0] && $io2(input.credentials[0], true && _exceptionable))) && ("string" === typeof input.url && $is_url(input.url)) && (2 === Object.keys(input).length || Object.keys(input).every((key: any) => {
-                if (["credentials", "url"].some((prop: any) => key === prop))
+            const $io1 = (input: any, _exceptionable: boolean = true): boolean => Array.isArray(input.credentials) && (input.credentials.length === 1 && ("object" === typeof input.credentials[0] && null !== input.credentials[0] && $io2(input.credentials[0], true && _exceptionable))) && ("string" === typeof input.url && $is_url(input.url)) && (2 === Object.keys(input).length || Object.keys(input).every(key => {
+                if (["credentials", "url"].some(prop => key === prop))
                     return true;
                 const value = input[key];
                 if (undefined === value)
                     return true;
                 return false;
             }));
-            const $io2 = (input: any, _exceptionable: boolean = true): boolean => "string" === typeof input.description && "string" === typeof input.id && (2 === Object.keys(input).length || Object.keys(input).every((key: any) => {
-                if (["description", "id"].some((prop: any) => key === prop))
+            const $io2 = (input: any, _exceptionable: boolean = true): boolean => "string" === typeof input.description && "string" === typeof input.id && (2 === Object.keys(input).length || Object.keys(input).every(key => {
+                if (["description", "id"].some(prop => key === prop))
                     return true;
                 const value = input[key];
                 if (undefined === value)
@@ -84,8 +84,8 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
                         path: _path + ".type",
                         expected: "string",
                         value: input.type
-                    }), 5 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map((key: any) => {
-                        if (["body", "from", "id", "thid", "to", "typ", "type"].some((prop: any) => key === prop))
+                    }), 5 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map(key => {
+                        if (["body", "from", "id", "thid", "to", "typ", "type"].some(prop => key === prop))
                             return true;
                         const value = input[key];
                         if (undefined === value)
@@ -126,8 +126,8 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
                         path: _path + ".url",
                         expected: "string",
                         value: input.url
-                    }), 2 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map((key: any) => {
-                        if (["credentials", "url"].some((prop: any) => key === prop))
+                    }), 2 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map(key => {
+                        if (["credentials", "url"].some(prop => key === prop))
                             return true;
                         const value = input[key];
                         if (undefined === value)
@@ -146,8 +146,8 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
                         path: _path + ".id",
                         expected: "string",
                         value: input.id
-                    }), 2 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map((key: any) => {
-                        if (["description", "id"].some((prop: any) => key === prop))
+                    }), 2 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map(key => {
+                        if (["description", "id"].some(prop => key === prop))
                             return true;
                         const value = input[key];
                         if (undefined === value)
@@ -177,6 +177,160 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
         } as any;
     };
     const res = validate(offer);
+    if (!res.success) {
+        throw new Error(handleIValidation(res));
+    }
+};
+export const isValidCreateProofRequest = (request: CreateProofRequest) => {
+    const validate = (input: any): typia.IValidation<CreateProofRequest> => {
+        const errors = [] as any[];
+        const __is = (input: any, _exceptionable: boolean = true): input is CreateProofRequest => {
+            const $join = (typia.createValidateEquals as any).join;
+            const $io0 = (input: any, _exceptionable: boolean = true): boolean => (undefined === input.id || "number" === typeof input.id) && ("credentialAtomicQueryMTPV2" === input.circuitId || "credentialAtomicQueryMTPV2OnChain" === input.circuitId || "credentialAtomicQuerySigV2" === input.circuitId || "credentialAtomicQuerySigV2OnChain" === input.circuitId) && (undefined === input.challenge || "string" === typeof input.challenge) && ("object" === typeof input.query && null !== input.query && false === Array.isArray(input.query) && $io1(input.query, true && _exceptionable)) && (2 === Object.keys(input).length || Object.keys(input).every(key => {
+                if (["id", "circuitId", "challenge", "query"].some(prop => key === prop))
+                    return true;
+                const value = input[key];
+                if (undefined === value)
+                    return true;
+                return false;
+            }));
+            const $io1 = (input: any, _exceptionable: boolean = true): boolean => (undefined === input.allowedIssuers || Array.isArray(input.allowedIssuers) && input.allowedIssuers.every((elem: any, _index1: number) => "string" === typeof elem)) && (undefined === input.credentialSubject || "object" === typeof input.credentialSubject && null !== input.credentialSubject && false === Array.isArray(input.credentialSubject) && $io2(input.credentialSubject, true && _exceptionable)) && (undefined === input.schema || "string" === typeof input.schema) && (undefined === input.claimId || "string" === typeof input.claimId) && (undefined === input.credentialSubjectId || "string" === typeof input.credentialSubjectId) && (undefined === input.context || "string" === typeof input.context) && (undefined === input.type || "string" === typeof input.type) && (0 === Object.keys(input).length || Object.keys(input).every(key => {
+                if (["allowedIssuers", "credentialSubject", "schema", "claimId", "credentialSubjectId", "context", "type"].some(prop => key === prop))
+                    return true;
+                const value = input[key];
+                if (undefined === value)
+                    return true;
+                return false;
+            }));
+            const $io2 = (input: any, _exceptionable: boolean = true): boolean => Object.keys(input).every(key => {
+                const value = input[key];
+                if (undefined === value)
+                    return true;
+                if (RegExp(/(.*)/).test(key))
+                    return true;
+                return false;
+            });
+            return "object" === typeof input && null !== input && $io0(input, true);
+        };
+        if (false === __is(input)) {
+            const $report = (typia.createValidateEquals as any).report(errors);
+            ((input: any, _path: string, _exceptionable: boolean = true): input is CreateProofRequest => {
+                const $join = (typia.createValidateEquals as any).join;
+                const $vo0 = (input: any, _path: string, _exceptionable: boolean = true): boolean => [undefined === input.id || "number" === typeof input.id || $report(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "(number | undefined)",
+                        value: input.id
+                    }), "credentialAtomicQueryMTPV2" === input.circuitId || "credentialAtomicQueryMTPV2OnChain" === input.circuitId || "credentialAtomicQuerySigV2" === input.circuitId || "credentialAtomicQuerySigV2OnChain" === input.circuitId || $report(_exceptionable, {
+                        path: _path + ".circuitId",
+                        expected: "(\"credentialAtomicQueryMTPV2\" | \"credentialAtomicQueryMTPV2OnChain\" | \"credentialAtomicQuerySigV2\" | \"credentialAtomicQuerySigV2OnChain\")",
+                        value: input.circuitId
+                    }), undefined === input.challenge || "string" === typeof input.challenge || $report(_exceptionable, {
+                        path: _path + ".challenge",
+                        expected: "(string | undefined)",
+                        value: input.challenge
+                    }), ("object" === typeof input.query && null !== input.query && false === Array.isArray(input.query) || $report(_exceptionable, {
+                        path: _path + ".query",
+                        expected: "ProofQuery",
+                        value: input.query
+                    })) && $vo1(input.query, _path + ".query", true && _exceptionable) || $report(_exceptionable, {
+                        path: _path + ".query",
+                        expected: "ProofQuery",
+                        value: input.query
+                    }), 2 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map(key => {
+                        if (["id", "circuitId", "challenge", "query"].some(prop => key === prop))
+                            return true;
+                        const value = input[key];
+                        if (undefined === value)
+                            return true;
+                        return $report(_exceptionable, {
+                            path: _path + $join(key),
+                            expected: "undefined",
+                            value: value
+                        });
+                    }).every((flag: boolean) => flag))].every((flag: boolean) => flag);
+                const $vo1 = (input: any, _path: string, _exceptionable: boolean = true): boolean => [undefined === input.allowedIssuers || (Array.isArray(input.allowedIssuers) || $report(_exceptionable, {
+                        path: _path + ".allowedIssuers",
+                        expected: "(Array<string> | undefined)",
+                        value: input.allowedIssuers
+                    })) && input.allowedIssuers.map((elem: any, _index1: number) => "string" === typeof elem || $report(_exceptionable, {
+                        path: _path + ".allowedIssuers[" + _index1 + "]",
+                        expected: "string",
+                        value: elem
+                    })).every((flag: boolean) => flag) || $report(_exceptionable, {
+                        path: _path + ".allowedIssuers",
+                        expected: "(Array<string> | undefined)",
+                        value: input.allowedIssuers
+                    }), undefined === input.credentialSubject || ("object" === typeof input.credentialSubject && null !== input.credentialSubject && false === Array.isArray(input.credentialSubject) || $report(_exceptionable, {
+                        path: _path + ".credentialSubject",
+                        expected: "(__type | undefined)",
+                        value: input.credentialSubject
+                    })) && $vo2(input.credentialSubject, _path + ".credentialSubject", true && _exceptionable) || $report(_exceptionable, {
+                        path: _path + ".credentialSubject",
+                        expected: "(__type | undefined)",
+                        value: input.credentialSubject
+                    }), undefined === input.schema || "string" === typeof input.schema || $report(_exceptionable, {
+                        path: _path + ".schema",
+                        expected: "(string | undefined)",
+                        value: input.schema
+                    }), undefined === input.claimId || "string" === typeof input.claimId || $report(_exceptionable, {
+                        path: _path + ".claimId",
+                        expected: "(string | undefined)",
+                        value: input.claimId
+                    }), undefined === input.credentialSubjectId || "string" === typeof input.credentialSubjectId || $report(_exceptionable, {
+                        path: _path + ".credentialSubjectId",
+                        expected: "(string | undefined)",
+                        value: input.credentialSubjectId
+                    }), undefined === input.context || "string" === typeof input.context || $report(_exceptionable, {
+                        path: _path + ".context",
+                        expected: "(string | undefined)",
+                        value: input.context
+                    }), undefined === input.type || "string" === typeof input.type || $report(_exceptionable, {
+                        path: _path + ".type",
+                        expected: "(string | undefined)",
+                        value: input.type
+                    }), 0 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map(key => {
+                        if (["allowedIssuers", "credentialSubject", "schema", "claimId", "credentialSubjectId", "context", "type"].some(prop => key === prop))
+                            return true;
+                        const value = input[key];
+                        if (undefined === value)
+                            return true;
+                        return $report(_exceptionable, {
+                            path: _path + $join(key),
+                            expected: "undefined",
+                            value: value
+                        });
+                    }).every((flag: boolean) => flag))].every((flag: boolean) => flag);
+                const $vo2 = (input: any, _path: string, _exceptionable: boolean = true): boolean => [false === _exceptionable || Object.keys(input).map(key => {
+                        const value = input[key];
+                        if (undefined === value)
+                            return true;
+                        if (RegExp(/(.*)/).test(key))
+                            return true;
+                        return $report(_exceptionable, {
+                            path: _path + $join(key),
+                            expected: "undefined",
+                            value: value
+                        });
+                    }).every((flag: boolean) => flag)].every((flag: boolean) => flag);
+                return ("object" === typeof input && null !== input || $report(true, {
+                    path: _path + "",
+                    expected: "CreateProofRequest",
+                    value: input
+                })) && $vo0(input, _path + "", true) || $report(true, {
+                    path: _path + "",
+                    expected: "CreateProofRequest",
+                    value: input
+                });
+            })(input, "$input", true);
+        }
+        const success = 0 === errors.length;
+        return {
+            success,
+            errors,
+            data: success ? input : undefined
+        } as any;
+    };
+    const res = validate(request);
     if (!res.success) {
         throw new Error(handleIValidation(res));
     }

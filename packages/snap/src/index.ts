@@ -14,7 +14,10 @@ import {
   saveCredentials,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
-import { isValidSaveCredentialsOfferRequest } from './typia-generated';
+import {
+  isValidSaveCredentialsOfferRequest,
+  isValidCreateProofRequest,
+} from './typia-generated';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
@@ -115,6 +118,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       }
 
       const params = request.params as any as CreateProofRequest;
+
+      isValidCreateProofRequest(params);
 
       const credentials = (await findCredentialsByQuery(params.query)).filter(
         (cred) => cred.credentialSubject.id === identityStorage.did,

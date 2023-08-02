@@ -1,5 +1,5 @@
 import typia from 'typia';
-import { ClaimOffer } from '../types';
+import { ClaimOffer, CreateProofRequest } from '../types';
 
 const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
   let errorMessage = 'invalid_argument: ';
@@ -22,6 +22,14 @@ const handleIValidation = (result: typia.IValidation<unknown>) => {
 export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
   const validate = typia.createValidateEquals<ClaimOffer>();
   const res = validate(offer);
+  if (!res.success) {
+    throw new Error(handleIValidation(res));
+  }
+};
+
+export const isValidCreateProofRequest = (request: CreateProofRequest) => {
+  const validate = typia.createValidateEquals<CreateProofRequest>();
+  const res = validate(request);
   if (!res.success) {
     throw new Error(handleIValidation(res));
   }
