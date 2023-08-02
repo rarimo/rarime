@@ -1,3 +1,5 @@
+import { MetaMaskInpageProvider } from '@metamask/providers';
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
@@ -11,6 +13,15 @@ declare global {
   }
 }
 
+export enum RPCMethods {
+  CreateIdentity = 'create_identity',
+  CreateBackup = 'create_backup',
+  RecoverBackup = 'recover_backup',
+  SaveCredentials = 'save_credentials',
+  CreateProof = 'create_proof',
+  CheckStateContractSync = 'check_state_contract_sync',
+}
+
 export type SnapConnector = {
   createIdentity(): Promise<string>;
   createBackup(): Promise<boolean>;
@@ -19,6 +30,7 @@ export type SnapConnector = {
     params: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]>;
   createProof(params: CreateProofRequestParams): Promise<ZKProof>;
+  checkStateContractSync(params: CheckStateContractSyncRequestParams): Promise<boolean>;
 };
 
 export type GetSnapsResponse = {
@@ -93,6 +105,10 @@ export type CreateProofRequestParams = {
   slotIndex?: number;
   challenge?: string; // bigint string
   query: ProofQuery;
+};
+
+export type CheckStateContractSyncRequestParams = {
+  stateContractAddress: string;
 };
 
 export type ZKProof = {

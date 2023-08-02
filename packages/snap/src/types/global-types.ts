@@ -1,6 +1,6 @@
 import { NodeType } from '@metamask/snaps-ui';
 import { W3CCredential } from './credential-types';
-import { MetaMaskInpageProvider } from '@metamask/providers';
+import { providers } from 'ethers';
 
 export type TextField = {
   value: string;
@@ -16,6 +16,6 @@ export type BackupData = {
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
-    ethereum: MetaMaskInpageProvider;
+    ethereum: providers.ExternalProvider;
   }
 }

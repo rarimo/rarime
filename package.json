@@ -25,7 +25,8 @@
     "lint:misc": "prettier '**/*.json' '**/*.md' '!**/CHANGELOG.md' '**/*.yml' --ignore-path .gitignore",
     "start": "yarn build:connector && yarn workspaces foreach --parallel --interlaced --verbose run start",
     "test": "echo \"TODO\"",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "generate-ether-types": "typechain --target=ethers-v6 'abis/**/*.json' --out-dir src/types/contracts"
   },
   "devDependencies": {
     "@metamask/eslint-config": "^10.0.0",

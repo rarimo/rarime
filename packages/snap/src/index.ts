@@ -5,13 +5,15 @@ import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
-import { ClaimOffer, CreateProofRequest, TextField } from './types';
+import { CheckStateContractSyncRequest, ClaimOffer, CreateProofRequest, TextField } from './types';
+import { RPCMethods } from '../../connector/src/types';
 import { AuthZkp } from './auth-zkp';
 import {
   exportKeysAndCredentials,
   findCredentialsByQuery,
   importKeysAndCredentials,
   saveCredentials,
+  checkIfStateSynced,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 
@@ -19,7 +21,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
 }): Promise<unknown> => {
   switch (request.method) {
-    case 'save_credentials': {
+    case RPCMethods.SaveCredentials: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -58,7 +60,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       throw new Error('User rejected request');
     }
 
-    case 'create_identity': {
+    case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (identityStorage) {
         return identityStorage.did;
@@ -104,7 +106,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       throw new Error('User rejected request');
     }
 
-    case 'create_proof': {
+    case RPCMethods.CreateProof: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -171,7 +173,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       throw new Error('User rejected request');
     }
 
-    case 'create_backup': {
+    case RPCMethods.CreateBackup: {
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -208,7 +210,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       throw new Error('User rejected request');
     }
 
-    case 'recover_backup': {
+    case RPCMethods.RecoverBackup: {
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -229,6 +231,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         return true;
       }
       throw new Error('User rejected request');
+    }
+
+    case RPCMethods.CheckStateContractSync: {
+      const params = request.params as any as CheckStateContractSyncRequest;
+      const isSynced = await checkIfStateSynced({
+        currentChainContractAddress: params.stateContractAddress
+      });
+
+      return isSynced;
     }
 
     default:

@@ -1,7 +1,9 @@
 /* eslint-disable no-invalid-this */
 import { MetamaskSnap } from './snap';
 import {
+  CheckStateContractSyncRequestParams,
   CreateProofRequestParams,
+  RPCMethods,
   SaveCredentialsRequestParams,
   W3CCredential,
   ZKProof,
@@ -23,19 +25,19 @@ const sendSnapMethod = async <T>(
 export const createIdentity = async function (
   this: MetamaskSnap,
 ): Promise<string> {
-  return await sendSnapMethod({ method: 'create_identity' }, this.snapId);
+  return await sendSnapMethod({ method: RPCMethods.CreateIdentity}, this.snapId);
 };
 
 export const createBackup = async function (
   this: MetamaskSnap,
 ): Promise<boolean> {
-  return await sendSnapMethod({ method: 'create_backup' }, this.snapId);
+  return await sendSnapMethod({ method: RPCMethods.CreateBackup }, this.snapId);
 };
 
 export const recoverBackup = async function (
   this: MetamaskSnap,
 ): Promise<boolean> {
-  return await sendSnapMethod({ method: 'recover_backup' }, this.snapId);
+  return await sendSnapMethod({ method: RPCMethods.RecoverBackup }, this.snapId);
 };
 
 export const saveCredentials = async function (
@@ -43,7 +45,7 @@ export const saveCredentials = async function (
   params: SaveCredentialsRequestParams,
 ): Promise<W3CCredential[]> {
   return await sendSnapMethod(
-    { method: 'save_credentials', params },
+    { method: RPCMethods.SaveCredentials, params },
     this.snapId,
   );
 };
@@ -52,5 +54,12 @@ export const createProof = async function (
   this: MetamaskSnap,
   params: CreateProofRequestParams,
 ): Promise<ZKProof> {
-  return await sendSnapMethod({ method: 'create_proof', params }, this.snapId);
+  return await sendSnapMethod({ method: RPCMethods.CreateProof, params }, this.snapId);
+};
+
+export const CheckStateContractSync = async function (
+  this: MetamaskSnap,
+  params: CheckStateContractSyncRequestParams,
+): Promise<boolean> {
+  return await sendSnapMethod({ method: RPCMethods.CheckStateContractSync, params }, this.snapId);
 };

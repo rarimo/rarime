@@ -123,6 +123,25 @@ await window.ethereum.request({
 });
 ```
 
+### Check state contract
+
+Returns `true` if the state contract on current chain need to be synced:
+
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: {
+      method: 'check_state_contract_sync',
+      params: {
+        stateContractAddress: '0xBf62e5A9C1135c81c8C9010f722B9AE3d4dA7531'
+      }
+    },
+  },
+});
+```
+
 
 ## Testing
 
