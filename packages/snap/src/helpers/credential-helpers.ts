@@ -117,3 +117,9 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
     credentialCoreClaim: credCoreClaim,
   };
 };
+
+export const loadDataByUrl = async (url: string) => {
+  const data = await fetch(url);
+
+  return await data.json();
+};

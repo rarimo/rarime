@@ -63,8 +63,6 @@ export const createProof = async () => {
     challenge, // BigInt string
     query: {
       allowedIssuers: ['*'],
-      context:
-        'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
       credentialSubject: {
         isNatural: {
           $eq: 1,

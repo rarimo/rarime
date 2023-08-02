@@ -30,7 +30,7 @@ import {
 } from '../types';
 import { ProofType } from '../enums';
 import { QueryOperators } from '../const';
-import { getRevocationStatus } from './credential-helpers';
+import { getRevocationStatus, loadDataByUrl } from './credential-helpers';
 import {
   BJJSignatureProof2021,
   CircuitClaim,
@@ -160,13 +160,15 @@ export const newCircuitClaimData = async (
   const smtProof = getIden3SparseMerkleTreeProof(credential.proof!);
 
   if (smtProof) {
+    const data = await loadDataByUrl(smtProof.id);
+
     circuitClaim.incProof = {
-      proof: smtProof.mtp,
+      proof: data.mtp,
       treeState: buildTreeState(
-        smtProof.issuerData.state?.value,
-        smtProof.issuerData.state?.claimsTreeRoot,
-        smtProof.issuerData.state?.revocationTreeRoot,
-        smtProof.issuerData.state?.rootOfRoots,
+        data.issuer.state,
+        data.issuer.claimsTreeRoot,
+        data.issuer.revocationTreeRoot,
+        data.issuer.rootOfRoots,
       ),
     };
   }
@@ -291,7 +293,6 @@ export const merklize = async (
 export const prepareMerklizedQuery = async (
   query: ProofQuery,
   credential: W3CCredential,
-  merklizedPosition: MerklizedRootPosition,
 ): Promise<Query> => {
   const parsedQuery = await parseRequest(query.credentialSubject);
 
@@ -475,7 +476,7 @@ export const toCircuitsQuery = async (
 
   return mtPosition === MerklizedRootPosition.None
     ? prepareNonMerklizedQuery(query, credential)
-    : prepareMerklizedQuery(query, credential, mtPosition);
+    : prepareMerklizedQuery(query, credential);
 };
 
 export const prepareCircuitArrayValues = (
