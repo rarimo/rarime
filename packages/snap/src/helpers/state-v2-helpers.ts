@@ -83,5 +83,10 @@ export const checkIfStateSynced = async ({
     contractAddress: currentChainContractAddress
   });
 
+  /*
+    NOTE: for now we assume that the state must be synced if the GIST roots don't match
+          some more sophisticated logic could be added here in the future
+  */
+
   return rarimoGISTRoot === currentChainGISTRoot;
 };
