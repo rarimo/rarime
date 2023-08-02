@@ -14,6 +14,7 @@ import {
   saveCredentials,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
+import { isValidSaveCredentialsOfferRequest } from './typia-generated';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
@@ -27,10 +28,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       const offer = request.params as any as ClaimOffer;
 
+      isValidSaveCredentialsOfferRequest(offer);
+
       const dialogContent = [
         heading('Credentials'),
         divider(),
         text(`From: ${offer.from}`),
+        text(`Url: ${offer.body.url}`),
       ];
 
       const dialogCredentials = offer.body.credentials.reduce(

@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names */
 import { Proof } from '@iden3/js-merkletree';
 
 export type CredentialStatus = {
@@ -33,6 +34,11 @@ export type ClaimOffer = {
         id: string;
       },
     ];
+    /**
+     *
+     * @format
+     * url
+     */
     url: string;
   };
   from: string;
