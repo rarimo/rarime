@@ -294,7 +294,7 @@ export class ZkpGen {
       claimPathKey: this.query.valueProof?.path.toString(),
       claimPathValue: this.query.valueProof?.value?.toString(),
 
-      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
     });
@@ -376,7 +376,7 @@ export class ZkpGen {
       claimPathKey: this.query.valueProof?.path.toString(),
       claimPathValue: this.query.valueProof?.value?.toString(),
 
-      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
     });
@@ -442,7 +442,7 @@ export class ZkpGen {
       claimPathKey: this.query.valueProof?.path.toString(),
       claimPathValue: this.query.valueProof?.value?.toString(),
 
-      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
     });
@@ -539,7 +539,7 @@ export class ZkpGen {
       claimPathKey: this.query.valueProof?.path.toString(),
       claimPathValue: this.query.valueProof?.value?.toString(),
 
-      slotIndex: this.proofRequest.slotIndex ?? this.query.slotIndex,
+      slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
     });

@@ -61,7 +61,6 @@ export const createProof = async () => {
   const data = await connector.createProof({
     circuitId: 'credentialAtomicQuerySigV2OnChain',
     challenge, // BigInt string
-    slotIndex: 0,
     query: {
       allowedIssuers: ['*'],
       context:

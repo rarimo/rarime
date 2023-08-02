@@ -71,7 +71,6 @@ await window.ethereum.request({
       params: {
         circuitId: 'credentialAtomicQuerySigV2OnChain',
         challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
-        slotIndex: 0,
         query: {
           allowedIssuers: ['*'],
           context:
@@ -91,7 +90,6 @@ await window.ethereum.request({
 where:
 - **circuitId**: type of proof
 - **challenge**(optional): text that will be signed
-- **slotIndex**(optional): value in this path in merklized json-ld document
 - **query**
 	- **allowedIssuers**: types of issuers allowed
 		- **\***: all types of Issuers are allowed
