@@ -159,7 +159,7 @@ Returns true if backup recovered
 ### Check state contract sync
 
 ```typescript
-checkStateContractSync({params: }): Promise<boolean>
+checkStateContractSync({params: CheckStateContractSyncRequestParams}): Promise<boolean>
 ```
 
 ```typescript
