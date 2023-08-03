@@ -28,7 +28,7 @@ export type SnapConnector = {
     params: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]>;
   createProof(params: CreateProofRequestParams): Promise<ZKProof>;
-  checkStateContractSync(params: CheckStateContractSyncRequestParams): Promise<boolean>;
+  checkStateContractSync(): Promise<boolean>;
 };
 
 export type GetSnapsResponse = {
@@ -102,10 +102,6 @@ export type CreateProofRequestParams = {
     | 'credentialAtomicQuerySigV2OnChain';
   challenge?: string; // bigint string
   query: ProofQuery;
-};
-
-export type CheckStateContractSyncRequestParams = {
-  stateContractAddress: string;
 };
 
 export type ZKProof = {

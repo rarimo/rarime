@@ -2,7 +2,11 @@
 import { providers } from 'ethers';
 
 import { LightweightStateV2__factory, StateProof, StateV2__factory } from '../types';
-import { RARIMO_EVM_RPC_URL, RARIMO_STATE_CONTRACT_ADDRESS } from '../const';
+import {
+  RARIMO_EVM_RPC_URL,
+  RARIMO_STATE_CONTRACT_ADDRESS,
+  getStateContractAddress
+ } from '../const';
 
 export const getGISTProof = async ({
   rpcUrl,
@@ -58,14 +62,13 @@ export const getRarimoGISTRoot = async ({
 };
 
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
-export const getCurrentChainGISTRoot = async ({
-  contractAddress,
-}: {
-  contractAddress: string;
-}): Promise<BigInt> => {
+export const getCurrentChainGISTRoot = async (): Promise<BigInt> => {
+  const provider = new providers.Web3Provider(window.ethereum);
+  const contractAddress = getStateContractAddress(provider.network.chainId);
+
   const contractInstance = LightweightStateV2__factory.connect(
     contractAddress,
-    new providers.Web3Provider(window.ethereum),
+    provider
   );
   const root = await contractInstance.getGISTRoot();
 
@@ -73,20 +76,13 @@ export const getCurrentChainGISTRoot = async ({
 };
 
 // checkIfStateSynced returns true if the GIST root from the Rarimo state contract matches the GIST root from the current chain
-export const checkIfStateSynced = async ({
-  currentChainContractAddress, // TODO: get this from config/constnats
-}: {
-  currentChainContractAddress: string;
-}): Promise<boolean> => {
-  const rarimoGISTRoot = await getRarimoGISTRoot();
-  const currentChainGISTRoot = await getCurrentChainGISTRoot({
-    contractAddress: currentChainContractAddress
-  });
-
+export const checkIfStateSynced = async (): Promise<boolean> => {
   /*
     NOTE: for now we assume that the state must be synced if the GIST roots don't match
           some more sophisticated logic could be added here in the future
-  */
+   */
+  const rarimoGISTRoot = await getCurrentChainGISTRoot(); //await getRarimoGISTRoot();
+  const currentChainGISTRoot = await getCurrentChainGISTRoot();
 
   return rarimoGISTRoot === currentChainGISTRoot;
 };

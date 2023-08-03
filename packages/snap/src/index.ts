@@ -5,7 +5,7 @@ import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
-import { CheckStateContractSyncRequest, ClaimOffer, CreateProofRequest, TextField } from './types';
+import { ClaimOffer, CreateProofRequest, TextField } from './types';
 import { RPCMethods } from '@rarimo/connector';
 import { AuthZkp } from './auth-zkp';
 import {
@@ -243,10 +243,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     }
 
     case RPCMethods.CheckStateContractSync: {
-      const params = request.params as any as CheckStateContractSyncRequest;
-      const isSynced = await checkIfStateSynced({
-        currentChainContractAddress: params.stateContractAddress
-      });
+      const isSynced = await checkIfStateSynced();
 
       return isSynced;
     }

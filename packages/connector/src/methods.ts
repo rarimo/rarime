@@ -1,7 +1,6 @@
 /* eslint-disable no-invalid-this */
 import { MetamaskSnap } from './snap';
 import {
-  CheckStateContractSyncRequestParams,
   CreateProofRequestParams,
   RPCMethods,
   SaveCredentialsRequestParams,
@@ -57,9 +56,6 @@ export const createProof = async function (
   return await sendSnapMethod({ method: RPCMethods.CreateProof, params }, this.snapId);
 };
 
-export const сheckStateContractSync = async function (
-  this: MetamaskSnap,
-  params: CheckStateContractSyncRequestParams,
-): Promise<boolean> {
-  return await sendSnapMethod({ method: RPCMethods.CheckStateContractSync, params }, this.snapId);
+export const сheckStateContractSync = async function (this: MetamaskSnap): Promise<boolean> {
+  return await sendSnapMethod({ method: RPCMethods.CheckStateContractSync }, this.snapId);
 };
