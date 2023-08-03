@@ -28,6 +28,8 @@ export class Iden3SparseMerkleTreeProof {
   mtp!: Proof;
 
   coreClaim!: string;
+
+  id!: string;
 }
 
 export class BJJSignatureProof2021 {

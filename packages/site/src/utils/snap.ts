@@ -61,11 +61,8 @@ export const createProof = async () => {
   const data = await connector.createProof({
     circuitId: 'credentialAtomicQuerySigV2OnChain',
     challenge, // BigInt string
-    slotIndex: 0,
     query: {
       allowedIssuers: ['*'],
-      context:
-        'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
       credentialSubject: {
         isNatural: {
           $eq: 1,

@@ -90,7 +90,6 @@ export type CreateProofRequestParams = {
     | 'credentialAtomicQueryMTPV2OnChain'
     | 'credentialAtomicQuerySigV2'
     | 'credentialAtomicQuerySigV2OnChain';
-  slotIndex?: number;
   challenge?: string; // bigint string
   query: ProofQuery;
 };
