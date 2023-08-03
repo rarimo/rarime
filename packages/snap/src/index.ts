@@ -2,11 +2,16 @@
 import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
+import { RPCMethods } from '@rarimo/connector';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
-import { CheckStateContractSyncRequest, ClaimOffer, CreateProofRequest, TextField } from './types';
-import { RPCMethods } from '@rarimo/connector';
+import {
+  CheckStateContractSyncRequest,
+  ClaimOffer,
+  CreateProofRequest,
+  TextField,
+} from './types';
 import { AuthZkp } from './auth-zkp';
 import {
   exportKeysAndCredentials,
@@ -14,6 +19,7 @@ import {
   importKeysAndCredentials,
   saveCredentials,
   checkIfStateSynced,
+  getUpdateStateTx,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -174,6 +180,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
+        const isSynced = await checkIfStateSynced();
+        if (!isSynced) {
+          getUpdateStateTx(credentials[0].issuer);
+        }
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
         const zkpGen = new ZkpGen(identity, params, credentials[0]);
@@ -245,7 +255,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case RPCMethods.CheckStateContractSync: {
       const params = request.params as any as CheckStateContractSyncRequest;
       const isSynced = await checkIfStateSynced({
-        currentChainContractAddress: params.stateContractAddress
+        currentChainContractAddress: params.stateContractAddress,
       });
 
       return isSynced;

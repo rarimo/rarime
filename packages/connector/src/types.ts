@@ -18,6 +18,7 @@ export enum RPCMethods {
   SaveCredentials = 'save_credentials',
   CreateProof = 'create_proof',
   CheckStateContractSync = 'check_state_contract_sync',
+  GetUpdateStateTx = 'get_update_state_tx',
 }
 
 export type SnapConnector = {
@@ -28,7 +29,9 @@ export type SnapConnector = {
     params: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]>;
   createProof(params: CreateProofRequestParams): Promise<ZKProof>;
-  checkStateContractSync(params: CheckStateContractSyncRequestParams): Promise<boolean>;
+  checkStateContractSync(
+    params: CheckStateContractSyncRequestParams,
+  ): Promise<boolean>;
 };
 
 export type GetSnapsResponse = {

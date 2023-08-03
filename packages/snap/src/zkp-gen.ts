@@ -121,8 +121,8 @@ export class ZkpGen {
       this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
     ) {
       const gistInfo = await getGISTProof({
-        rpcUrl: config.RPC_URL,
-        contractAddress: config.STATE_V2_ADDRESS,
+        rpcUrl: config.RARIMO_EVM_RPC_URL,
+        contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
         userId: this.identity.identityIdBigIntString,
       });
       this.gistProof = toGISTProof(gistInfo);

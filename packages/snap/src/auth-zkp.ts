@@ -79,8 +79,8 @@ export class AuthZkp {
 
     const signature = this.identity.privateKey.signPoseidon(messageHashBigInt);
     const gistInfo = await getGISTProof({
-      rpcUrl: config.RPC_URL,
-      contractAddress: config.STATE_V2_ADDRESS,
+      rpcUrl: config.RARIMO_EVM_RPC_URL,
+      contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
       userId: this.identity.identityIdBigIntString,
     });
 

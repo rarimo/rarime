@@ -1,6 +1,6 @@
 import { NodeType } from '@metamask/snaps-ui';
-import { W3CCredential } from './credential-types';
 import { providers } from 'ethers';
+import { W3CCredential } from './credential-types';
 
 export type TextField = {
   value: string;
@@ -11,7 +11,6 @@ export type BackupData = {
   privateKey: string;
   credentials: W3CCredential[];
 };
-
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
