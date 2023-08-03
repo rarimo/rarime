@@ -16,6 +16,10 @@ import {
   checkIfStateSynced,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
+import {
+  isValidSaveCredentialsOfferRequest,
+  isValidCreateProofRequest,
+} from './typia-generated';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
@@ -29,10 +33,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       const offer = request.params as any as ClaimOffer;
 
+      isValidSaveCredentialsOfferRequest(offer);
+
       const dialogContent = [
         heading('Credentials'),
         divider(),
         text(`From: ${offer.from}`),
+        text(`Url: ${offer.body.url}`),
       ];
 
       const dialogCredentials = offer.body.credentials.reduce(
@@ -113,6 +120,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       }
 
       const params = request.params as any as CreateProofRequest;
+
+      isValidCreateProofRequest(params);
 
       const credentials = (await findCredentialsByQuery(params.query)).filter(
         (cred) => cred.credentialSubject.id === identityStorage.did,
