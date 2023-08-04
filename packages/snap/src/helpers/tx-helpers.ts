@@ -1,5 +1,5 @@
 import { TransactionRequest } from '@ethersproject/providers';
-import { heading, panel, text } from '@metamask/snaps-ui';
+import { divider, heading, panel, text } from '@metamask/snaps-ui';
 import { Wallet } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 
@@ -14,6 +14,8 @@ export const sendTx = async (
       type: 'confirmation',
       content: panel([
         heading(title || 'Submit tx'),
+        text('Check all field before send transaction!'),
+        divider(),
         text(`From: ${tx.from}`),
         text(`To: ${tx.to}`),
         text(`Gas limit: ${tx.gasLimit}`),
