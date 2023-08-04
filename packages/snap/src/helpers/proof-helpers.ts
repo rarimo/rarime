@@ -19,7 +19,7 @@ import {
 } from '@iden3/js-jsonld-merklization';
 import { ZKProof } from '@iden3/js-jwz';
 import { TransactionRequest } from '@ethersproject/providers';
-import { providers } from 'ethers';
+import { Wallet } from 'ethers';
 import {
   DemoVerifier__factory,
   GISTProof,
@@ -582,9 +582,9 @@ export const toGISTProof = (smtProof: StateProof): GISTProof => {
 export const getZkpProofTx = async (
   proof: ZKProof,
   issuerId: string,
+  signer: Wallet,
 ): Promise<TransactionRequest> => {
-  const provider = new providers.Web3Provider(window.ethereum);
-  const { chainId } = await provider.getNetwork();
+  const chainId = await signer.getChainId();
   const chainInfo = getChainInfo(chainId);
 
   const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
@@ -609,9 +609,8 @@ export const getZkpProofTx = async (
     [proof.proof.pi_c[0], proof.proof.pi_c[1]],
   ]);
 
-  return {
+  return signer.populateTransaction({
     to: chainInfo.verifierContractAddress,
-    chainId,
     data,
-  };
+  });
 };

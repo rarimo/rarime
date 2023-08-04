@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { providers } from 'ethers';
+import { Wallet, providers } from 'ethers';
 
 import { TransactionRequest } from '@ethersproject/providers';
 import {
@@ -103,9 +103,9 @@ export const loadDataFromRarimoCore = async <T>(url: string): Promise<T> => {
 
 export const getUpdateStateTx = async (
   issuerId: string,
+  signer: Wallet,
 ): Promise<TransactionRequest> => {
-  const provider = new providers.Web3Provider(window.ethereum);
-  const { chainId } = await provider.getNetwork();
+  const chainId = await signer.getChainId();
   const chainInfo = getChainInfo(chainId);
 
   const state = await loadDataFromRarimoCore<StateInfo>(
@@ -125,10 +125,8 @@ export const getUpdateStateTx = async (
     },
     operationProof.signature,
   ]);
-
-  return {
+  return signer.populateTransaction({
     to: chainInfo.stateContractAddress,
-    chainId,
     data: txData,
-  };
+  });
 };

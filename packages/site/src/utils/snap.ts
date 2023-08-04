@@ -1,7 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { enableSnap, SnapConnector } from '@rarimo/connector';
-import { Hex } from '@iden3/js-crypto';
-import { fromLittleEndian } from '@iden3/js-iden3-core';
 
 let connector: SnapConnector;
 
@@ -54,13 +52,10 @@ export const createProof = async () => {
   const accounts = (await window.ethereum.request({
     method: 'eth_requestAccounts',
   })) as string[];
-  const challenge = fromLittleEndian(
-    Hex.decodeString(String(accounts[0]).substring(2)),
-  ).toString();
 
   const data = await connector.createProof({
-    circuitId: 'credentialAtomicQuerySigV2OnChain',
-    challenge, // BigInt string
+    circuitId: 'credentialAtomicQueryMTPV2OnChain',
+    accountAddress: accounts[0],
     query: {
       allowedIssuers: ['*'],
       credentialSubject: {

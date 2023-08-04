@@ -97,6 +97,7 @@ type CredentialSchema = {
 ```
 
 ### Create a proof
+Make sure you are on the correct network before creating a proof!
 To create a proof you need to call this method with params:
 
 ```typescript
@@ -105,6 +106,7 @@ createProof(params: CreateProofRequestParams): Promise<ZKProof>
 ```typescript
 type CreateProofRequestParams = {
   id?: number;
+  accountAddress?: string; // Metamask user address for onchain proofs
   circuitId:
     | 'credentialAtomicQueryMTPV2'
     | 'credentialAtomicQueryMTPV2OnChain'
@@ -170,7 +172,8 @@ Returns true if the lightweight state contract on current chain doesn't need to 
 const connector = await snap.getConnector();
 
 const proof = connector.createProof({
-  circuitId: 'credentialAtomicQuerySigV2OnChain',
+  circuitId: 'credentialAtomicQueryMTPV2OnChain',
+  accountAddress: '0x......',
   challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
   query: {
     allowedIssuers: ['*'],
@@ -187,6 +190,7 @@ const proof = connector.createProof({
 ```
 where:
 - **circuitId**: type of proof
+- **accountAddress**(optional): Metamask user address for onchain proofs
 - **challenge**(optional): text that will be signed
 - **query**
 	- **allowedIssuers**: types of issuers allowed

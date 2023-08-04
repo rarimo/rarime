@@ -16,6 +16,8 @@ import {
   checkIfStateSynced,
   getUpdateStateTx,
   getZkpProofTx,
+  getSigner,
+  sendTx,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -125,6 +127,18 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       isValidCreateProofRequest(params);
 
+      const credentialType = params.query.type;
+      const { credentialSubject } = params.query;
+      const { circuitId, accountAddress } = params;
+
+      const isOnChainProof =
+        circuitId === CircuitId.AtomicQuerySigV2OnChain ||
+        circuitId === CircuitId.AtomicQueryMTPV2OnChain;
+
+      if (isOnChainProof && !accountAddress) {
+        throw new Error('Account address is required');
+      }
+
       const credentials = (await findCredentialsByQuery(params.query)).filter(
         (cred) => cred.credentialSubject.id === identityStorage.did,
       );
@@ -134,14 +148,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           `no credential were issued on the given id ${identityStorage.did}`,
         );
       }
-
-      const credentialType = params.query.type;
-      const { credentialSubject } = params.query;
-      const { circuitId } = params;
-
-      const isOnChainProof =
-        circuitId === CircuitId.AtomicQuerySigV2OnChain ||
-        circuitId === CircuitId.AtomicQueryMTPV2OnChain;
 
       const res = await snap.request({
         method: 'snap_dialog',
@@ -180,13 +186,22 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
-        let updateStateTx;
-        let zkpProofTx;
+        let signer;
 
         if (isOnChainProof) {
           const isSynced = await checkIfStateSynced();
+          signer = await getSigner(accountAddress!);
+
           if (!isSynced) {
-            updateStateTx = getUpdateStateTx(credentials[0].issuer);
+            try {
+              const updateStateTx = await getUpdateStateTx(
+                credentials[0].issuer,
+                signer,
+              );
+              await sendTx(updateStateTx, signer, 'Confirm update state tx');
+            } catch (e) {
+              throw new Error(e);
+            }
           }
         }
         const identity = await Identity.create(identityStorage.privateKeyHex);
@@ -194,12 +209,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         const zkpGen = new ZkpGen(identity, params, credentials[0]);
         const zkpProof = await zkpGen.generateProof();
         if (isOnChainProof) {
-          zkpProofTx = await getZkpProofTx(zkpProof, credentials[0].issuer);
+          try {
+            const zkpProofTx = await getZkpProofTx(
+              zkpProof,
+              credentials[0].issuer,
+              signer!,
+            );
+            await sendTx(zkpProofTx, signer!, 'Confirm prove zkp tx');
+          } catch (e) {
+            throw new Error(e);
+          }
+        } else {
+          return zkpProof;
         }
-        return {
-          ...(updateStateTx && { updateStateTx }),
-          ...(isOnChainProof ? { zkpProofTx } : { zkpProof }),
-        };
       }
       throw new Error('User rejected request');
     }
