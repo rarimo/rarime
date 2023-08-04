@@ -1,5 +1,5 @@
 import typia from 'typia';
-import "../types" from ;
+import { ClaimOffer, CreateProofRequest } from "../types" ;
 const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
     let errorMessage = 'invalid_argument: ';
     for (let i = 0; i < errors.length; i += 1) {
