@@ -101,12 +101,12 @@ Make sure you are on the correct network before creating a proof!
 To create a proof you need to call this method with params:
 
 ```typescript
-createProof(params: CreateProofRequestParams): Promise<ZKProof>
+createProof(params: CreateProofRequestParams): Promise<ZKProof | void>
 ```
 ```typescript
 type CreateProofRequestParams = {
   id?: number;
-  accountAddress?: string; // Metamask user address for onchain proofs
+  accountAddress?: string; // Metamask user address for on-chain proofs
   circuitId:
     | 'credentialAtomicQueryMTPV2'
     | 'credentialAtomicQueryMTPV2OnChain'
@@ -127,7 +127,7 @@ type ProofQuery = {
 };
 ```
 
-Returns ZKProof
+Returns ZKProof for off-chain proofs
 ```typescript
 type ZKProof = {
   proof: ProofData;
@@ -190,7 +190,7 @@ const proof = connector.createProof({
 ```
 where:
 - **circuitId**: type of proof
-- **accountAddress**(optional): Metamask user address for onchain proofs
+- **accountAddress**(optional): Metamask user address for on-chain proofs
 - **challenge**(optional): text that will be signed
 - **query**
 	- **allowedIssuers**: types of issuers allowed

@@ -60,6 +60,7 @@ where:
 
 ### Create a proof
 Make sure you are on the correct network before creating a proof!
+Returns ZKProof for off-chain proofs
 To create a proof you need to call this method with params:
 
 ```javascript
