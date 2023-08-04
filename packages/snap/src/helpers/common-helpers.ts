@@ -1,4 +1,7 @@
-import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
+import {
+  BIP44AddressKeyDeriver,
+  getBIP44AddressKeyDeriver,
+} from '@metamask/key-tree';
 import { Wallet, providers } from 'ethers';
 import { SUPPORTED_CHAINS } from '../config';
 
@@ -17,15 +20,10 @@ export const getChainInfo = (
   return chainInfo;
 };
 
-export const getKeysFromAddressIndex = async (addressIndex: number) => {
-  const bip44Node = await snap.request({
-    method: 'snap_getBip44Entropy',
-    params: {
-      coinType: 60,
-    },
-  });
-
-  const keyDeriver = await getBIP44AddressKeyDeriver(bip44Node);
+export const getKeysFromAddressIndex = async (
+  addressIndex: number,
+  keyDeriver: BIP44AddressKeyDeriver,
+) => {
   const { privateKey, address } = await keyDeriver(addressIndex);
   return { privateKey, address };
 };
@@ -34,8 +32,20 @@ export const getKeysFromAddress = async (
   accountAddress: string,
   maxScan = 20,
 ) => {
+  const bip44Node = await snap.request({
+    method: 'snap_getBip44Entropy',
+    params: {
+      coinType: 60,
+    },
+  });
+
+  const keyDeriver = await getBIP44AddressKeyDeriver(bip44Node);
+
   for (let i = 0; i < maxScan; i++) {
-    const { address, privateKey } = await getKeysFromAddressIndex(i);
+    const { address, privateKey } = await getKeysFromAddressIndex(
+      i,
+      keyDeriver,
+    );
     if (accountAddress.toLowerCase() === address.toLowerCase()) {
       return { address, privateKey };
     }

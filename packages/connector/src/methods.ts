@@ -24,14 +24,10 @@ const sendSnapMethod = async <T>(
 export const createIdentity = async function (
   this: MetamaskSnap,
 ): Promise<string> {
-<<<<<<< HEAD
   return await sendSnapMethod(
     { method: RPCMethods.CreateIdentity },
     this.snapId,
   );
-=======
-  return await sendSnapMethod({ method: RPCMethods.CreateIdentity}, this.snapId);
->>>>>>> main
 };
 
 export const createBackup = async function (
