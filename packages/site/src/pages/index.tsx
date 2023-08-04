@@ -10,6 +10,7 @@ import {
   createBackup,
   recoverBackup,
   reconnectSnap,
+  checkStateContractSync
 } from '../utils';
 import {
   ConnectButton,
@@ -174,6 +175,15 @@ const Index = () => {
     }
   };
 
+  const handleCheckStateContractSyncClick = async () => {
+    try {
+      await checkStateContractSync();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
   return (
     <Container>
       <Heading>
@@ -311,6 +321,25 @@ const Index = () => {
             button: (
               <SendHelloButton
                 onClick={handleRecoverBackupClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Check Sync',
+            description:
+              'Check if the lightweight state contract synced with the state contract on Rarimo',
+            button: (
+              <SendHelloButton
+                onClick={handleCheckStateContractSyncClick}
                 disabled={!state.installedSnap}
               />
             ),

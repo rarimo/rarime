@@ -11,6 +11,15 @@ declare global {
   }
 }
 
+export enum RPCMethods {
+  CreateIdentity = 'create_identity',
+  CreateBackup = 'create_backup',
+  RecoverBackup = 'recover_backup',
+  SaveCredentials = 'save_credentials',
+  CreateProof = 'create_proof',
+  CheckStateContractSync = 'check_state_contract_sync',
+}
+
 export type SnapConnector = {
   createIdentity(): Promise<string>;
   createBackup(): Promise<boolean>;
@@ -19,6 +28,7 @@ export type SnapConnector = {
     params: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]>;
   createProof(params: CreateProofRequestParams): Promise<ZKProof>;
+  checkStateContractSync(): Promise<boolean>;
 };
 
 export type GetSnapsResponse = {

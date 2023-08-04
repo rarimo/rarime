@@ -26,24 +26,6 @@ import type {
   OnEvent,
 } from "./common";
 
-export declare namespace StateV2 {
-  export type SchemaInfoDetailedStruct = {
-    lastSerialNumber: BigNumberish;
-    claimsCount: BigNumberish;
-    revokedClaims: BigNumberish[];
-  };
-
-  export type SchemaInfoDetailedStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber[]
-  ] & {
-    lastSerialNumber: BigNumber;
-    claimsCount: BigNumber;
-    revokedClaims: BigNumber[];
-  };
-}
-
 export declare namespace IState {
   export type GistProofStruct = {
     root: BigNumberish;
@@ -132,11 +114,8 @@ export declare namespace IState {
 
 export interface StateV2Interface extends utils.Interface {
   functions: {
-    "MAX_CLAIM_COMMIT_COUNT()": FunctionFragment;
-    "__StateV2_init(address,address,uint256[],uint256[][])": FunctionFragment;
+    "VERSION()": FunctionFragment;
     "acceptOwnership()": FunctionFragment;
-    "getAllowedIssuers(uint256)": FunctionFragment;
-    "getDetailedSchemaInfo(uint256,uint256)": FunctionFragment;
     "getGISTProof(uint256)": FunctionFragment;
     "getGISTProofByBlock(uint256,uint256)": FunctionFragment;
     "getGISTProofByRoot(uint256,uint256)": FunctionFragment;
@@ -147,35 +126,26 @@ export interface StateV2Interface extends utils.Interface {
     "getGISTRootInfo(uint256)": FunctionFragment;
     "getGISTRootInfoByBlock(uint256)": FunctionFragment;
     "getGISTRootInfoByTime(uint256)": FunctionFragment;
-    "getNumberOfClaims(uint256[],uint256)": FunctionFragment;
-    "getNumberOfClaims(uint256)": FunctionFragment;
     "getStateInfoById(uint256)": FunctionFragment;
     "getStateInfoByIdAndState(uint256,uint256)": FunctionFragment;
     "getStateInfoHistoryById(uint256,uint256,uint256)": FunctionFragment;
     "getStateInfoHistoryLengthById(uint256)": FunctionFragment;
-    "getStateVerifier()": FunctionFragment;
-    "getStateVerifierWithCommit()": FunctionFragment;
+    "getVerifier()": FunctionFragment;
     "idExists(uint256)": FunctionFragment;
-    "isAllowedIssuer(uint256,uint256)": FunctionFragment;
-    "isClaimRevoked(uint256,uint256,uint256)": FunctionFragment;
+    "initialize(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "pendingOwner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "setVerifier(address,address)": FunctionFragment;
+    "setVerifier(address)": FunctionFragment;
     "stateExists(uint256,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "transitState(uint256[],uint256[2],uint256[2][2],uint256[2])": FunctionFragment;
-    "transitStateWithCommit(uint256[],uint256[2],uint256[2][2],uint256[2])": FunctionFragment;
-    "updateAllowedIssuers(uint256[],uint256[][],bool)": FunctionFragment;
+    "transitState(uint256,uint256,uint256,bool,uint256[2],uint256[2][2],uint256[2])": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "MAX_CLAIM_COMMIT_COUNT"
-      | "__StateV2_init"
+      | "VERSION"
       | "acceptOwnership"
-      | "getAllowedIssuers"
-      | "getDetailedSchemaInfo"
       | "getGISTProof"
       | "getGISTProofByBlock"
       | "getGISTProofByRoot"
@@ -186,17 +156,13 @@ export interface StateV2Interface extends utils.Interface {
       | "getGISTRootInfo"
       | "getGISTRootInfoByBlock"
       | "getGISTRootInfoByTime"
-      | "getNumberOfClaims(uint256[],uint256)"
-      | "getNumberOfClaims(uint256)"
       | "getStateInfoById"
       | "getStateInfoByIdAndState"
       | "getStateInfoHistoryById"
       | "getStateInfoHistoryLengthById"
-      | "getStateVerifier"
-      | "getStateVerifierWithCommit"
+      | "getVerifier"
       | "idExists"
-      | "isAllowedIssuer"
-      | "isClaimRevoked"
+      | "initialize"
       | "owner"
       | "pendingOwner"
       | "renounceOwnership"
@@ -204,29 +170,12 @@ export interface StateV2Interface extends utils.Interface {
       | "stateExists"
       | "transferOwnership"
       | "transitState"
-      | "transitStateWithCommit"
-      | "updateAllowedIssuers"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "MAX_CLAIM_COMMIT_COUNT",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "__StateV2_init",
-    values: [string, string, BigNumberish[], BigNumberish[][]]
-  ): string;
+  encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "acceptOwnership",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAllowedIssuers",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getDetailedSchemaInfo",
-    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getGISTProof",
@@ -269,14 +218,6 @@ export interface StateV2Interface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getNumberOfClaims(uint256[],uint256)",
-    values: [BigNumberish[], BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getNumberOfClaims(uint256)",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getStateInfoById",
     values: [BigNumberish]
   ): string;
@@ -293,25 +234,14 @@ export interface StateV2Interface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getStateVerifier",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getStateVerifierWithCommit",
+    functionFragment: "getVerifier",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "idExists",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isAllowedIssuer",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isClaimRevoked",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pendingOwner",
@@ -321,10 +251,7 @@ export interface StateV2Interface extends utils.Interface {
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "setVerifier",
-    values: [string, string]
-  ): string;
+  encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
   encodeFunctionData(
     functionFragment: "stateExists",
     values: [BigNumberish, BigNumberish]
@@ -336,44 +263,19 @@ export interface StateV2Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "transitState",
     values: [
-      BigNumberish[],
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      boolean,
       [BigNumberish, BigNumberish],
       [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
       [BigNumberish, BigNumberish]
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transitStateWithCommit",
-    values: [
-      BigNumberish[],
-      [BigNumberish, BigNumberish],
-      [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      [BigNumberish, BigNumberish]
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateAllowedIssuers",
-    values: [BigNumberish[], BigNumberish[][], boolean]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "MAX_CLAIM_COMMIT_COUNT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "__StateV2_init",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "acceptOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAllowedIssuers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getDetailedSchemaInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -417,14 +319,6 @@ export interface StateV2Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getNumberOfClaims(uint256[],uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getNumberOfClaims(uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getStateInfoById",
     data: BytesLike
   ): Result;
@@ -441,22 +335,11 @@ export interface StateV2Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getStateVerifier",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getStateVerifierWithCommit",
+    functionFragment: "getVerifier",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "idExists", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isAllowedIssuer",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isClaimRevoked",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingOwner",
@@ -482,26 +365,16 @@ export interface StateV2Interface extends utils.Interface {
     functionFragment: "transitState",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transitStateWithCommit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateAllowedIssuers",
-    data: BytesLike
-  ): Result;
 
   events: {
     "Initialized(uint8)": EventFragment;
     "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "StateUpdated(uint256,uint256,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "StateUpdated"): EventFragment;
 }
 
 export interface InitializedEventObject {
@@ -535,19 +408,6 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface StateUpdatedEventObject {
-  id: BigNumber;
-  blockN: BigNumber;
-  timestamp: BigNumber;
-  state: BigNumber;
-}
-export type StateUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber, BigNumber],
-  StateUpdatedEventObject
->;
-
-export type StateUpdatedEventFilter = TypedEventFilter<StateUpdatedEvent>;
-
 export interface StateV2 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -575,30 +435,11 @@ export interface StateV2 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    MAX_CLAIM_COMMIT_COUNT(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    __StateV2_init(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+    VERSION(overrides?: CallOverrides): Promise<[string]>;
 
     acceptOwnership(
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
-
-    getAllowedIssuers(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
-    getDetailedSchemaInfo(
-      issuerId_: BigNumberish,
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[StateV2.SchemaInfoDetailedStructOutput]>;
 
     getGISTProof(
       id: BigNumberish,
@@ -648,17 +489,6 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[IState.GistRootInfoStructOutput]>;
 
-    "getNumberOfClaims(uint256[],uint256)"(
-      issuersId_: BigNumberish[],
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "getNumberOfClaims(uint256)"(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     getStateInfoById(
       id: BigNumberish,
       overrides?: CallOverrides
@@ -682,24 +512,14 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    getStateVerifier(overrides?: CallOverrides): Promise<[string]>;
-
-    getStateVerifierWithCommit(overrides?: CallOverrides): Promise<[string]>;
+    getVerifier(overrides?: CallOverrides): Promise<[string]>;
 
     idExists(id: BigNumberish, overrides?: CallOverrides): Promise<[boolean]>;
 
-    isAllowedIssuer(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isClaimRevoked(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
-      serialNumber_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    initialize(
+      verifierContractAddr: string,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -710,8 +530,7 @@ export interface StateV2 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setVerifier(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
+      newVerifierAddr: string,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
@@ -727,53 +546,22 @@ export interface StateV2 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     transitState(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    transitStateWithCommit(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    updateAllowedIssuers(
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      isAdding_: boolean,
+      id: BigNumberish,
+      oldState: BigNumberish,
+      newState: BigNumberish,
+      isOldStateGenesis: boolean,
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
-  MAX_CLAIM_COMMIT_COUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
-  __StateV2_init(
-    stateVerifier_: string,
-    stateVerifierWithCommit_: string,
-    schemas_: BigNumberish[],
-    issuersId_: BigNumberish[][],
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  VERSION(overrides?: CallOverrides): Promise<string>;
 
   acceptOwnership(
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
-
-  getAllowedIssuers(
-    schema_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
-  getDetailedSchemaInfo(
-    issuerId_: BigNumberish,
-    schema_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<StateV2.SchemaInfoDetailedStructOutput>;
 
   getGISTProof(
     id: BigNumberish,
@@ -823,17 +611,6 @@ export interface StateV2 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<IState.GistRootInfoStructOutput>;
 
-  "getNumberOfClaims(uint256[],uint256)"(
-    issuersId_: BigNumberish[],
-    schema_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "getNumberOfClaims(uint256)"(
-    schema_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   getStateInfoById(
     id: BigNumberish,
     overrides?: CallOverrides
@@ -857,24 +634,14 @@ export interface StateV2 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  getStateVerifier(overrides?: CallOverrides): Promise<string>;
-
-  getStateVerifierWithCommit(overrides?: CallOverrides): Promise<string>;
+  getVerifier(overrides?: CallOverrides): Promise<string>;
 
   idExists(id: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
-  isAllowedIssuer(
-    schema_: BigNumberish,
-    issuerId_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isClaimRevoked(
-    schema_: BigNumberish,
-    issuerId_: BigNumberish,
-    serialNumber_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  initialize(
+    verifierContractAddr: string,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -885,8 +652,7 @@ export interface StateV2 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setVerifier(
-    stateVerifier_: string,
-    stateVerifierWithCommit_: string,
+    newVerifierAddr: string,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
@@ -902,51 +668,20 @@ export interface StateV2 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   transitState(
-    inputs_: BigNumberish[],
-    a_: [BigNumberish, BigNumberish],
-    b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-    c_: [BigNumberish, BigNumberish],
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  transitStateWithCommit(
-    inputs_: BigNumberish[],
-    a_: [BigNumberish, BigNumberish],
-    b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-    c_: [BigNumberish, BigNumberish],
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  updateAllowedIssuers(
-    schemas_: BigNumberish[],
-    issuersId_: BigNumberish[][],
-    isAdding_: boolean,
+    id: BigNumberish,
+    oldState: BigNumberish,
+    newState: BigNumberish,
+    isOldStateGenesis: boolean,
+    a: [BigNumberish, BigNumberish],
+    b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+    c: [BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    MAX_CLAIM_COMMIT_COUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    __StateV2_init(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      overrides?: CallOverrides
-    ): Promise<void>;
+    VERSION(overrides?: CallOverrides): Promise<string>;
 
     acceptOwnership(overrides?: CallOverrides): Promise<void>;
-
-    getAllowedIssuers(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    getDetailedSchemaInfo(
-      issuerId_: BigNumberish,
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<StateV2.SchemaInfoDetailedStructOutput>;
 
     getGISTProof(
       id: BigNumberish,
@@ -996,17 +731,6 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<IState.GistRootInfoStructOutput>;
 
-    "getNumberOfClaims(uint256[],uint256)"(
-      issuersId_: BigNumberish[],
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getNumberOfClaims(uint256)"(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getStateInfoById(
       id: BigNumberish,
       overrides?: CallOverrides
@@ -1030,24 +754,14 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getStateVerifier(overrides?: CallOverrides): Promise<string>;
-
-    getStateVerifierWithCommit(overrides?: CallOverrides): Promise<string>;
+    getVerifier(overrides?: CallOverrides): Promise<string>;
 
     idExists(id: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
-    isAllowedIssuer(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
+    initialize(
+      verifierContractAddr: string,
       overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isClaimRevoked(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
-      serialNumber_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1056,8 +770,7 @@ export interface StateV2 extends BaseContract {
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     setVerifier(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
+      newVerifierAddr: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1073,25 +786,13 @@ export interface StateV2 extends BaseContract {
     ): Promise<void>;
 
     transitState(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    transitStateWithCommit(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    updateAllowedIssuers(
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      isAdding_: boolean,
+      id: BigNumberish,
+      oldState: BigNumberish,
+      newState: BigNumberish,
+      isOldStateGenesis: boolean,
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1117,45 +818,13 @@ export interface StateV2 extends BaseContract {
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
-
-    "StateUpdated(uint256,uint256,uint256,uint256)"(
-      id?: null,
-      blockN?: null,
-      timestamp?: null,
-      state?: null
-    ): StateUpdatedEventFilter;
-    StateUpdated(
-      id?: null,
-      blockN?: null,
-      timestamp?: null,
-      state?: null
-    ): StateUpdatedEventFilter;
   };
 
   estimateGas: {
-    MAX_CLAIM_COMMIT_COUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    __StateV2_init(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
+    VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptOwnership(
       overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    getAllowedIssuers(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getDetailedSchemaInfo(
-      issuerId_: BigNumberish,
-      schema_: BigNumberish,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getGISTProof(
@@ -1206,17 +875,6 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getNumberOfClaims(uint256[],uint256)"(
-      issuersId_: BigNumberish[],
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getNumberOfClaims(uint256)"(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getStateInfoById(
       id: BigNumberish,
       overrides?: CallOverrides
@@ -1240,23 +898,13 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getStateVerifier(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getStateVerifierWithCommit(overrides?: CallOverrides): Promise<BigNumber>;
+    getVerifier(overrides?: CallOverrides): Promise<BigNumber>;
 
     idExists(id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
-    isAllowedIssuer(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isClaimRevoked(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
-      serialNumber_: BigNumberish,
-      overrides?: CallOverrides
+    initialize(
+      verifierContractAddr: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1268,8 +916,7 @@ export interface StateV2 extends BaseContract {
     ): Promise<BigNumber>;
 
     setVerifier(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
+      newVerifierAddr: string,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
@@ -1285,55 +932,22 @@ export interface StateV2 extends BaseContract {
     ): Promise<BigNumber>;
 
     transitState(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    transitStateWithCommit(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    updateAllowedIssuers(
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      isAdding_: boolean,
+      id: BigNumberish,
+      oldState: BigNumberish,
+      newState: BigNumberish,
+      isOldStateGenesis: boolean,
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    MAX_CLAIM_COMMIT_COUNT(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    __StateV2_init(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     acceptOwnership(
       overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    getAllowedIssuers(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getDetailedSchemaInfo(
-      issuerId_: BigNumberish,
-      schema_: BigNumberish,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getGISTProof(
@@ -1386,17 +1000,6 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getNumberOfClaims(uint256[],uint256)"(
-      issuersId_: BigNumberish[],
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getNumberOfClaims(uint256)"(
-      schema_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getStateInfoById(
       id: BigNumberish,
       overrides?: CallOverrides
@@ -1420,28 +1023,16 @@ export interface StateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getStateVerifier(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getStateVerifierWithCommit(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getVerifier(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     idExists(
       id: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isAllowedIssuer(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isClaimRevoked(
-      schema_: BigNumberish,
-      issuerId_: BigNumberish,
-      serialNumber_: BigNumberish,
-      overrides?: CallOverrides
+    initialize(
+      verifierContractAddr: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1453,8 +1044,7 @@ export interface StateV2 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setVerifier(
-      stateVerifier_: string,
-      stateVerifierWithCommit_: string,
+      newVerifierAddr: string,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
@@ -1470,25 +1060,13 @@ export interface StateV2 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     transitState(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transitStateWithCommit(
-      inputs_: BigNumberish[],
-      a_: [BigNumberish, BigNumberish],
-      b_: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c_: [BigNumberish, BigNumberish],
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    updateAllowedIssuers(
-      schemas_: BigNumberish[],
-      issuersId_: BigNumberish[][],
-      isAdding_: boolean,
+      id: BigNumberish,
+      oldState: BigNumberish,
+      newState: BigNumberish,
+      isOldStateGenesis: boolean,
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };

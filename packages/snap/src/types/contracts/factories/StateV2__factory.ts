@@ -8,6 +8,11 @@ import type { StateV2, StateV2Interface } from "../StateV2";
 
 const _abi = [
   {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -59,75 +64,16 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "blockN",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "timestamp",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "state",
-        type: "uint256",
-      },
-    ],
-    name: "StateUpdated",
-    type: "event",
-  },
-  {
     inputs: [],
-    name: "MAX_CLAIM_COMMIT_COUNT",
+    name: "VERSION",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "string",
         name: "",
-        type: "uint256",
+        type: "string",
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "stateVerifier_",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "stateVerifierWithCommit_",
-        type: "address",
-      },
-      {
-        internalType: "uint256[]",
-        name: "schemas_",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[][]",
-        name: "issuersId_",
-        type: "uint256[][]",
-      },
-    ],
-    name: "__StateV2_init",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -135,66 +81,6 @@ const _abi = [
     name: "acceptOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "schema_",
-        type: "uint256",
-      },
-    ],
-    name: "getAllowedIssuers",
-    outputs: [
-      {
-        internalType: "uint256[]",
-        name: "",
-        type: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "issuerId_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "schema_",
-        type: "uint256",
-      },
-    ],
-    name: "getDetailedSchemaInfo",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "lastSerialNumber",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "claimsCount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256[]",
-            name: "revokedClaims",
-            type: "uint256[]",
-          },
-        ],
-        internalType: "struct StateV2.SchemaInfoDetailed",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -694,49 +580,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256[]",
-        name: "issuersId_",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256",
-        name: "schema_",
-        type: "uint256",
-      },
-    ],
-    name: "getNumberOfClaims",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "schema_",
-        type: "uint256",
-      },
-    ],
-    name: "getNumberOfClaims",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "id",
         type: "uint256",
@@ -938,20 +781,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getStateVerifier",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getStateVerifierWithCommit",
+    name: "getVerifier",
     outputs: [
       {
         internalType: "address",
@@ -984,54 +814,14 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "schema_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "issuerId_",
-        type: "uint256",
+        internalType: "contract IStateTransitionVerifier",
+        name: "verifierContractAddr",
+        type: "address",
       },
     ],
-    name: "isAllowedIssuer",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "schema_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "issuerId_",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "serialNumber_",
-        type: "uint256",
-      },
-    ],
-    name: "isClaimRevoked",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1071,12 +861,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "stateVerifier_",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "stateVerifierWithCommit_",
+        name: "newVerifierAddr",
         type: "address",
       },
     ],
@@ -1125,78 +910,42 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256[]",
-        name: "inputs_",
-        type: "uint256[]",
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "oldState",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "newState",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "isOldStateGenesis",
+        type: "bool",
       },
       {
         internalType: "uint256[2]",
-        name: "a_",
+        name: "a",
         type: "uint256[2]",
       },
       {
         internalType: "uint256[2][2]",
-        name: "b_",
+        name: "b",
         type: "uint256[2][2]",
       },
       {
         internalType: "uint256[2]",
-        name: "c_",
+        name: "c",
         type: "uint256[2]",
       },
     ],
     name: "transitState",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256[]",
-        name: "inputs_",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[2]",
-        name: "a_",
-        type: "uint256[2]",
-      },
-      {
-        internalType: "uint256[2][2]",
-        name: "b_",
-        type: "uint256[2][2]",
-      },
-      {
-        internalType: "uint256[2]",
-        name: "c_",
-        type: "uint256[2]",
-      },
-    ],
-    name: "transitStateWithCommit",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256[]",
-        name: "schemas_",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[][]",
-        name: "issuersId_",
-        type: "uint256[][]",
-      },
-      {
-        internalType: "bool",
-        name: "isAdding_",
-        type: "bool",
-      },
-    ],
-    name: "updateAllowedIssuers",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
