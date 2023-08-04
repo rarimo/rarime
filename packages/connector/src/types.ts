@@ -18,7 +18,6 @@ export enum RPCMethods {
   SaveCredentials = 'save_credentials',
   CreateProof = 'create_proof',
   CheckStateContractSync = 'check_state_contract_sync',
-  GetUpdateStateTx = 'get_update_state_tx',
 }
 
 export type SnapConnector = {
@@ -96,7 +95,7 @@ export type ProofQuery = {
 
 export type CreateProofRequestParams = {
   id?: number;
-  accountAddress?: string; // Metamask user address for on-chain proofs
+  accountAddress?: string; // Metamask user address for onchain proofs
   circuitId:
     | 'credentialAtomicQueryMTPV2'
     | 'credentialAtomicQueryMTPV2OnChain'
