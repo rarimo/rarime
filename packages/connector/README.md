@@ -158,13 +158,7 @@ Returns true if backup recovered
 ### Check state contract sync
 
 ```typescript
-checkStateContractSync({params: CheckStateContractSyncRequestParams}): Promise<boolean>
-```
-
-```typescript
-type CheckStateContractSyncRequestParams = {
-  stateContractAddress: string;
-};
+checkStateContractSync(): Promise<boolean>
 ```
 
 Returns true if the lightweight state contract on current chain doesn't need to be synced with the state contract on Rarimo chain.

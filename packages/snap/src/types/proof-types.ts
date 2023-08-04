@@ -21,10 +21,6 @@ export type CreateProofRequest = {
   query: ProofQuery;
 };
 
-export type CheckStateContractSyncRequest = {
-  stateContractAddress: string;
-};
-
 export type State = {
   txId?: string;
   blockTimestamp?: number;

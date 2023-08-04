@@ -84,9 +84,7 @@ export const recoverBackup = async () => {
 };
 
 export const checkStateContractSync = async () => {
-  const isSynced = await connector.checkStateContractSync({
-    stateContractAddress: '0xBf62e5A9C1135c81c8C9010f722B9AE3d4dA7531'
-  });
+  const isSynced = await connector.checkStateContractSync();
 
   alert("State contract is synced: " + isSynced);
 };

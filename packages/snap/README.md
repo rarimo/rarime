@@ -131,10 +131,7 @@ await window.ethereum.request({
   params: {
   snapId: 'snapId',
     request: {
-      method: 'check_state_contract_sync',
-      params: {
-        stateContractAddress: '0xBf62e5A9C1135c81c8C9010f722B9AE3d4dA7531'
-      }
+      method: 'check_state_contract_sync'
     },
   },
 });
