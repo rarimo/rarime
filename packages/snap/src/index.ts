@@ -155,6 +155,14 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           type: 'confirmation',
           content: panel([
             heading('Create proof'),
+            ...(isOnChainProof
+              ? [
+                  divider(),
+                  text(
+                    'The proof will be sent to the network that is selected in the metamask, please check this',
+                  ),
+                ]
+              : []),
             ...(credentialType
               ? [divider(), text('Credential type'), text(credentialType)]
               : []),
