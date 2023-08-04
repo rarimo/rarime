@@ -219,9 +219,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           } catch (e) {
             throw new Error(e);
           }
-        } else {
-          return zkpProof;
         }
+        return zkpProof;
       }
       throw new Error('User rejected request');
     }

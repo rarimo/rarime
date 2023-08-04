@@ -101,7 +101,7 @@ Make sure you are on the correct network before creating a proof!
 To create a proof you need to call this method with params:
 
 ```typescript
-createProof(params: CreateProofRequestParams): Promise<ZKProof | void>
+createProof(params: CreateProofRequestParams): Promise<ZKProof>
 ```
 ```typescript
 type CreateProofRequestParams = {
@@ -127,7 +127,7 @@ type ProofQuery = {
 };
 ```
 
-Returns ZKProof for off-chain proofs
+Returns ZKProof
 ```typescript
 type ZKProof = {
   proof: ProofData;

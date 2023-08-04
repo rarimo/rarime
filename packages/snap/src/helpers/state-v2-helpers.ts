@@ -68,14 +68,14 @@ export const getRarimoGISTRoot = async (
 };
 
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
-export const getCurrentChainGISTRoot = async (): Promise<BigInt> => {
+export const getCurrentChainGISTRoot = async (): Promise<bigint> => {
   const provider = new providers.Web3Provider(window.ethereum);
   const network = await provider.getNetwork();
   const chainInfo = getChainInfo(network.chainId);
 
   const contractInstance = LightweightStateV2__factory.connect(
     chainInfo.stateContractAddress,
-    provider
+    provider,
   );
   const root = await contractInstance.getGISTRoot();
 
@@ -88,7 +88,7 @@ export const checkIfStateSynced = async (): Promise<boolean> => {
     NOTE: for now we assume that the state must be synced if the GIST roots don't match
           some more sophisticated logic could be added here in the future
    */
-  const rarimoGISTRoot = await getCurrentChainGISTRoot(); //await getRarimoGISTRoot();
+  const rarimoGISTRoot = await getCurrentChainGISTRoot(); // await getRarimoGISTRoot();
   const currentChainGISTRoot = await getCurrentChainGISTRoot();
 
   return rarimoGISTRoot === currentChainGISTRoot;

@@ -186,7 +186,9 @@ export const newCircuitClaimData = async (
   if (sigProof) {
     const decodedSignature = Hex.decodeString(sigProof.signature);
     const signature = Signature.newFromCompressed(decodedSignature);
-
+    const issuerAuthClaimIncMtp = await loadDataByUrl(
+      sigProof.issuerProofUpdateUrl,
+    );
     const rs: RevocationStatus = await getRevocationStatus(
       sigProof.issuerData.credentialStatus!,
     );
@@ -211,12 +213,12 @@ export const newCircuitClaimData = async (
     circuitClaim.signatureProof = {
       signature,
       issuerAuthIncProof: {
-        proof: sigProof.issuerData.mtp,
+        proof: issuerAuthClaimIncMtp.mtp,
         treeState: buildTreeState(
-          sigProof.issuerData.state?.value,
-          sigProof.issuerData.state?.claimsTreeRoot,
-          sigProof.issuerData.state?.revocationTreeRoot,
-          sigProof.issuerData.state?.rootOfRoots,
+          issuerAuthClaimIncMtp.issuer.state!,
+          issuerAuthClaimIncMtp.issuer.claimsTreeRoot!,
+          issuerAuthClaimIncMtp.issuer.revocationTreeRoot!,
+          issuerAuthClaimIncMtp.issuer.rootOfRoots!,
         ),
       },
       issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
