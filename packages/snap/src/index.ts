@@ -223,7 +223,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
               credentials[0].issuer,
               signer!,
             );
-            await sendTx(zkpProofTx, signer!, 'Confirm prove zkp tx');
+            return await sendTx(zkpProofTx, signer!, 'Confirm prove zkp tx');
           } catch (e) {
             throw new Error(e);
           }
