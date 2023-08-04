@@ -86,7 +86,7 @@ export const recoverBackup = async () => {
 export const checkStateContractSync = async () => {
   const isSynced = await connector.checkStateContractSync();
 
-  alert("State contract is synced: " + isSynced);
+  alert(`State contract is synced: ${isSynced}`);
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

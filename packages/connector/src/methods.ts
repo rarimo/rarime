@@ -24,7 +24,10 @@ const sendSnapMethod = async <T>(
 export const createIdentity = async function (
   this: MetamaskSnap,
 ): Promise<string> {
-  return await sendSnapMethod({ method: RPCMethods.CreateIdentity}, this.snapId);
+  return await sendSnapMethod(
+    { method: RPCMethods.CreateIdentity },
+    this.snapId,
+  );
 };
 
 export const createBackup = async function (
@@ -36,7 +39,10 @@ export const createBackup = async function (
 export const recoverBackup = async function (
   this: MetamaskSnap,
 ): Promise<boolean> {
-  return await sendSnapMethod({ method: RPCMethods.RecoverBackup }, this.snapId);
+  return await sendSnapMethod(
+    { method: RPCMethods.RecoverBackup },
+    this.snapId,
+  );
 };
 
 export const saveCredentials = async function (
@@ -53,9 +59,17 @@ export const createProof = async function (
   this: MetamaskSnap,
   params: CreateProofRequestParams,
 ): Promise<ZKProof> {
-  return await sendSnapMethod({ method: RPCMethods.CreateProof, params }, this.snapId);
+  return await sendSnapMethod(
+    { method: RPCMethods.CreateProof, params },
+    this.snapId,
+  );
 };
 
-export const сheckStateContractSync = async function (this: MetamaskSnap): Promise<boolean> {
-  return await sendSnapMethod({ method: RPCMethods.CheckStateContractSync }, this.snapId);
+export const checkStateContractSync = async function (
+  this: MetamaskSnap,
+): Promise<boolean> {
+  return await sendSnapMethod(
+    { method: RPCMethods.CheckStateContractSync },
+    this.snapId,
+  );
 };
