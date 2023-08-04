@@ -5,7 +5,7 @@ import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
 import { RPCMethods } from '@rarimo/connector';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
-import { StorageKeys } from './enums';
+import { CircuitId, StorageKeys } from './enums';
 import { ClaimOffer, CreateProofRequest, TextField } from './types';
 import { AuthZkp } from './auth-zkp';
 import {
@@ -15,6 +15,7 @@ import {
   saveCredentials,
   checkIfStateSynced,
   getUpdateStateTx,
+  getZkpProofTx,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -138,6 +139,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const { credentialSubject } = params.query;
       const { circuitId } = params;
 
+      const isOnChainProof =
+        circuitId === CircuitId.AtomicQuerySigV2OnChain ||
+        circuitId === CircuitId.AtomicQueryMTPV2OnChain;
+
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -175,14 +180,26 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
-        const isSynced = await checkIfStateSynced();
-        if (!isSynced) {
-          getUpdateStateTx(credentials[0].issuer);
+        let updateStateTx;
+        let zkpProofTx;
+
+        if (isOnChainProof) {
+          const isSynced = await checkIfStateSynced();
+          if (!isSynced) {
+            updateStateTx = getUpdateStateTx(credentials[0].issuer);
+          }
         }
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
         const zkpGen = new ZkpGen(identity, params, credentials[0]);
-        return await zkpGen.generateProof();
+        const zkpProof = await zkpGen.generateProof();
+        if (isOnChainProof) {
+          zkpProofTx = await getZkpProofTx(zkpProof, credentials[0].issuer);
+        }
+        return {
+          ...(updateStateTx && { updateStateTx }),
+          ...(isOnChainProof ? { zkpProofTx } : { zkpProof }),
+        };
       }
       throw new Error('User rejected request');
     }

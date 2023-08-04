@@ -4,16 +4,13 @@ import { providers } from 'ethers';
 import { TransactionRequest } from '@ethersproject/providers';
 import {
   LightweightStateV2__factory,
+  OperationProof,
   StateInfo,
   StateProof,
   StateV2__factory,
 } from '../types';
-import {
-  RARIMO_EVM_RPC_URL,
-  RARIMO_STATE_CONTRACT_ADDRESS,
-  getStateContractAddress,
-} from '../const';
 import { config } from '../config';
+import { getChainInfo } from './common-helpers';
 
 export const getGISTProof = async ({
   rpcUrl,
@@ -54,8 +51,8 @@ export const getRarimoGISTRoot = async (
     rpcUrl: string;
     contractAddress: string;
   } = {
-    rpcUrl: RARIMO_EVM_RPC_URL,
-    contractAddress: RARIMO_STATE_CONTRACT_ADDRESS,
+    rpcUrl: config.RARIMO_EVM_RPC_URL,
+    contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
   },
 ): Promise<bigint> => {
   const rawProvider = new providers.JsonRpcProvider(rpcUrl, 'any');
@@ -73,10 +70,10 @@ export const getRarimoGISTRoot = async (
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
 export const getCurrentChainGISTRoot = async (): Promise<bigint> => {
   const provider = new providers.Web3Provider(window.ethereum);
-  const contractAddress = getStateContractAddress(provider.network.chainId);
+  const chainInfo = getChainInfo(provider.network.chainId);
 
   const contractInstance = LightweightStateV2__factory.connect(
-    contractAddress,
+    chainInfo.stateContractAddress,
     provider,
   );
   const root = await contractInstance.getGISTRoot();
@@ -107,22 +104,31 @@ export const loadDataFromRarimoCore = async <T>(url: string): Promise<T> => {
 export const getUpdateStateTx = async (
   issuerId: string,
 ): Promise<TransactionRequest> => {
+  const provider = new providers.Web3Provider(window.ethereum);
+  const { chainId } = await provider.getNetwork();
+  const chainInfo = getChainInfo(chainId);
+
   const state = await loadDataFromRarimoCore<StateInfo>(
     `/rarimo/rarimo-core/identity/state/${issuerId}`,
   );
-  const operationProof = await loadDataFromRarimoCore(
+  const operationProof = await loadDataFromRarimoCore<OperationProof>(
     `/rarimo/rarimo-core/rarimo-core/operation/${state.lastUpdateOperationIndex}/proof`,
   );
 
   const contractInterface = LightweightStateV2__factory.createInterface();
 
   const txData = contractInterface.encodeFunctionData('signedTransitState', [
-    state,
-    operationProof,
+    state.hash,
+    {
+      root: state.hash,
+      createdAtTimestamp: state.createdAtTimestamp,
+    },
+    operationProof.signature,
   ]);
 
   return {
-    to: '', // TODO: add contract addr
+    to: chainInfo.stateContractAddress,
+    chainId,
     data: txData,
   };
 };

@@ -1,8 +1,7 @@
 export const config = {
   AUTH_BJJ_CREDENTIAL_HASH: 'cca3371a6cb1b715004407e325bd993c',
   ID_TYPE: Uint8Array.from([1, 0]),
-  SEPOLIA_RPC_URL: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
-  SEPOLIA_STATE_V2_ADDRESS: '0x803a77bD7aB650aBF6D562260bCc5b32Aa08aD09',
+
   RARIMO_EVM_RPC_URL: 'http://localhost:8080',
   RARIMO_CORE_URL: 'http://localhost:8080',
   RARIMO_STATE_CONTRACT_ADDRESS: '0xBf62e5A9C1135c81c8C9010f722B9AE3d4dA7531',
@@ -30,12 +29,44 @@ export const config = {
 };
 
 enum CHAINS {
-  EthereumMainet = '0x1',
-  Bsc = '0x1',
-  Polygon = '0x1',
-  Avalance = '0x1',
+  EthereumMainet = 1,
+  Bsc = 56,
+  Polygon = 137,
+  Avalance = 43114,
+  Sepolia = 11155111,
 }
 
-export const SUPPORTED_CHAINS = {
-  ['0x1']
+export const SUPPORTED_CHAINS: Record<
+  number,
+  {
+    rpcUrl: string;
+    stateContractAddress: string;
+    verifierContractAddress: string;
+  }
+> = {
+  [CHAINS.EthereumMainet]: {
+    rpcUrl: '',
+    stateContractAddress: '',
+    verifierContractAddress: '',
+  },
+  [CHAINS.Bsc]: {
+    rpcUrl: '',
+    stateContractAddress: '',
+    verifierContractAddress: '',
+  },
+  [CHAINS.Polygon]: {
+    rpcUrl: '',
+    stateContractAddress: '',
+    verifierContractAddress: '',
+  },
+  [CHAINS.Avalance]: {
+    rpcUrl: '',
+    stateContractAddress: '',
+    verifierContractAddress: '',
+  },
+  [CHAINS.Sepolia]: {
+    rpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
+    stateContractAddress: '0x803a77bD7aB650aBF6D562260bCc5b32Aa08aD09',
+    verifierContractAddress: '',
+  },
 };

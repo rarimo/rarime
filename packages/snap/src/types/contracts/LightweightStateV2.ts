@@ -27,7 +27,7 @@ import type {
   OnEvent,
 } from "./common";
 
-export declare namespace ILightweightStateV2 {
+export declare namespace ILightweightState {
   export type GistRootDataStruct = {
     root: BigNumberish;
     createdAtTimestamp: BigNumberish;
@@ -47,20 +47,39 @@ export declare namespace ILightweightStateV2 {
     root: string;
     setTimestamp: BigNumber;
   };
+
+  export type StatesMerkleDataStruct = {
+    issuerId: BigNumberish;
+    issuerState: BigNumberish;
+    createdAtTimestamp: BigNumberish;
+    merkleProof: BytesLike[];
+  };
+
+  export type StatesMerkleDataStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string[]
+  ] & {
+    issuerId: BigNumber;
+    issuerState: BigNumber;
+    createdAtTimestamp: BigNumber;
+    merkleProof: string[];
+  };
 }
 
 export interface LightweightStateV2Interface extends utils.Interface {
   functions: {
     "P()": FunctionFragment;
-    "__LightweightStateV2_init(address,address,string,string)": FunctionFragment;
+    "__LightweightState_init(address,address,string,string)": FunctionFragment;
     "__Signers_init(address,string)": FunctionFragment;
     "chainName()": FunctionFragment;
     "changeSigner(bytes,bytes)": FunctionFragment;
     "changeSourceStateContract(address,bytes)": FunctionFragment;
     "checkSignatureAndIncrementNonce(uint8,address,bytes32,bytes)": FunctionFragment;
+    "geGISTRootData(uint256)": FunctionFragment;
     "getCurrentGISTRootInfo()": FunctionFragment;
     "getGISTRoot()": FunctionFragment;
-    "getGISTRootInfo(uint256)": FunctionFragment;
     "getIdentitiesStatesRootData(bytes32)": FunctionFragment;
     "getSigComponents(uint8,address)": FunctionFragment;
     "identitiesStatesRoot()": FunctionFragment;
@@ -75,20 +94,21 @@ export interface LightweightStateV2Interface extends utils.Interface {
     "upgradeToAndCall(address,bytes)": FunctionFragment;
     "upgradeToWithSig(address,bytes)": FunctionFragment;
     "validateChangeAddressSignature(uint8,address,address,bytes)": FunctionFragment;
+    "verifyStatesMerkleData((uint256,uint256,uint256,bytes32[]))": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "P"
-      | "__LightweightStateV2_init"
+      | "__LightweightState_init"
       | "__Signers_init"
       | "chainName"
       | "changeSigner"
       | "changeSourceStateContract"
       | "checkSignatureAndIncrementNonce"
+      | "geGISTRootData"
       | "getCurrentGISTRootInfo"
       | "getGISTRoot"
-      | "getGISTRootInfo"
       | "getIdentitiesStatesRootData"
       | "getSigComponents"
       | "identitiesStatesRoot"
@@ -103,11 +123,12 @@ export interface LightweightStateV2Interface extends utils.Interface {
       | "upgradeToAndCall"
       | "upgradeToWithSig"
       | "validateChangeAddressSignature"
+      | "verifyStatesMerkleData"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "P", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "__LightweightStateV2_init",
+    functionFragment: "__LightweightState_init",
     values: [string, string, string, string]
   ): string;
   encodeFunctionData(
@@ -128,16 +149,16 @@ export interface LightweightStateV2Interface extends utils.Interface {
     values: [BigNumberish, string, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "geGISTRootData",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getCurrentGISTRootInfo",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getGISTRoot",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getGISTRootInfo",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getIdentitiesStatesRootData",
@@ -165,7 +186,7 @@ export interface LightweightStateV2Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "signedTransitState",
-    values: [BytesLike, ILightweightStateV2.GistRootDataStruct, BytesLike]
+    values: [BytesLike, ILightweightState.GistRootDataStruct, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "signer", values?: undefined): string;
   encodeFunctionData(
@@ -189,10 +210,14 @@ export interface LightweightStateV2Interface extends utils.Interface {
     functionFragment: "validateChangeAddressSignature",
     values: [BigNumberish, string, string, BytesLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "verifyStatesMerkleData",
+    values: [ILightweightState.StatesMerkleDataStruct]
+  ): string;
 
   decodeFunctionResult(functionFragment: "P", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "__LightweightStateV2_init",
+    functionFragment: "__LightweightState_init",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -213,15 +238,15 @@ export interface LightweightStateV2Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "geGISTRootData",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getCurrentGISTRootInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getGISTRoot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getGISTRootInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -269,6 +294,10 @@ export interface LightweightStateV2Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "validateChangeAddressSignature",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifyStatesMerkleData",
     data: BytesLike
   ): Result;
 
@@ -363,7 +392,7 @@ export interface LightweightStateV2 extends BaseContract {
   functions: {
     P(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    __LightweightStateV2_init(
+    __LightweightState_init(
       signer_: string,
       sourceStateContract_: string,
       sourceChainName_: string,
@@ -399,21 +428,21 @@ export interface LightweightStateV2 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    getCurrentGISTRootInfo(
-      overrides?: CallOverrides
-    ): Promise<[ILightweightStateV2.GistRootDataStructOutput]>;
-
-    getGISTRoot(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getGISTRootInfo(
+    geGISTRootData(
       root_: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[ILightweightStateV2.GistRootDataStructOutput]>;
+    ): Promise<[ILightweightState.GistRootDataStructOutput]>;
+
+    getCurrentGISTRootInfo(
+      overrides?: CallOverrides
+    ): Promise<[ILightweightState.GistRootDataStructOutput]>;
+
+    getGISTRoot(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getIdentitiesStatesRootData(
       root_: BytesLike,
       overrides?: CallOverrides
-    ): Promise<[ILightweightStateV2.IdentitiesStatesRootDataStructOutput]>;
+    ): Promise<[ILightweightState.IdentitiesStatesRootDataStructOutput]>;
 
     getSigComponents(
       methodId_: BigNumberish,
@@ -438,7 +467,7 @@ export interface LightweightStateV2 extends BaseContract {
 
     signedTransitState(
       newIdentitiesStatesRoot_: BytesLike,
-      gistData_: ILightweightStateV2.GistRootDataStruct,
+      gistData_: ILightweightState.GistRootDataStruct,
       proof_: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
@@ -473,11 +502,16 @@ export interface LightweightStateV2 extends BaseContract {
       signature_: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
+
+    verifyStatesMerkleData(
+      statesMerkleData_: ILightweightState.StatesMerkleDataStruct,
+      overrides?: CallOverrides
+    ): Promise<[boolean, string]>;
   };
 
   P(overrides?: CallOverrides): Promise<BigNumber>;
 
-  __LightweightStateV2_init(
+  __LightweightState_init(
     signer_: string,
     sourceStateContract_: string,
     sourceChainName_: string,
@@ -513,21 +547,21 @@ export interface LightweightStateV2 extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  getCurrentGISTRootInfo(
-    overrides?: CallOverrides
-  ): Promise<ILightweightStateV2.GistRootDataStructOutput>;
-
-  getGISTRoot(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getGISTRootInfo(
+  geGISTRootData(
     root_: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<ILightweightStateV2.GistRootDataStructOutput>;
+  ): Promise<ILightweightState.GistRootDataStructOutput>;
+
+  getCurrentGISTRootInfo(
+    overrides?: CallOverrides
+  ): Promise<ILightweightState.GistRootDataStructOutput>;
+
+  getGISTRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
   getIdentitiesStatesRootData(
     root_: BytesLike,
     overrides?: CallOverrides
-  ): Promise<ILightweightStateV2.IdentitiesStatesRootDataStructOutput>;
+  ): Promise<ILightweightState.IdentitiesStatesRootDataStructOutput>;
 
   getSigComponents(
     methodId_: BigNumberish,
@@ -552,7 +586,7 @@ export interface LightweightStateV2 extends BaseContract {
 
   signedTransitState(
     newIdentitiesStatesRoot_: BytesLike,
-    gistData_: ILightweightStateV2.GistRootDataStruct,
+    gistData_: ILightweightState.GistRootDataStruct,
     proof_: BytesLike,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
@@ -586,10 +620,15 @@ export interface LightweightStateV2 extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
+  verifyStatesMerkleData(
+    statesMerkleData_: ILightweightState.StatesMerkleDataStruct,
+    overrides?: CallOverrides
+  ): Promise<[boolean, string]>;
+
   callStatic: {
     P(overrides?: CallOverrides): Promise<BigNumber>;
 
-    __LightweightStateV2_init(
+    __LightweightState_init(
       signer_: string,
       sourceStateContract_: string,
       sourceChainName_: string,
@@ -625,21 +664,21 @@ export interface LightweightStateV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    getCurrentGISTRootInfo(
-      overrides?: CallOverrides
-    ): Promise<ILightweightStateV2.GistRootDataStructOutput>;
-
-    getGISTRoot(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getGISTRootInfo(
+    geGISTRootData(
       root_: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<ILightweightStateV2.GistRootDataStructOutput>;
+    ): Promise<ILightweightState.GistRootDataStructOutput>;
+
+    getCurrentGISTRootInfo(
+      overrides?: CallOverrides
+    ): Promise<ILightweightState.GistRootDataStructOutput>;
+
+    getGISTRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     getIdentitiesStatesRootData(
       root_: BytesLike,
       overrides?: CallOverrides
-    ): Promise<ILightweightStateV2.IdentitiesStatesRootDataStructOutput>;
+    ): Promise<ILightweightState.IdentitiesStatesRootDataStructOutput>;
 
     getSigComponents(
       methodId_: BigNumberish,
@@ -664,7 +703,7 @@ export interface LightweightStateV2 extends BaseContract {
 
     signedTransitState(
       newIdentitiesStatesRoot_: BytesLike,
-      gistData_: ILightweightStateV2.GistRootDataStruct,
+      gistData_: ILightweightState.GistRootDataStruct,
       proof_: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -699,6 +738,11 @@ export interface LightweightStateV2 extends BaseContract {
       signature_: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    verifyStatesMerkleData(
+      statesMerkleData_: ILightweightState.StatesMerkleDataStruct,
+      overrides?: CallOverrides
+    ): Promise<[boolean, string]>;
   };
 
   filters: {
@@ -735,7 +779,7 @@ export interface LightweightStateV2 extends BaseContract {
   estimateGas: {
     P(overrides?: CallOverrides): Promise<BigNumber>;
 
-    __LightweightStateV2_init(
+    __LightweightState_init(
       signer_: string,
       sourceStateContract_: string,
       sourceChainName_: string,
@@ -771,14 +815,14 @@ export interface LightweightStateV2 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    getCurrentGISTRootInfo(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getGISTRoot(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getGISTRootInfo(
+    geGISTRootData(
       root_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getCurrentGISTRootInfo(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getGISTRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     getIdentitiesStatesRootData(
       root_: BytesLike,
@@ -808,7 +852,7 @@ export interface LightweightStateV2 extends BaseContract {
 
     signedTransitState(
       newIdentitiesStatesRoot_: BytesLike,
-      gistData_: ILightweightStateV2.GistRootDataStruct,
+      gistData_: ILightweightState.GistRootDataStruct,
       proof_: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
@@ -843,12 +887,17 @@ export interface LightweightStateV2 extends BaseContract {
       signature_: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
+
+    verifyStatesMerkleData(
+      statesMerkleData_: ILightweightState.StatesMerkleDataStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     P(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    __LightweightStateV2_init(
+    __LightweightState_init(
       signer_: string,
       sourceStateContract_: string,
       sourceChainName_: string,
@@ -884,16 +933,16 @@ export interface LightweightStateV2 extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
+    geGISTRootData(
+      root_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getCurrentGISTRootInfo(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getGISTRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getGISTRootInfo(
-      root_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     getIdentitiesStatesRootData(
       root_: BytesLike,
@@ -925,7 +974,7 @@ export interface LightweightStateV2 extends BaseContract {
 
     signedTransitState(
       newIdentitiesStatesRoot_: BytesLike,
-      gistData_: ILightweightStateV2.GistRootDataStruct,
+      gistData_: ILightweightState.GistRootDataStruct,
       proof_: BytesLike,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
@@ -961,6 +1010,11 @@ export interface LightweightStateV2 extends BaseContract {
       newAddress_: string,
       signature_: BytesLike,
       overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    verifyStatesMerkleData(
+      statesMerkleData_: ILightweightState.StatesMerkleDataStruct,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

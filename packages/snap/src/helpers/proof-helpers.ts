@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { Hex, Signature } from '@iden3/js-crypto';
 import { Claim, DID, MerklizedRootPosition } from '@iden3/js-iden3-core';
@@ -16,10 +17,15 @@ import {
   Path,
   getDocumentLoader,
 } from '@iden3/js-jsonld-merklization';
+import { ZKProof } from '@iden3/js-jwz';
+import { TransactionRequest } from '@ethersproject/providers';
+import { providers } from 'ethers';
 import {
+  DemoVerifier__factory,
   GISTProof,
   JSONSchema,
   MTProof,
+  MerkleProof,
   NodeAuxValue,
   ProofQuery,
   QueryWithFieldName,
@@ -38,6 +44,8 @@ import {
   Query,
   ValueProof,
 } from './model-helpers';
+import { getChainInfo } from './common-helpers';
+import { loadDataFromRarimoCore } from './state-v2-helpers';
 
 export const extractProof = (proof: {
   [key: string]: any;
@@ -568,5 +576,42 @@ export const toGISTProof = (smtProof: StateProof): GISTProof => {
   return {
     root,
     proof,
+  };
+};
+
+export const getZkpProofTx = async (
+  proof: ZKProof,
+  issuerId: string,
+): Promise<TransactionRequest> => {
+  const provider = new providers.Web3Provider(window.ethereum);
+  const { chainId } = await provider.getNetwork();
+  const chainInfo = getChainInfo(chainId);
+
+  const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
+    `/rarimo/rarimo-core/identity/state/${issuerId}/proof`,
+  );
+
+  const contractInterface = DemoVerifier__factory.createInterface();
+
+  const data = contractInterface.encodeFunctionData('proveIdentity', [
+    {
+      issuerId: '',
+      issuerState: '',
+      createdAtTimestamp: '',
+      merkleProof: merkleProof.proof,
+    },
+    proof.pub_signals.map((el) => BigInt(el)),
+    [proof.proof.pi_a[0], proof.proof.pi_a[1]],
+    [
+      [proof.proof.pi_b[0][1], proof.proof.pi_b[0][0]],
+      [proof.proof.pi_b[1][1], proof.proof.pi_b[1][0]],
+    ],
+    [proof.proof.pi_c[0], proof.proof.pi_c[1]],
+  ]);
+
+  return {
+    to: chainInfo.verifierContractAddress,
+    chainId,
+    data,
   };
 };

@@ -123,7 +123,7 @@ const _abi = [
         type: "string",
       },
     ],
-    name: "__LightweightStateV2_init",
+    name: "__LightweightState_init",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -224,6 +224,37 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "root_",
+        type: "uint256",
+      },
+    ],
+    name: "geGISTRootData",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "root",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "createdAtTimestamp",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct ILightweightState.GistRootData",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getCurrentGISTRootInfo",
     outputs: [
@@ -240,7 +271,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct ILightweightStateV2.GistRootData",
+        internalType: "struct ILightweightState.GistRootData",
         name: "",
         type: "tuple",
       },
@@ -256,37 +287,6 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "root_",
-        type: "uint256",
-      },
-    ],
-    name: "getGISTRootInfo",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "root",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "createdAtTimestamp",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct ILightweightStateV2.GistRootData",
-        name: "",
-        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -315,7 +315,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct ILightweightStateV2.IdentitiesStatesRootData",
+        internalType: "struct ILightweightState.IdentitiesStatesRootData",
         name: "",
         type: "tuple",
       },
@@ -441,7 +441,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct ILightweightStateV2.GistRootData",
+        internalType: "struct ILightweightState.GistRootData",
         name: "gistData_",
         type: "tuple",
       },
@@ -570,6 +570,52 @@ const _abi = [
     name: "validateChangeAddressSignature",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "issuerId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "issuerState",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "createdAtTimestamp",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32[]",
+            name: "merkleProof",
+            type: "bytes32[]",
+          },
+        ],
+        internalType: "struct ILightweightState.StatesMerkleData",
+        name: "statesMerkleData_",
+        type: "tuple",
+      },
+    ],
+    name: "verifyStatesMerkleData",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ] as const;
