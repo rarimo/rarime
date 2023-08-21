@@ -2,13 +2,11 @@ import { proving, type ZKProof } from '@iden3/js-jwz';
 
 import { Hex, Signature } from '@iden3/js-crypto';
 import { fromLittleEndian } from '@iden3/js-iden3-core';
-import { providers } from 'ethers';
 import { type Identity } from './identity';
 
 import {
   buildTreeState,
   CircuitClaim,
-  getChainInfo,
   getGISTProof,
   getNodeAuxValue,
   getPreparedCredential,
@@ -123,13 +121,10 @@ export class ZkpGen {
       this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
       this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
     ) {
-      const provider = new providers.Web3Provider(window.ethereum);
-      const network = await provider.getNetwork();
-      const chainInfo = getChainInfo(network.chainId);
 
       const gistInfo = await getGISTProof({
-        rpcUrl: chainInfo.rpcUrl,
-        contractAddress: chainInfo.stateContractAddress,
+        rpcUrl: config.RARIMO_EVM_RPC_URL,
+        contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
         userId: this.identity.identityIdBigIntString,
       });
       this.gistProof = toGISTProof(gistInfo);

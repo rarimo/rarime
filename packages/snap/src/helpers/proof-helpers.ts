@@ -19,7 +19,7 @@ import {
 } from '@iden3/js-jsonld-merklization';
 import { ZKProof } from '@iden3/js-jwz';
 import { TransactionRequest } from '@ethersproject/providers';
-import { Wallet } from 'ethers';
+import { providers } from 'ethers';
 import {
   DemoVerifier__factory,
   GISTProof,
@@ -96,8 +96,9 @@ export const getCoreClaimFromProof = (
       }
     }
   } else if (typeof credentialProof === 'object') {
-    const { claim, proofType: extractedProofType } =
-      extractProof(credentialProof);
+    const { claim, proofType: extractedProofType } = extractProof(
+      credentialProof,
+    );
     if (extractedProofType === proofType) {
       return claim;
     }
@@ -584,10 +585,11 @@ export const toGISTProof = (smtProof: StateProof): GISTProof => {
 export const getZkpProofTx = async (
   proof: ZKProof,
   issuerId: string,
-  signer: Wallet,
+  accountAddress: string,
 ): Promise<TransactionRequest> => {
-  const chainId = await signer.getChainId();
-  const chainInfo = getChainInfo(chainId);
+  const provider = new providers.Web3Provider(window.ethereum);
+  const network = await provider.getNetwork();
+  const chainInfo = getChainInfo(network.chainId);
 
   const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
     `/rarimo/rarimo-core/identity/state/${issuerId}/proof`,
@@ -611,8 +613,10 @@ export const getZkpProofTx = async (
     [proof.proof.pi_c[0], proof.proof.pi_c[1]],
   ]);
 
-  return signer.populateTransaction({
+  return {
     to: chainInfo.verifierContractAddress,
+    from: accountAddress,
+    chainId: network.chainId,
     data,
-  });
+  };
 };

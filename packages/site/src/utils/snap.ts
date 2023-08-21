@@ -15,16 +15,22 @@ export const createIdentity = async () => {
   await fetch(
     `http://127.0.0.1:8000/integrations/issuer/v1/private/claims/issue/${
       did.split(':')[2]
-    }/NaturalPerson`,
+    }/IdentityProviders`,
     {
       method: 'POST',
       body: JSON.stringify({
         data: {
           attributes: {
             credential_subject: {
-              is_natural: '1',
+              is_natural: 1,
+              provider: 'UnstoppableDomains',
+              gitcoin_passport_score: '0.0',
+              address: 'none',
+              civic_gatekeeper_network_id: 0,
+              worldcoin_score: 'none',
+              unstoppable_domain: 'dlkharkiv.blockchain',
+              kyc_additional_data: 'none',
             },
-            expiration: '2024-01-16T17:34:29+00:00',
           },
         },
       }),
@@ -39,7 +45,7 @@ export const sendVc = async () => {
   const response = await fetch(
     `http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/${
       did.split(':')[2]
-    }/NaturalPerson`,
+    }/IdentityProviders`,
   );
   const offer = await response.json();
 
@@ -63,7 +69,7 @@ export const createProof = async () => {
           $eq: 1,
         },
       },
-      type: 'NaturalPerson',
+      type: 'IdentityProviders',
     },
   });
 

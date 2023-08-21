@@ -2,9 +2,9 @@ export const config = {
   AUTH_BJJ_CREDENTIAL_HASH: 'cca3371a6cb1b715004407e325bd993c',
   ID_TYPE: Uint8Array.from([1, 0]),
 
-  RARIMO_EVM_RPC_URL: 'http://localhost:8080',
-  RARIMO_CORE_URL: 'http://localhost:8080',
-  RARIMO_STATE_CONTRACT_ADDRESS: '0xBf62e5A9C1135c81c8C9010f722B9AE3d4dA7531',
+  RARIMO_EVM_RPC_URL: 'https://rpc.evm.node1.mainnet-beta.rarimo.com',
+  RARIMO_CORE_URL: 'https://rpc-api.node1.mainnet-beta.rarimo.com',
+  RARIMO_STATE_CONTRACT_ADDRESS: '0x753a8678c85d5fb70A97CFaE37c84CE2fD67EDE8',
 
   CIRCUIT_AUTH_WASM_URL:
     'https://raw.githubusercontent.com/Electr1Xx/circuits/main/authV2/circuit.wasm',
@@ -66,7 +66,7 @@ export const SUPPORTED_CHAINS: Record<
   },
   [CHAINS.Sepolia]: {
     rpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
-    stateContractAddress: '0x803a77bD7aB650aBF6D562260bCc5b32Aa08aD09',
-    verifierContractAddress: '',
+    stateContractAddress: '0x8a9F505bD8a22BF09b0c19F65C17426cd33f3912',
+    verifierContractAddress: '0x01A1e46fE9108f60B8de1c99bA50f29F3Be294F6',
   },
 };

@@ -7,7 +7,7 @@
     "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
   },
   "source": {
-    "shasum": "FA+bW7X/cKx041VAgUrWoKc6EXtzMGMweJfgxX4UeOs=",
+    "shasum": "EHzsyKXDUE8w6+uzEAXz0hwbd/wIzkkSbPiG+ANmMZ4=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -27,12 +27,7 @@
     "endowment:network-access": {},
     "endowment:webassembly": {},
     "endowment:long-running": {},
-    "endowment:ethereum-provider": {},
-    "snap_getBip44Entropy": [
-      {
-        "coinType": 60
-      }
-    ]
+    "endowment:ethereum-provider": {}
   },
   "manifestVersion": "0.1"
 }

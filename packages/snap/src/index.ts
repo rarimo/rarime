@@ -16,8 +16,6 @@ import {
   checkIfStateSynced,
   getUpdateStateTx,
   getZkpProofTx,
-  getSigner,
-  sendTx,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -35,7 +33,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw new Error('Identity not created');
       }
 
-      const offer = request.params as any as ClaimOffer;
+      const offer = (request.params as any) as ClaimOffer;
 
       isValidSaveCredentialsOfferRequest(offer);
 
@@ -123,7 +121,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw new Error('Identity not created');
       }
 
-      const params = request.params as any as CreateProofRequest;
+      const params = (request.params as any) as CreateProofRequest;
 
       isValidCreateProofRequest(params);
 
@@ -155,14 +153,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           type: 'confirmation',
           content: panel([
             heading('Create proof'),
-            ...(isOnChainProof
-              ? [
-                  divider(),
-                  text(
-                    'The proof will be sent to the network that is selected in the metamask, please check this',
-                  ),
-                ]
-              : []),
             ...(credentialType
               ? [divider(), text('Credential type'), text(credentialType)]
               : []),
@@ -194,19 +184,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
-        let signer;
-
         if (isOnChainProof) {
           const isSynced = await checkIfStateSynced();
-          signer = await getSigner(accountAddress!);
 
           if (!isSynced) {
             try {
-              const updateStateTx = await getUpdateStateTx(
+              return await getUpdateStateTx(
                 credentials[0].issuer,
-                signer,
+                accountAddress!,
               );
-              await sendTx(updateStateTx, signer, 'Confirm update state tx');
             } catch (e) {
               throw new Error(e);
             }
@@ -218,12 +204,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         const zkpProof = await zkpGen.generateProof();
         if (isOnChainProof) {
           try {
-            const zkpProofTx = await getZkpProofTx(
+            return await getZkpProofTx(
               zkpProof,
               credentials[0].issuer,
-              signer!,
+              accountAddress!,
             );
-            return await sendTx(zkpProofTx, signer!, 'Confirm prove zkp tx');
           } catch (e) {
             throw new Error(e);
           }
