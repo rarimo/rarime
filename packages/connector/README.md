@@ -101,7 +101,7 @@ Make sure you are on the correct network before creating a proof!
 To create a proof you need to call this method with params:
 
 ```typescript
-createProof(params: CreateProofRequestParams): Promise<ZKProof | TransactionReceipt>
+createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>
 ```
 ```typescript
 type CreateProofRequestParams = {
@@ -127,8 +127,14 @@ type ProofQuery = {
 };
 ```
 
-Returns ZKProof for off-chain and TransactionReceipt for on-chain
+Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx and zkpTx for on-chain
 ```typescript
+type ZKPProofResponse = {
+  zkpTx?: TransactionRequest; // ethers TransactionRequest
+  updateStateTx?: TransactionRequest;
+  zkpProof?: ZKProof;
+};
+
 type ZKProof = {
   proof: ProofData;
   pub_signals: string[];
@@ -138,26 +144,6 @@ type ProofData = {
   pi_b: string[][];
   pi_c: string[];
   protocol: string;
-};
-
-type TransactionReceipt = {
-  to: string;
-  from: string;
-  contractAddress: string,
-  transactionIndex: number,
-  root?: string,
-  gasUsed: BigNumber,
-  logsBloom: string,
-  blockHash: string,
-  transactionHash: string,
-  logs: Array<Log>,
-  blockNumber: number,
-  confirmations: number,
-  cumulativeGasUsed: BigNumber,
-  effectiveGasPrice: BigNumber,
-  byzantium: boolean,
-  type: number;
-  status?: number
 };
 ```
 

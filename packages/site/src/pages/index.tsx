@@ -10,7 +10,7 @@ import {
   createBackup,
   recoverBackup,
   reconnectSnap,
-  checkStateContractSync
+  checkStateContractSync,
 } from '../utils';
 import {
   ConnectButton,

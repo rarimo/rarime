@@ -1,3 +1,5 @@
+import { TransactionRequest } from '@ethersproject/providers';
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
@@ -27,7 +29,7 @@ export type SnapConnector = {
   saveCredentials(
     params: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]>;
-  createProof(params: CreateProofRequestParams): Promise<ZKProof>;
+  createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>;
   checkStateContractSync(): Promise<boolean>;
 };
 
@@ -114,4 +116,10 @@ export type ProofData = {
   pi_b: string[][];
   pi_c: string[];
   protocol: string;
+};
+
+export type ZKPProofResponse = {
+  zkpTx?: TransactionRequest;
+  updateStateTx?: TransactionRequest;
+  zkpProof?: ZKProof;
 };

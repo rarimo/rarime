@@ -5,7 +5,7 @@ import {
   RPCMethods,
   SaveCredentialsRequestParams,
   W3CCredential,
-  ZKProof,
+  ZKPProofResponse,
 } from './types';
 
 const sendSnapMethod = async <T>(
@@ -58,7 +58,7 @@ export const saveCredentials = async function (
 export const createProof = async function (
   this: MetamaskSnap,
   params: CreateProofRequestParams,
-): Promise<ZKProof> {
+): Promise<ZKPProofResponse> {
   return await sendSnapMethod(
     { method: RPCMethods.CreateProof, params },
     this.snapId,

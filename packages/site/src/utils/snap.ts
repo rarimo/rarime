@@ -53,7 +53,7 @@ export const createProof = async () => {
     const updateStateTx = await signer.sendTransaction(data.updateStateTx);
     await updateStateTx.wait();
   }
-  const zkpTx = await signer.sendTransaction(data.zkpTx);
+  const zkpTx = await signer.sendTransaction(data.zkpTx!);
   await zkpTx.wait();
 };
 
