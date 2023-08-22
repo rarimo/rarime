@@ -7,4 +7,3 @@ export * from './proof-helpers';
 export * from './model-helpers';
 export * from './backup-helpers';
 export * from './common-helpers';
-export * from './tx-helpers';

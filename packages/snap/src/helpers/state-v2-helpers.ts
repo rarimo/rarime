@@ -2,9 +2,9 @@
 import { providers, utils } from 'ethers';
 
 import { TransactionRequest } from '@ethersproject/providers';
-import { Id } from '@iden3/js-iden3-core';
 import {
-  GetStateInfoResponse,
+  ChainInfo,
+  StateInfo,
   IdentityNode,
   IdentityParams,
   LightweightStateV2__factory,
@@ -31,7 +31,7 @@ export const getGISTProof = async ({
     rawProvider,
   );
   const data = await contractInstance.getGISTProof(userId);
-  console.log(data);
+
   return {
     root: BigInt(data.root.toString()),
     existence: data.existence,
@@ -95,31 +95,41 @@ export const checkIfStateSynced = async (): Promise<boolean> => {
 };
 
 export const loadDataFromRarimoCore = async <T>(url: string): Promise<T> => {
-  const data = await fetch(`${config.RARIMO_CORE_URL}${url}`, {
+  const response = await fetch(`${config.RARIMO_CORE_URL}${url}`, {
     headers: { 'Content-Type': 'application/json' },
   });
 
-  return await data.json();
+  if (!response.ok) {
+    const message = `An error has occured: ${response.status}`;
+    const error = new Error(message);
+    error.stack = String(response.status);
+    throw error;
+  }
+
+  return await response.json();
 };
 
 export const getUpdateStateTx = async (
-  issuerId: string,
   accountId: string,
+  chainInfo: ChainInfo,
+  state: StateInfo,
 ): Promise<TransactionRequest> => {
-  const provider = new providers.Web3Provider(window.ethereum);
-  const network = await provider.getNetwork();
-  const chainInfo = getChainInfo(network.chainId);
+  let operationProof;
+  do {
+    try {
+      operationProof = await loadDataFromRarimoCore<OperationProof>(
+        `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}/proof`,
+      );
+    } catch (e) {
+      // http code
+      if (e.stack === '400') {
+        await new Promise((resolve) => setTimeout(resolve, 30000));
+      } else {
+        throw e;
+      }
+    }
+  } while (!operationProof);
 
-  console.log(issuerId);
-  const ID = Id.fromString('tJgV5GSETVoEdg3BeQygWJdNEHHwZTSSiCB1NkM1u');
-  const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
-
-  const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
-    `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
-  );
-  const operationProof = await loadDataFromRarimoCore<OperationProof>(
-    `/rarimo/rarimo-core/rarimocore/operation/${stateData.state.lastUpdateOperationIndex}/proof`,
-  );
   const identityParams = await loadDataFromRarimoCore<IdentityParams>(
     '/rarimo/rarimo-core/identity/params',
   );
@@ -155,7 +165,7 @@ export const getUpdateStateTx = async (
   return {
     to: chainInfo.stateContractAddress,
     from: accountId,
-    chainId: network.chainId,
+    chainId: chainInfo.id,
     data: txData,
   };
 };

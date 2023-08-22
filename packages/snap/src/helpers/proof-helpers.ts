@@ -19,8 +19,9 @@ import {
 } from '@iden3/js-jsonld-merklization';
 import { ZKProof } from '@iden3/js-jwz';
 import { TransactionRequest } from '@ethersproject/providers';
-import { providers } from 'ethers';
+import { utils } from 'ethers';
 import {
+  ChainInfo,
   DemoVerifier__factory,
   GISTProof,
   JSONSchema,
@@ -30,6 +31,7 @@ import {
   ProofQuery,
   QueryWithFieldName,
   RevocationStatus,
+  StateInfo,
   StateProof,
   TreeState,
   W3CCredential,
@@ -44,7 +46,6 @@ import {
   Query,
   ValueProof,
 } from './model-helpers';
-import { getChainInfo } from './common-helpers';
 import { loadDataFromRarimoCore } from './state-v2-helpers';
 
 export const extractProof = (proof: {
@@ -586,11 +587,9 @@ export const getZkpProofTx = async (
   proof: ZKProof,
   issuerId: string,
   accountAddress: string,
+  chainInfo: ChainInfo,
+  state: StateInfo,
 ): Promise<TransactionRequest> => {
-  const provider = new providers.Web3Provider(window.ethereum);
-  const network = await provider.getNetwork();
-  const chainInfo = getChainInfo(network.chainId);
-
   const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
     `/rarimo/rarimo-core/identity/state/${issuerId}/proof`,
   );
@@ -599,10 +598,10 @@ export const getZkpProofTx = async (
 
   const data = contractInterface.encodeFunctionData('proveIdentity', [
     {
-      issuerId: '',
-      issuerState: '',
-      createdAtTimestamp: '',
-      merkleProof: merkleProof.proof,
+      issuerId,
+      issuerState: state.hash,
+      createdAtTimestamp: state.createdAtTimestamp,
+      merkleProof: merkleProof.proof.map((el) => utils.arrayify(el)),
     },
     proof.pub_signals.map((el) => BigInt(el)),
     [proof.proof.pi_a[0], proof.proof.pi_a[1]],
@@ -616,7 +615,7 @@ export const getZkpProofTx = async (
   return {
     to: chainInfo.verifierContractAddress,
     from: accountAddress,
-    chainId: network.chainId,
+    chainId: chainInfo.id,
     data,
   };
 };

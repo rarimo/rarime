@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { enableSnap, SnapConnector } from '@rarimo/connector';
+import { providers } from 'ethers';
 
 let connector: SnapConnector;
 
@@ -12,40 +13,13 @@ export const connectSnap = async () => {
 export const createIdentity = async () => {
   const did = await connector.createIdentity();
 
-  await fetch(
-    `http://127.0.0.1:8000/integrations/issuer/v1/private/claims/issue/${
-      did.split(':')[2]
-    }/IdentityProviders`,
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        data: {
-          attributes: {
-            credential_subject: {
-              is_natural: 1,
-              provider: 'UnstoppableDomains',
-              gitcoin_passport_score: '0.0',
-              address: 'none',
-              civic_gatekeeper_network_id: 0,
-              worldcoin_score: 'none',
-              unstoppable_domain: 'dlkharkiv.blockchain',
-              kyc_additional_data: 'none',
-            },
-          },
-        },
-      }),
-    },
-  );
   console.log(did);
 };
 
 export const sendVc = async () => {
-  const did = await connector.createIdentity();
-
+  const id = ''; // did id
   const response = await fetch(
-    `http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/${
-      did.split(':')[2]
-    }/IdentityProviders`,
+    `https://api.polygon.mainnet-beta.rarimo.com/integrations/issuer/v1/public/claims/offers/${id}/IdentityProviders`,
   );
   const offer = await response.json();
 
@@ -72,8 +46,15 @@ export const createProof = async () => {
       type: 'IdentityProviders',
     },
   });
-
   console.log(data);
+  const provider = new providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  if (data.updateStateTx) {
+    const updateStateTx = await signer.sendTransaction(data.updateStateTx);
+    await updateStateTx.wait();
+  }
+  const zkpTx = await signer.sendTransaction(data.zkpTx);
+  await zkpTx.wait();
 };
 
 export const createBackup = async () => {

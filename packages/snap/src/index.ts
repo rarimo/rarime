@@ -3,10 +3,17 @@ import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
 import { RPCMethods } from '@rarimo/connector';
+import { providers } from 'ethers';
+import { DID } from '@iden3/js-iden3-core';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
-import { ClaimOffer, CreateProofRequest, TextField } from './types';
+import {
+  ClaimOffer,
+  CreateProofRequest,
+  GetStateInfoResponse,
+  TextField,
+} from './types';
 import { AuthZkp } from './auth-zkp';
 import {
   exportKeysAndCredentials,
@@ -16,6 +23,8 @@ import {
   checkIfStateSynced,
   getUpdateStateTx,
   getZkpProofTx,
+  getChainInfo,
+  loadDataFromRarimoCore,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -184,34 +193,47 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
-        if (isOnChainProof) {
-          const isSynced = await checkIfStateSynced();
-
-          if (!isSynced) {
-            try {
-              return await getUpdateStateTx(
-                credentials[0].issuer,
-                accountAddress!,
-              );
-            } catch (e) {
-              throw new Error(e);
-            }
-          }
-        }
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
         const zkpGen = new ZkpGen(identity, params, credentials[0]);
         const zkpProof = await zkpGen.generateProof();
+
         if (isOnChainProof) {
-          try {
-            return await getZkpProofTx(
-              zkpProof,
-              credentials[0].issuer,
+          let updateStateTx;
+
+          const provider = new providers.Web3Provider(window.ethereum);
+          const network = await provider.getNetwork();
+          const chainInfo = getChainInfo(network.chainId);
+
+          const isSynced = await checkIfStateSynced();
+
+          const ID = DID.parse(credentials[0].issuer).id;
+          const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
+
+          const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
+            `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
+          );
+
+          if (!isSynced) {
+            updateStateTx = await getUpdateStateTx(
               accountAddress!,
+              chainInfo,
+              stateData.state,
             );
-          } catch (e) {
-            throw new Error(e);
           }
+
+          const zkpTx = await getZkpProofTx(
+            zkpProof,
+            issuerHexId,
+            accountAddress!,
+            chainInfo,
+            stateData.state,
+          );
+
+          return {
+            zkpTx,
+            ...(updateStateTx && { updateStateTx }),
+          };
         }
         return zkpProof;
       }

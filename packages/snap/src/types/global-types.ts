@@ -18,3 +18,10 @@ declare global {
     ethereum: providers.ExternalProvider;
   }
 }
+
+export type ChainInfo = {
+  id: number;
+  rpcUrl: string;
+  stateContractAddress: string;
+  verifierContractAddress: string;
+};
