@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { enableSnap, SnapConnector } from '@rarimo/connector';
-import { providers } from 'ethers';
 
 let connector: SnapConnector;
 
@@ -50,14 +49,6 @@ export const createProof = async () => {
     },
   });
   console.log(data);
-  const provider = new providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  if (data.updateStateTx) {
-    const updateStateTx = await signer.sendTransaction(data.updateStateTx);
-    await updateStateTx.wait();
-  }
-  const zkpTx = await signer.sendTransaction(data.zkpTx!);
-  await zkpTx.wait();
 };
 
 export const createBackup = async () => {

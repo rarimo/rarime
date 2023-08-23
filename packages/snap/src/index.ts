@@ -240,7 +240,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           statesMerkleData: {
             issuerId: issuerHexId,
             state: stateData.state,
-            merkleProof,
+            merkleProof: merkleProof.proof,
           },
           zkpProof,
           ...(updateStateTx && { updateStateTx }),

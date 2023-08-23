@@ -126,7 +126,6 @@ export type StateInfo = {
 };
 
 export type ZKPProofResponse = {
-  zkpTx?: TransactionRequest;
   updateStateTx?: TransactionRequest;
   zkpProof: ZKProof;
   statesMerkleData?: {

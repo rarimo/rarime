@@ -43,6 +43,5 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
     id: CHAINS.Sepolia,
     rpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
     stateContractAddress: '0x8a9F505bD8a22BF09b0c19F65C17426cd33f3912',
-    verifierContractAddress: '0x01A1e46fE9108f60B8de1c99bA50f29F3Be294F6',
   },
 };

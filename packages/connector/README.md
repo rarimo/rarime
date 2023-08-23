@@ -127,11 +127,10 @@ type ProofQuery = {
 };
 ```
 
-Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx, zkpTx, statesMerkleData, ZKProof for on-chain
+Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
 ```typescript
 type ZKPProofResponse = {
-  zkpTx?: TransactionRequest; // ethers TransactionRequest
-  updateStateTx?: TransactionRequest;
+  updateStateTx?: TransactionRequest; // ethers TransactionRequest
   zkpProof: ZKProof;
   statesMerkleData?: {
     issuerId: string;
