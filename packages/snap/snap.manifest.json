@@ -7,7 +7,7 @@
     "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
   },
   "source": {
-    "shasum": "R4ubnqdKLPtu63pFJPkx8OBi4JUJkHWChM5bDOcNObQ=",
+    "shasum": "gfxXF530CqNKnXNqn3CCHp3m/Ff3edGCGdWoa/nK0x4=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

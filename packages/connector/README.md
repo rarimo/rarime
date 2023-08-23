@@ -136,7 +136,7 @@ type ZKPProofResponse = {
   statesMerkleData?: {
     issuerId: string;
     state: StateInfo;
-    merkleProof: Uint8Array[];
+    merkleProof: string[];
   };
 };
 
@@ -283,7 +283,9 @@ const data = contractInterface.encodeFunctionData('proveIdentity', [
     issuerId: proofData.statesMerkleData.issuerId,
     issuerState: proofData.statesMerkleData.state.hash,
     createdAtTimestamp: proofData.statesMerkleData.state.createdAtTimestamp,
-    merkleProof: proofData.statesMerkleData.merkleProof,
+    merkleProof: proofData.statesMerkleData.merkleProof.map((el) =>
+      utils.arrayify(el), // utils from ethers
+    ),
   },
   proofData.zkpProof.pub_signals.map((el) => BigInt(el)),
   [proofData.zkpProof.proof.pi_a[0], proofData.zkpProof.proof.pi_a[1]],

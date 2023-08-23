@@ -132,6 +132,6 @@ export type ZKPProofResponse = {
   statesMerkleData?: {
     issuerId: string;
     state: StateInfo;
-    merkleProof: Uint8Array[];
+    merkleProof: string[];
   };
 };
