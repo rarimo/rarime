@@ -206,44 +206,45 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         const zkpGen = new ZkpGen(identity, params, credentials[0]);
         const zkpProof = await zkpGen.generateProof();
 
-        if (isOnChainProof) {
-          let updateStateTx;
+        if (!isOnChainProof) {
+          return { zkpProof };
+        }
 
-          const provider = new providers.Web3Provider(window.ethereum);
-          const network = await provider.getNetwork();
-          const chainInfo = getChainInfo(network.chainId);
+        let updateStateTx;
 
-          const isSynced = await checkIfStateSynced();
+        const provider = new providers.Web3Provider(window.ethereum);
+        const network = await provider.getNetwork();
+        const chainInfo = getChainInfo(network.chainId);
 
-          const ID = DID.parse(credentials[0].issuer).id;
-          const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
+        const isSynced = await checkIfStateSynced();
 
-          const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
-            `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
-          );
+        const ID = DID.parse(credentials[0].issuer).id;
+        const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
 
-          if (!isSynced) {
-            updateStateTx = await getUpdateStateTx(
-              accountAddress!,
-              chainInfo,
-              stateData.state,
-            );
-          }
+        const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
+          `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
+        );
 
-          const zkpTx = await getZkpProofTx(
-            zkpProof,
-            issuerHexId,
+        if (!isSynced) {
+          updateStateTx = await getUpdateStateTx(
             accountAddress!,
             chainInfo,
             stateData.state,
           );
-
-          return {
-            zkpTx,
-            ...(updateStateTx && { updateStateTx }),
-          };
         }
-        return { zkpProof };
+
+        const zkpTx = await getZkpProofTx(
+          zkpProof,
+          issuerHexId,
+          accountAddress!,
+          chainInfo,
+          stateData.state,
+        );
+
+        return {
+          zkpTx,
+          ...(updateStateTx && { updateStateTx }),
+        };
       }
       throw new Error('User rejected request');
     }

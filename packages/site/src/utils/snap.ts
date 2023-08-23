@@ -17,9 +17,12 @@ export const createIdentity = async () => {
 };
 
 export const sendVc = async () => {
-  const id = ''; // did id
+  const did = await connector.createIdentity();
+
   const response = await fetch(
-    `https://api.polygon.mainnet-beta.rarimo.com/integrations/issuer/v1/public/claims/offers/${id}/IdentityProviders`,
+    `https://api.polygon.mainnet-beta.rarimo.com/integrations/issuer/v1/public/claims/offers/${
+      did.split(':')[2]
+    }/IdentityProviders`,
   );
   const offer = await response.json();
 

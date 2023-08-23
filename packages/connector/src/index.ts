@@ -29,7 +29,7 @@ export const enableSnap = async (
     await window.ethereum.request({
       method: 'wallet_requestSnaps',
       params: {
-        [snapId]: { version },
+        [snapId]: { ...(version && { version }) },
       },
     });
   }

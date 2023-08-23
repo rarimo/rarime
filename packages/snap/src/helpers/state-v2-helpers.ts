@@ -14,6 +14,7 @@ import {
 } from '../types';
 import { config } from '../config';
 import { getChainInfo } from './common-helpers';
+import { FetcherError } from './error-helper';
 
 export const getGISTProof = async ({
   rpcUrl,
@@ -100,10 +101,7 @@ export const loadDataFromRarimoCore = async <T>(url: string): Promise<T> => {
   });
 
   if (!response.ok) {
-    const message = `An error has occured: ${response.status}`;
-    const error = new Error(message);
-    error.stack = String(response.status);
-    throw error;
+    throw new FetcherError(response);
   }
 
   return await response.json();
@@ -121,8 +119,7 @@ export const getUpdateStateTx = async (
         `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}/proof`,
       );
     } catch (e) {
-      // http code
-      if (e.stack === '400') {
+      if (e instanceof FetcherError && e.response.status === 400) {
         await new Promise((resolve) => setTimeout(resolve, 30000));
       } else {
         throw e;
