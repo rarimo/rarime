@@ -60,7 +60,7 @@ where:
 
 ### Create a proof
 Make sure you are on the correct network before creating a proof!
-Returns ZKProof for off-chain and updateStateTx, zkpTx, statesMerkleData, ZKProof for on-chain
+Returns ZKProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
 To create a proof you need to call this method with params:
 
 ```javascript

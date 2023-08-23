@@ -12,6 +12,7 @@ import {
   ClaimOffer,
   CreateProofRequest,
   GetStateInfoResponse,
+  MerkleProof,
   TextField,
 } from './types';
 import { AuthZkp } from './auth-zkp';
@@ -22,7 +23,6 @@ import {
   saveCredentials,
   checkIfStateSynced,
   getUpdateStateTx,
-  getZkpProofTx,
   getChainInfo,
   loadDataFromRarimoCore,
 } from './helpers';
@@ -224,6 +224,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
           `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
         );
+        const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
+          `/rarimo/rarimo-core/identity/state/${issuerHexId}/proof`,
+        );
 
         if (!isSynced) {
           updateStateTx = await getUpdateStateTx(
@@ -233,20 +236,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           );
         }
 
-        const zkp = await getZkpProofTx(
-          zkpProof,
-          issuerHexId,
-          accountAddress!,
-          chainInfo,
-          stateData.state,
-        );
-
         return {
-          zkpTx: zkp.tx,
           statesMerkleData: {
             issuerId: issuerHexId,
             state: stateData.state,
-            merkleProof: zkp.merkleProof,
+            merkleProof,
           },
           zkpProof,
           ...(updateStateTx && { updateStateTx }),

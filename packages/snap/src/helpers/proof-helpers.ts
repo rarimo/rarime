@@ -17,21 +17,14 @@ import {
   Path,
   getDocumentLoader,
 } from '@iden3/js-jsonld-merklization';
-import { ZKProof } from '@iden3/js-jwz';
-import { TransactionRequest } from '@ethersproject/providers';
-import { utils } from 'ethers';
 import {
-  ChainInfo,
-  DemoVerifier__factory,
   GISTProof,
   JSONSchema,
   MTProof,
-  MerkleProof,
   NodeAuxValue,
   ProofQuery,
   QueryWithFieldName,
   RevocationStatus,
-  StateInfo,
   StateProof,
   TreeState,
   W3CCredential,
@@ -46,7 +39,6 @@ import {
   Query,
   ValueProof,
 } from './model-helpers';
-import { loadDataFromRarimoCore } from './state-v2-helpers';
 
 export const extractProof = (proof: {
   [key: string]: any;
@@ -580,47 +572,5 @@ export const toGISTProof = (smtProof: StateProof): GISTProof => {
   return {
     root,
     proof,
-  };
-};
-
-export const getZkpProofTx = async (
-  proof: ZKProof,
-  issuerId: string,
-  accountAddress: string,
-  chainInfo: ChainInfo,
-  state: StateInfo,
-): Promise<{ tx: TransactionRequest; merkleProof: string[] }> => {
-  const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
-    `/rarimo/rarimo-core/identity/state/${issuerId}/proof`,
-  );
-
-  const contractInterface = DemoVerifier__factory.createInterface();
-
-  const data = contractInterface.encodeFunctionData('proveIdentity', [
-    {
-      issuerId,
-      issuerState: state.hash,
-      createdAtTimestamp: state.createdAtTimestamp,
-      merkleProof: merkleProof.proof.map((el) => utils.arrayify(el)),
-    },
-    proof.pub_signals.map((el) => BigInt(el)),
-    [proof.proof.pi_a[0], proof.proof.pi_a[1]],
-    [
-      [proof.proof.pi_b[0][1], proof.proof.pi_b[0][0]],
-      [proof.proof.pi_b[1][1], proof.proof.pi_b[1][0]],
-    ],
-    [proof.proof.pi_c[0], proof.proof.pi_c[1]],
-  ]);
-
-  const tx = {
-    to: chainInfo.verifierContractAddress,
-    from: accountAddress,
-    chainId: chainInfo.id,
-    data,
-  };
-
-  return {
-    tx,
-    merkleProof: merkleProof.proof,
   };
 };
