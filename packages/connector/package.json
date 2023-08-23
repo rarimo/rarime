@@ -21,8 +21,10 @@
     "lint:style": "eslint --color 'src/**/*.{js,ts,tsx}'",
     "lint:style:fix": "yarn run lint:style --fix"
   },
+  "dependencies": {
+    "@ethersproject/providers": "5.7.2"
+  },
   "devDependencies": {
-    "@ethersproject/providers": "5.7.2",
     "eslint": "8.21.0",
     "typescript": "4.7.4"
   },
