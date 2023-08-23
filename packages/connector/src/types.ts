@@ -128,8 +128,8 @@ export type StateInfo = {
 export type ZKPProofResponse = {
   zkpTx?: TransactionRequest;
   updateStateTx?: TransactionRequest;
-  zkpProof?: ZKProof;
-  statesMerkleData: {
+  zkpProof: ZKProof;
+  statesMerkleData?: {
     issuerId: string;
     state: StateInfo;
     merkleProof: Uint8Array[];

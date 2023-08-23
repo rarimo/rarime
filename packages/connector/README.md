@@ -132,8 +132,8 @@ Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx, zkpTx, stat
 type ZKPProofResponse = {
   zkpTx?: TransactionRequest; // ethers TransactionRequest
   updateStateTx?: TransactionRequest;
-  zkpProof?: ZKProof;
-  statesMerkleData: {
+  zkpProof: ZKProof;
+  statesMerkleData?: {
     issuerId: string;
     state: StateInfo;
     merkleProof: Uint8Array[];
