@@ -59,6 +59,8 @@ where:
 	- **url**: URL to which requested information is sent and response is received
 
 ### Create a proof
+Make sure you are on the correct network before creating a proof!
+Returns ZKProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
 To create a proof you need to call this method with params:
 
 ```javascript
@@ -70,17 +72,16 @@ await window.ethereum.request({
       method: 'create_proof',
       params: {
         circuitId: 'credentialAtomicQuerySigV2OnChain',
+        accountAddress: '0x......',
         challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
         query: {
           allowedIssuers: ['*'],
-          context:
-          'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
           credentialSubject: {
             isNatural: {
               $eq: 1,
             },
           },
-          type: 'NaturalPerson',
+          type: 'IdentityProviders',
         },
       },
     },
@@ -89,6 +90,7 @@ await window.ethereum.request({
 ```
 where:
 - **circuitId**: type of proof
+- **accountAddress**(optional): Metamask user address for onchain proofs
 - **challenge**(optional): text that will be signed
 - **query**
 	- **allowedIssuers**: types of issuers allowed

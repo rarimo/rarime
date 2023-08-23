@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { Hex, Signature } from '@iden3/js-crypto';
 import { Claim, DID, MerklizedRootPosition } from '@iden3/js-iden3-core';
@@ -88,8 +89,9 @@ export const getCoreClaimFromProof = (
       }
     }
   } else if (typeof credentialProof === 'object') {
-    const { claim, proofType: extractedProofType } =
-      extractProof(credentialProof);
+    const { claim, proofType: extractedProofType } = extractProof(
+      credentialProof,
+    );
     if (extractedProofType === proofType) {
       return claim;
     }
@@ -178,7 +180,9 @@ export const newCircuitClaimData = async (
   if (sigProof) {
     const decodedSignature = Hex.decodeString(sigProof.signature);
     const signature = Signature.newFromCompressed(decodedSignature);
-
+    const issuerAuthClaimIncMtp = await loadDataByUrl(
+      sigProof.issuerProofUpdateUrl,
+    );
     const rs: RevocationStatus = await getRevocationStatus(
       sigProof.issuerData.credentialStatus!,
     );
@@ -203,12 +207,12 @@ export const newCircuitClaimData = async (
     circuitClaim.signatureProof = {
       signature,
       issuerAuthIncProof: {
-        proof: sigProof.issuerData.mtp,
+        proof: issuerAuthClaimIncMtp.mtp,
         treeState: buildTreeState(
-          sigProof.issuerData.state?.value,
-          sigProof.issuerData.state?.claimsTreeRoot,
-          sigProof.issuerData.state?.revocationTreeRoot,
-          sigProof.issuerData.state?.rootOfRoots,
+          issuerAuthClaimIncMtp.issuer.state!,
+          issuerAuthClaimIncMtp.issuer.claimsTreeRoot!,
+          issuerAuthClaimIncMtp.issuer.revocationTreeRoot!,
+          issuerAuthClaimIncMtp.issuer.rootOfRoots!,
         ),
       },
       issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),

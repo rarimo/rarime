@@ -5,7 +5,7 @@ export { MetamaskSnap } from './snap';
 export * from './types';
 export { isMetamaskInstalled, isMetamaskFlask, isSnapInstalled } from './utils';
 
-export const defaultSnapOrigin = 'local:http://localhost:8080'; // TODO: change
+export const defaultSnapOrigin = 'local:http://localhost:8081'; // TODO: change
 
 export const enableSnap = async (
   snapOrigin?: string,
@@ -29,7 +29,7 @@ export const enableSnap = async (
     await window.ethereum.request({
       method: 'wallet_requestSnaps',
       params: {
-        [snapId]: { version },
+        [snapId]: { ...(version && { version }) },
       },
     });
   }

@@ -186,8 +186,8 @@ export const isValidCreateProofRequest = (request: CreateProofRequest) => {
         const errors = [] as any[];
         const __is = (input: any, _exceptionable: boolean = true): input is CreateProofRequest => {
             const $join = (typia.createValidateEquals as any).join;
-            const $io0 = (input: any, _exceptionable: boolean = true): boolean => (undefined === input.id || "number" === typeof input.id) && ("credentialAtomicQueryMTPV2" === input.circuitId || "credentialAtomicQueryMTPV2OnChain" === input.circuitId || "credentialAtomicQuerySigV2" === input.circuitId || "credentialAtomicQuerySigV2OnChain" === input.circuitId) && (undefined === input.challenge || "string" === typeof input.challenge) && ("object" === typeof input.query && null !== input.query && false === Array.isArray(input.query) && $io1(input.query, true && _exceptionable)) && (2 === Object.keys(input).length || Object.keys(input).every(key => {
-                if (["id", "circuitId", "challenge", "query"].some(prop => key === prop))
+            const $io0 = (input: any, _exceptionable: boolean = true): boolean => (undefined === input.id || "number" === typeof input.id) && (undefined === input.accountAddress || "string" === typeof input.accountAddress) && ("credentialAtomicQueryMTPV2" === input.circuitId || "credentialAtomicQueryMTPV2OnChain" === input.circuitId || "credentialAtomicQuerySigV2" === input.circuitId || "credentialAtomicQuerySigV2OnChain" === input.circuitId) && (undefined === input.challenge || "string" === typeof input.challenge) && ("object" === typeof input.query && null !== input.query && false === Array.isArray(input.query) && $io1(input.query, true && _exceptionable)) && (2 === Object.keys(input).length || Object.keys(input).every(key => {
+                if (["id", "accountAddress", "circuitId", "challenge", "query"].some(prop => key === prop))
                     return true;
                 const value = input[key];
                 if (undefined === value)
@@ -220,6 +220,10 @@ export const isValidCreateProofRequest = (request: CreateProofRequest) => {
                         path: _path + ".id",
                         expected: "(number | undefined)",
                         value: input.id
+                    }), undefined === input.accountAddress || "string" === typeof input.accountAddress || $report(_exceptionable, {
+                        path: _path + ".accountAddress",
+                        expected: "(string | undefined)",
+                        value: input.accountAddress
                     }), "credentialAtomicQueryMTPV2" === input.circuitId || "credentialAtomicQueryMTPV2OnChain" === input.circuitId || "credentialAtomicQuerySigV2" === input.circuitId || "credentialAtomicQuerySigV2OnChain" === input.circuitId || $report(_exceptionable, {
                         path: _path + ".circuitId",
                         expected: "(\"credentialAtomicQueryMTPV2\" | \"credentialAtomicQueryMTPV2OnChain\" | \"credentialAtomicQuerySigV2\" | \"credentialAtomicQuerySigV2OnChain\")",
@@ -237,7 +241,7 @@ export const isValidCreateProofRequest = (request: CreateProofRequest) => {
                         expected: "ProofQuery",
                         value: input.query
                     }), 2 === Object.keys(input).length || (false === _exceptionable || Object.keys(input).map(key => {
-                        if (["id", "circuitId", "challenge", "query"].some(prop => key === prop))
+                        if (["id", "accountAddress", "circuitId", "challenge", "query"].some(prop => key === prop))
                             return true;
                         const value = input[key];
                         if (undefined === value)

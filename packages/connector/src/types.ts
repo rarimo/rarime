@@ -1,3 +1,5 @@
+import { TransactionRequest } from '@ethersproject/providers';
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
@@ -27,7 +29,7 @@ export type SnapConnector = {
   saveCredentials(
     params: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]>;
-  createProof(params: CreateProofRequestParams): Promise<ZKProof>;
+  createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>;
   checkStateContractSync(): Promise<boolean>;
 };
 
@@ -95,6 +97,7 @@ export type ProofQuery = {
 
 export type CreateProofRequestParams = {
   id?: number;
+  accountAddress?: string; // Metamask user address for onchain proofs
   circuitId:
     | 'credentialAtomicQueryMTPV2'
     | 'credentialAtomicQueryMTPV2OnChain'
@@ -113,4 +116,21 @@ export type ProofData = {
   pi_b: string[][];
   pi_c: string[];
   protocol: string;
+};
+
+export type StateInfo = {
+  index: string;
+  hash: string;
+  createdAtTimestamp: string;
+  lastUpdateOperationIndex: string;
+};
+
+export type ZKPProofResponse = {
+  updateStateTx?: TransactionRequest;
+  zkpProof: ZKProof;
+  statesMerkleData?: {
+    issuerId: string;
+    state: StateInfo;
+    merkleProof: string[];
+  };
 };

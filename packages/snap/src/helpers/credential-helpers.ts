@@ -119,7 +119,12 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
 };
 
 export const loadDataByUrl = async (url: string) => {
-  const data = await fetch(url);
+  const response = await fetch(url);
 
-  return await data.json();
+  if (!response.ok) {
+    const message = `An error has occured: ${response.status}`;
+    throw new Error(message);
+  }
+
+  return await response.json();
 };

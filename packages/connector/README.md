@@ -97,14 +97,16 @@ type CredentialSchema = {
 ```
 
 ### Create a proof
+Make sure you are on the correct network before creating a proof!
 To create a proof you need to call this method with params:
 
 ```typescript
-createProof(params: CreateProofRequestParams): Promise<ZKProof>
+createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>
 ```
 ```typescript
 type CreateProofRequestParams = {
   id?: number;
+  accountAddress?: string; // Metamask user address for on-chain proofs
   circuitId:
     | 'credentialAtomicQueryMTPV2'
     | 'credentialAtomicQueryMTPV2OnChain'
@@ -125,8 +127,18 @@ type ProofQuery = {
 };
 ```
 
-Returns ZKProof
+Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
 ```typescript
+type ZKPProofResponse = {
+  updateStateTx?: TransactionRequest; // ethers TransactionRequest
+  zkpProof: ZKProof;
+  statesMerkleData?: {
+    issuerId: string;
+    state: StateInfo;
+    merkleProof: string[];
+  };
+};
+
 type ZKProof = {
   proof: ProofData;
   pub_signals: string[];
@@ -137,7 +149,12 @@ type ProofData = {
   pi_c: string[];
   protocol: string;
 };
-
+type StateInfo = {
+  index: string;
+  hash: string;
+  createdAtTimestamp: string;
+  lastUpdateOperationIndex: string;
+};
 ```
 
 
@@ -170,23 +187,23 @@ Returns true if the lightweight state contract on current chain doesn't need to 
 const connector = await snap.getConnector();
 
 const proof = connector.createProof({
-  circuitId: 'credentialAtomicQuerySigV2OnChain',
+  circuitId: 'credentialAtomicQueryMTPV2OnChain',
+  accountAddress: '0x......',
   challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
   query: {
     allowedIssuers: ['*'],
-    context:
-    'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
     credentialSubject: {
       isNatural: {
         $eq: 1,
       },
     },
-    type: 'NaturalPerson',
+    type: 'IdentityProviders',
   },
 });
 ```
 where:
 - **circuitId**: type of proof
+- **accountAddress**(optional): Metamask user address for on-chain proofs
 - **challenge**(optional): text that will be signed
 - **query**
 	- **allowedIssuers**: types of issuers allowed
@@ -230,3 +247,59 @@ where:
 		- **description**: description of the schema
 		- **id**: credential id
 	- **url**: URL to which requested information is sent and response is received
+
+### Send proof to custom verifier contract
+```javascript
+const connector = await snap.getConnector();
+
+const proofData = connector.createProof({
+  circuitId: 'credentialAtomicQueryMTPV2OnChain',
+  accountAddress: '0x......',
+  query: {
+    allowedIssuers: ['*'],
+    credentialSubject: {
+      isNatural: {
+        $eq: 1,
+      },
+    },
+    type: 'IdentityProviders',
+  },
+});
+
+const provider = new providers.Web3Provider(window.ethereum);
+const signer = provider.getSigner();
+
+if (proofData.updateStateTx) {
+  const updateStateTx = await signer.sendTransaction(proofData.updateStateTx);
+  await updateStateTx.wait();
+}
+
+const contractInterface = DemoVerifier__factory.createInterface();
+
+// Can be another data depending on your contract
+const data = contractInterface.encodeFunctionData('proveIdentity', [
+  {
+    issuerId: proofData.statesMerkleData.issuerId,
+    issuerState: proofData.statesMerkleData.state.hash,
+    createdAtTimestamp: proofData.statesMerkleData.state.createdAtTimestamp,
+    merkleProof: proofData.statesMerkleData.merkleProof.map((el) =>
+      utils.arrayify(el), // utils from ethers
+    ),
+  },
+  proofData.zkpProof.pub_signals.map((el) => BigInt(el)),
+  [proofData.zkpProof.proof.pi_a[0], proofData.zkpProof.proof.pi_a[1]],
+  [
+    [proofData.zkpProof.proof.pi_b[0][1], proofData.zkpProof.proof.pi_b[0][0]],
+    [proofData.zkpProof.proof.pi_b[1][1], proofData.zkpProof.proof.pi_b[1][0]],
+  ],
+  [proofData.zkpProof.proof.pi_c[0], proofData.zkpProof.proof.pi_c[1]],
+]);
+
+const verifyTx = await signer.sendTransaction({
+  to: 'verifierContractAddress',
+  data,
+});
+
+await verifyTx.wait();
+
+```

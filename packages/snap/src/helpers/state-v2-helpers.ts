@@ -1,12 +1,20 @@
 /* eslint-disable camelcase */
-import { providers } from 'ethers';
+import { providers, utils } from 'ethers';
 
-import { LightweightStateV2__factory, StateProof, StateV2__factory } from '../types';
+import { TransactionRequest } from '@ethersproject/providers';
 import {
-  RARIMO_EVM_RPC_URL,
-  RARIMO_STATE_CONTRACT_ADDRESS,
-  getStateContractAddress
- } from '../const';
+  ChainInfo,
+  StateInfo,
+  IdentityNode,
+  IdentityParams,
+  LightweightStateV2__factory,
+  OperationProof,
+  StateProof,
+  StateV2__factory,
+} from '../types';
+import { config } from '../config';
+import { getChainInfo } from './common-helpers';
+import { FetcherError } from './error-helper';
 
 export const getGISTProof = async ({
   rpcUrl,
@@ -23,7 +31,6 @@ export const getGISTProof = async ({
     contractAddress,
     rawProvider,
   );
-
   const data = await contractInstance.getGISTProof(userId);
 
   return {
@@ -39,16 +46,18 @@ export const getGISTProof = async ({
 };
 
 // getRarimoGISTRoot returns the latest GIST root from the Rarimo state contract
-export const getRarimoGISTRoot = async ({
-  rpcUrl,
-  contractAddress,
-}: {
-  rpcUrl: string;
-  contractAddress: string;
-} = {
-  rpcUrl: RARIMO_EVM_RPC_URL,
-  contractAddress: RARIMO_STATE_CONTRACT_ADDRESS,
-}): Promise<BigInt> => {
+export const getRarimoGISTRoot = async (
+  {
+    rpcUrl,
+    contractAddress,
+  }: {
+    rpcUrl: string;
+    contractAddress: string;
+  } = {
+    rpcUrl: config.RARIMO_EVM_RPC_URL,
+    contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
+  },
+): Promise<bigint> => {
   const rawProvider = new providers.JsonRpcProvider(rpcUrl, 'any');
 
   const contractInstance = StateV2__factory.connect(
@@ -62,17 +71,16 @@ export const getRarimoGISTRoot = async ({
 };
 
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
-export const getCurrentChainGISTRoot = async (): Promise<BigInt> => {
+export const getCurrentChainGISTRoot = async (): Promise<bigint> => {
   const provider = new providers.Web3Provider(window.ethereum);
   const network = await provider.getNetwork();
-  const contractAddress = getStateContractAddress(network.chainId);
+  const chainInfo = getChainInfo(network.chainId);
 
   const contractInstance = LightweightStateV2__factory.connect(
-    contractAddress,
-    provider
+    chainInfo.stateContractAddress,
+    provider,
   );
   const root = await contractInstance.getGISTRoot();
-
   return BigInt(root.toString());
 };
 
@@ -82,8 +90,79 @@ export const checkIfStateSynced = async (): Promise<boolean> => {
     NOTE: for now we assume that the state must be synced if the GIST roots don't match
           some more sophisticated logic could be added here in the future
    */
-  const rarimoGISTRoot = await getCurrentChainGISTRoot(); //await getRarimoGISTRoot();
+  const rarimoGISTRoot = await getRarimoGISTRoot();
   const currentChainGISTRoot = await getCurrentChainGISTRoot();
-
   return rarimoGISTRoot === currentChainGISTRoot;
+};
+
+export const loadDataFromRarimoCore = async <T>(url: string): Promise<T> => {
+  const response = await fetch(`${config.RARIMO_CORE_URL}${url}`, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    throw new FetcherError(response);
+  }
+
+  return await response.json();
+};
+
+export const getUpdateStateTx = async (
+  accountId: string,
+  chainInfo: ChainInfo,
+  state: StateInfo,
+): Promise<TransactionRequest> => {
+  let operationProof;
+  do {
+    try {
+      operationProof = await loadDataFromRarimoCore<OperationProof>(
+        `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}/proof`,
+      );
+    } catch (e) {
+      if (e instanceof FetcherError && e.response.status === 400) {
+        await new Promise((resolve) => setTimeout(resolve, 30000));
+      } else {
+        throw e;
+      }
+    }
+  } while (!operationProof);
+
+  const identityParams = await loadDataFromRarimoCore<IdentityParams>(
+    '/rarimo/rarimo-core/identity/params',
+  );
+  const identityNode = await loadDataFromRarimoCore<IdentityNode>(
+    `/rarimo/rarimo-core/identity/node/${identityParams.params.treapRootKey}`,
+  );
+  const decodedPath = operationProof?.path?.map((el: string) =>
+    utils.arrayify(el),
+  );
+  const decodedSignature = operationProof?.signature
+    ? utils.arrayify(operationProof?.signature)
+    : undefined;
+
+  if (decodedSignature?.[64] !== undefined) {
+    decodedSignature[64] += 27;
+  }
+
+  const proof = utils.defaultAbiCoder.encode(
+    ['bytes32[]', 'bytes'],
+    [decodedPath, decodedSignature],
+  );
+
+  const contractInterface = LightweightStateV2__factory.createInterface();
+
+  const txData = contractInterface.encodeFunctionData('signedTransitState', [
+    identityNode.node.hash,
+    {
+      root: identityParams.params.GISTHash,
+      createdAtTimestamp: identityParams.params.GISTUpdatedTimestamp,
+    },
+    proof,
+  ]);
+  return {
+    to: chainInfo.stateContractAddress,
+    from: accountId,
+    chainId: chainInfo.id,
+    data: txData,
+  };
 };

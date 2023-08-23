@@ -1,6 +1,7 @@
 import { proving, type ZKProof } from '@iden3/js-jwz';
 
-import { Signature } from '@iden3/js-crypto';
+import { Hex, Signature } from '@iden3/js-crypto';
+import { fromLittleEndian } from '@iden3/js-iden3-core';
 import { type Identity } from './identity';
 
 import {
@@ -120,16 +121,18 @@ export class ZkpGen {
       this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
       this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
     ) {
+
       const gistInfo = await getGISTProof({
-        rpcUrl: config.RPC_URL,
-        contractAddress: config.STATE_V2_ADDRESS,
+        rpcUrl: config.RARIMO_EVM_RPC_URL,
+        contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
         userId: this.identity.identityIdBigIntString,
       });
       this.gistProof = toGISTProof(gistInfo);
 
-      this.challenge = BigInt(
-        this.proofRequest.challenge ?? (this.proofRequest.id || 1),
-      );
+      const challenge = fromLittleEndian(
+        Hex.decodeString(this.proofRequest.accountAddress!.substring(2)),
+      ).toString();
+      this.challenge = BigInt(this.proofRequest.challenge ?? challenge);
 
       this.signatureChallenge = this.identity.privateKey.signPoseidon(
         this.challenge,

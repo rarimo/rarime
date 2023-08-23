@@ -2,11 +2,19 @@
 import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
+import { RPCMethods } from '@rarimo/connector';
+import { providers } from 'ethers';
+import { DID } from '@iden3/js-iden3-core';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
-import { StorageKeys } from './enums';
-import { ClaimOffer, CreateProofRequest, TextField } from './types';
-import { RPCMethods } from '@rarimo/connector';
+import { CircuitId, StorageKeys } from './enums';
+import {
+  ClaimOffer,
+  CreateProofRequest,
+  GetStateInfoResponse,
+  MerkleProof,
+  TextField,
+} from './types';
 import { AuthZkp } from './auth-zkp';
 import {
   exportKeysAndCredentials,
@@ -14,6 +22,9 @@ import {
   importKeysAndCredentials,
   saveCredentials,
   checkIfStateSynced,
+  getUpdateStateTx,
+  getChainInfo,
+  loadDataFromRarimoCore,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -31,7 +42,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw new Error('Identity not created');
       }
 
-      const offer = request.params as any as ClaimOffer;
+      const offer = (request.params as any) as ClaimOffer;
 
       isValidSaveCredentialsOfferRequest(offer);
 
@@ -87,7 +98,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
-        const identity = await Identity.create();
+        const entropy = await snap.request({
+          method: 'snap_getEntropy',
+          params: { version: 1 },
+        });
+        const keyHex = entropy.startsWith('0x')
+          ? entropy.substring(2)
+          : entropy;
+
+        const identity = await Identity.create(keyHex);
         await setItemInStore(StorageKeys.identity, {
           privateKeyHex: identity.privateKeyHex,
           did: identity.didString,
@@ -119,9 +138,21 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw new Error('Identity not created');
       }
 
-      const params = request.params as any as CreateProofRequest;
+      const params = (request.params as any) as CreateProofRequest;
 
       isValidCreateProofRequest(params);
+
+      const credentialType = params.query.type;
+      const { credentialSubject } = params.query;
+      const { circuitId, accountAddress } = params;
+
+      const isOnChainProof =
+        circuitId === CircuitId.AtomicQuerySigV2OnChain ||
+        circuitId === CircuitId.AtomicQueryMTPV2OnChain;
+
+      if (isOnChainProof && !accountAddress) {
+        throw new Error('Account address is required');
+      }
 
       const credentials = (await findCredentialsByQuery(params.query)).filter(
         (cred) => cred.credentialSubject.id === identityStorage.did,
@@ -132,10 +163,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           `no credential were issued on the given id ${identityStorage.did}`,
         );
       }
-
-      const credentialType = params.query.type;
-      const { credentialSubject } = params.query;
-      const { circuitId } = params;
 
       const res = await snap.request({
         method: 'snap_dialog',
@@ -177,7 +204,47 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
         const zkpGen = new ZkpGen(identity, params, credentials[0]);
-        return await zkpGen.generateProof();
+        const zkpProof = await zkpGen.generateProof();
+
+        if (!isOnChainProof) {
+          return { zkpProof };
+        }
+
+        let updateStateTx;
+
+        const provider = new providers.Web3Provider(window.ethereum);
+        const network = await provider.getNetwork();
+        const chainInfo = getChainInfo(network.chainId);
+
+        const isSynced = await checkIfStateSynced();
+
+        const ID = DID.parse(credentials[0].issuer).id;
+        const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
+
+        const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
+          `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
+        );
+        const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
+          `/rarimo/rarimo-core/identity/state/${issuerHexId}/proof`,
+        );
+
+        if (!isSynced) {
+          updateStateTx = await getUpdateStateTx(
+            accountAddress!,
+            chainInfo,
+            stateData.state,
+          );
+        }
+
+        return {
+          statesMerkleData: {
+            issuerId: issuerHexId,
+            state: stateData.state,
+            merkleProof: merkleProof.proof,
+          },
+          zkpProof,
+          ...(updateStateTx && { updateStateTx }),
+        };
       }
       throw new Error('User rejected request');
     }

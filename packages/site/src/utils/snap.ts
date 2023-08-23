@@ -1,7 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { enableSnap, SnapConnector } from '@rarimo/connector';
-import { Hex } from '@iden3/js-crypto';
-import { fromLittleEndian } from '@iden3/js-iden3-core';
 
 let connector: SnapConnector;
 
@@ -14,24 +12,6 @@ export const connectSnap = async () => {
 export const createIdentity = async () => {
   const did = await connector.createIdentity();
 
-  await fetch(
-    `http://127.0.0.1:8000/integrations/issuer/v1/private/claims/issue/${
-      did.split(':')[2]
-    }/NaturalPerson`,
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        data: {
-          attributes: {
-            credential_subject: {
-              is_natural: '1',
-            },
-            expiration: '2024-01-16T17:34:29+00:00',
-          },
-        },
-      }),
-    },
-  );
   console.log(did);
 };
 
@@ -39,9 +19,9 @@ export const sendVc = async () => {
   const did = await connector.createIdentity();
 
   const response = await fetch(
-    `http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/${
+    `https://api.polygon.mainnet-beta.rarimo.com/integrations/issuer/v1/public/claims/offers/${
       did.split(':')[2]
-    }/NaturalPerson`,
+    }/IdentityProviders`,
   );
   const offer = await response.json();
 
@@ -54,13 +34,10 @@ export const createProof = async () => {
   const accounts = (await window.ethereum.request({
     method: 'eth_requestAccounts',
   })) as string[];
-  const challenge = fromLittleEndian(
-    Hex.decodeString(String(accounts[0]).substring(2)),
-  ).toString();
 
   const data = await connector.createProof({
-    circuitId: 'credentialAtomicQuerySigV2OnChain',
-    challenge, // BigInt string
+    circuitId: 'credentialAtomicQueryMTPV2OnChain',
+    accountAddress: accounts[0],
     query: {
       allowedIssuers: ['*'],
       credentialSubject: {
@@ -68,10 +45,9 @@ export const createProof = async () => {
           $eq: 1,
         },
       },
-      type: 'NaturalPerson',
+      type: 'IdentityProviders',
     },
   });
-
   console.log(data);
 };
 
@@ -86,7 +62,7 @@ export const recoverBackup = async () => {
 export const checkStateContractSync = async () => {
   const isSynced = await connector.checkStateContractSync();
 
-  alert("State contract is synced: " + isSynced);
+  alert(`State contract is synced: ${isSynced}`);
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

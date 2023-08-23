@@ -40,6 +40,8 @@ export class BJJSignatureProof2021 {
   signature!: string;
 
   coreClaim!: string;
+
+  issuerProofUpdateUrl!: string;
 }
 
 export class CircuitClaim {
