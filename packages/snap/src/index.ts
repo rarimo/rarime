@@ -98,7 +98,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
-        const identity = await Identity.create();
+        const entropy = await snap.request({
+          method: 'snap_getEntropy',
+          params: { version: 1 },
+        });
+        const keyHex = entropy.startsWith('0x')
+          ? entropy.substring(2)
+          : entropy;
+
+        const identity = await Identity.create(keyHex);
         await setItemInStore(StorageKeys.identity, {
           privateKeyHex: identity.privateKeyHex,
           did: identity.didString,
