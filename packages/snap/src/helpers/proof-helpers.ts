@@ -589,10 +589,12 @@ export const getZkpProofTx = async (
   accountAddress: string,
   chainInfo: ChainInfo,
   state: StateInfo,
-): Promise<TransactionRequest> => {
-  const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
+): Promise<{ tx: TransactionRequest; merkleProof: Uint8Array[] }> => {
+  const merkleProofResposne = await loadDataFromRarimoCore<MerkleProof>(
     `/rarimo/rarimo-core/identity/state/${issuerId}/proof`,
   );
+
+  const merkleProof = merkleProofResposne.proof.map((el) => utils.arrayify(el));
 
   const contractInterface = DemoVerifier__factory.createInterface();
 
@@ -601,7 +603,7 @@ export const getZkpProofTx = async (
       issuerId,
       issuerState: state.hash,
       createdAtTimestamp: state.createdAtTimestamp,
-      merkleProof: merkleProof.proof.map((el) => utils.arrayify(el)),
+      merkleProof,
     },
     proof.pub_signals.map((el) => BigInt(el)),
     [proof.proof.pi_a[0], proof.proof.pi_a[1]],
@@ -612,10 +614,15 @@ export const getZkpProofTx = async (
     [proof.proof.pi_c[0], proof.proof.pi_c[1]],
   ]);
 
-  return {
+  const tx = {
     to: chainInfo.verifierContractAddress,
     from: accountAddress,
     chainId: chainInfo.id,
     data,
+  };
+
+  return {
+    tx,
+    merkleProof,
   };
 };

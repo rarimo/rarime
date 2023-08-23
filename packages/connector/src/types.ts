@@ -118,8 +118,20 @@ export type ProofData = {
   protocol: string;
 };
 
+export type StateInfo = {
+  index: string;
+  hash: string;
+  createdAtTimestamp: string;
+  lastUpdateOperationIndex: string;
+};
+
 export type ZKPProofResponse = {
   zkpTx?: TransactionRequest;
   updateStateTx?: TransactionRequest;
   zkpProof?: ZKProof;
+  statesMerkleData: {
+    issuerId: string;
+    state: StateInfo;
+    merkleProof: Uint8Array[];
+  };
 };

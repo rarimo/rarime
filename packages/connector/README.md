@@ -127,12 +127,17 @@ type ProofQuery = {
 };
 ```
 
-Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx and zkpTx for on-chain
+Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx, zkpTx, statesMerkleData, ZKProof for on-chain
 ```typescript
 type ZKPProofResponse = {
   zkpTx?: TransactionRequest; // ethers TransactionRequest
   updateStateTx?: TransactionRequest;
   zkpProof?: ZKProof;
+  statesMerkleData: {
+    issuerId: string;
+    state: StateInfo;
+    merkleProof: Uint8Array[];
+  };
 };
 
 type ZKProof = {
@@ -144,6 +149,12 @@ type ProofData = {
   pi_b: string[][];
   pi_c: string[];
   protocol: string;
+};
+type StateInfo = {
+  index: string;
+  hash: string;
+  createdAtTimestamp: string;
+  lastUpdateOperationIndex: string;
 };
 ```
 

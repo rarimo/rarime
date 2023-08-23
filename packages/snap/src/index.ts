@@ -233,7 +233,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           );
         }
 
-        const zkpTx = await getZkpProofTx(
+        const zkp = await getZkpProofTx(
           zkpProof,
           issuerHexId,
           accountAddress!,
@@ -242,7 +242,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         );
 
         return {
-          zkpTx,
+          zkpTx: zkp.tx,
+          statesMerkleData: {
+            issuerId: issuerHexId,
+            state: stateData.state,
+            merkleProof: zkp.merkleProof,
+          },
+          zkpProof,
           ...(updateStateTx && { updateStateTx }),
         };
       }
