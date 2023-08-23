@@ -76,14 +76,12 @@ await window.ethereum.request({
         challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
         query: {
           allowedIssuers: ['*'],
-          context:
-          'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
           credentialSubject: {
             isNatural: {
               $eq: 1,
             },
           },
-          type: 'NaturalPerson',
+          type: 'IdentityProviders',
         },
       },
     },
