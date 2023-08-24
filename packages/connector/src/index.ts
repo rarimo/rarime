@@ -1,9 +1,9 @@
 import { MetamaskSnap } from './snap';
-import { isMetamaskInstalled, isMetamaskFlask, isSnapInstalled } from './utils';
+import { isMetamaskInstalled, isSnapInstalled } from './utils';
 
 export { MetamaskSnap } from './snap';
 export * from './types';
-export { isMetamaskInstalled, isMetamaskFlask, isSnapInstalled } from './utils';
+export { isMetamaskInstalled, isSnapInstalled } from './utils';
 
 export const defaultSnapOrigin = 'local:http://localhost:8081'; // TODO: change
 
@@ -13,17 +13,11 @@ export const enableSnap = async (
 ): Promise<MetamaskSnap> => {
   const snapId = snapOrigin ?? defaultSnapOrigin;
 
-  if (!isMetamaskInstalled()) {
+  if (!(await isMetamaskInstalled())) {
     throw new Error('Metamask is not installed');
   }
 
-  if (!(await isMetamaskFlask())) {
-    throw new Error(
-      'MetaMask is not supported. Please install MetaMask Flask.',
-    );
-  }
-
-  const isInstalled = await isSnapInstalled(snapId);
+  const isInstalled = await isSnapInstalled(snapId, version);
 
   if (!isInstalled) {
     await window.ethereum.request({
@@ -34,5 +28,5 @@ export const enableSnap = async (
     });
   }
 
-  return new MetamaskSnap(snapOrigin || defaultSnapOrigin);
+  return new MetamaskSnap(snapId);
 };

@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { isMetamaskInstalled, isMetamaskFlask } from '@rarimo/connector';
+import { isMetamaskInstalled } from '@rarimo/connector';
 
 /**
  * Detect if the wallet injecting the ethereum object is Flask.
@@ -8,12 +8,10 @@ import { isMetamaskInstalled, isMetamaskFlask } from '@rarimo/connector';
  */
 export const isFlask = async () => {
   try {
-    const isMetamask = isMetamaskInstalled();
+    const isMetamask = await isMetamaskInstalled();
 
-    const isFlaskDetected = await isMetamaskFlask();
-
-    return Boolean(isMetamask && isFlaskDetected);
-  } catch {
+    return isMetamask;
+  } catch (e) {
     return false;
   }
 };

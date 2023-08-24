@@ -3,13 +3,7 @@ import { TransactionRequest } from '@ethersproject/providers';
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
-    ethereum: {
-      isMetaMask: boolean;
-      isUnlocked: Promise<boolean>;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      request: <T>(request: { method: string; params?: any }) => Promise<T>;
-      on: (eventName: unknown, callback: unknown) => unknown;
-    };
+    ethereum: any;
   }
 }
 
