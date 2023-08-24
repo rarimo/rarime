@@ -30,8 +30,7 @@ console.log(`Snap installed, identity created: ${identity}`);
 For ease of use, the connector package also exposes this functions:
 
 ```typescript
-isMetamaskInstalled(): boolean
-isMetamaskFlask(): Promise<boolean>
+isMetamaskInstalled(): Promise<boolean>
 isSnapInstalled(snapOrigin?: string, version?: string): Promise<boolean>
 ```
 
