@@ -5,7 +5,7 @@ import { TransactionRequest } from '@ethersproject/providers';
 import {
   ChainInfo,
   StateInfo,
-  Operation,
+  OperationResponse,
   LightweightStateV2__factory,
   OperationProof,
   StateProof,
@@ -126,9 +126,10 @@ export const getUpdateStateTx = async (
     }
   } while (!operationProof);
 
-  const operation = await loadDataFromRarimoCore<Operation>(
+  const operationResponse = await loadDataFromRarimoCore<OperationResponse>(
     `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}`,
   );
+
   const decodedPath = operationProof?.path?.map((el: string) =>
     utils.arrayify(el),
   );
@@ -148,10 +149,10 @@ export const getUpdateStateTx = async (
   const contractInterface = LightweightStateV2__factory.createInterface();
 
   const txData = contractInterface.encodeFunctionData('signedTransitState', [
-    operation.details.stateRootHash,
+    operationResponse.operation.details.stateRootHash,
     {
-      root: operation.details.GISTHash,
-      createdAtTimestamp: Number(operation.details.timestamp),
+      root: operationResponse.operation.details.GISTHash,
+      createdAtTimestamp: Number(operationResponse.operation.details.timestamp),
     },
     proof,
   ]);

@@ -40,3 +40,7 @@ export type Operation = {
   creator: string;
   timestamp: string;
 };
+
+export type OperationResponse = {
+  operation: Operation;
+};
