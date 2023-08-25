@@ -5,8 +5,7 @@ import { TransactionRequest } from '@ethersproject/providers';
 import {
   ChainInfo,
   StateInfo,
-  IdentityNode,
-  IdentityParams,
+  Operation,
   LightweightStateV2__factory,
   OperationProof,
   StateProof,
@@ -127,11 +126,8 @@ export const getUpdateStateTx = async (
     }
   } while (!operationProof);
 
-  const identityParams = await loadDataFromRarimoCore<IdentityParams>(
-    '/rarimo/rarimo-core/identity/params',
-  );
-  const identityNode = await loadDataFromRarimoCore<IdentityNode>(
-    `/rarimo/rarimo-core/identity/node/${identityParams.params.treapRootKey}`,
+  const operation = await loadDataFromRarimoCore<Operation>(
+    `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}`,
   );
   const decodedPath = operationProof?.path?.map((el: string) =>
     utils.arrayify(el),
@@ -152,10 +148,10 @@ export const getUpdateStateTx = async (
   const contractInterface = LightweightStateV2__factory.createInterface();
 
   const txData = contractInterface.encodeFunctionData('signedTransitState', [
-    identityNode.node.hash,
+    operation.details.stateRootHash,
     {
-      root: identityParams.params.GISTHash,
-      createdAtTimestamp: identityParams.params.GISTUpdatedTimestamp,
+      root: operation.details.GISTHash,
+      createdAtTimestamp: Number(operation.details.timestamp),
     },
     proof,
   ]);

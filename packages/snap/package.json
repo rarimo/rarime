@@ -1,7 +1,6 @@
 {
-  "name": "snap",
+  "name": "@rarimo/metamask-snap",
   "version": "0.1.0",
-  "private": true,
   "description": "The 'Hello, world!' of MetaMask Snaps, now written in TypeScript.",
   "repository": {
     "type": "git",
@@ -29,7 +28,8 @@
     "start": "nodemon --watch src/ --ext ts --exec 'yarn build && yarn serve'",
     "test": "jest",
     "typia:generate": "typia generate --input src/typia-templates --output src/typia-generated --project tsconfig.json",
-    "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts"
+    "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts",
+    "prepublishOnly": "yarn build"
   },
   "dependencies": {
     "@ethersproject/abi": "5.0.0",

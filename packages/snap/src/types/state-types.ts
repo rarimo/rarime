@@ -18,28 +18,25 @@ export type OperationProof = {
   signature: string;
 };
 
-export type IdentityNode = {
-  node: {
-    key: string;
-    priority: string;
-    left: string;
-    right: string;
-    hash: string;
-    childrenHash: string;
-  };
-};
+export enum OperationStatus {
+  Signed = 'SIGNED',
+  Initialized = 'INITIALIZED',
+  Approved = 'APPROVED',
+  NotApproved = 'NOT_APPROVED',
+}
 
-export type IdentityParams = {
-  params: {
-    lcgA: string;
-    lcgB: string;
-    lcgMod: string;
-    lcgValue: string;
-    identityContractAddress: string;
-    chainName: string;
+export type Operation = {
+  index: string;
+  operationType: string;
+  details: {
+    '@type': string;
+    contract: string;
+    chain: string;
     GISTHash: string;
-    GISTUpdatedTimestamp: string;
-    treapRootKey: string;
-    statesWaitingForSign: [string];
+    stateRootHash: string;
+    timestamp: string;
   };
+  status: OperationStatus;
+  creator: string;
+  timestamp: string;
 };

@@ -7,12 +7,12 @@
     "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
   },
   "source": {
-    "shasum": "J2xONjlly4Y036iask1R8PHqGfEqax0PtoSl+ZFoqnc=",
+    "shasum": "FrBS44dbzDbz/HL9e9cNjCBF9y2/yGMM/nGc633etaY=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "snap",
+        "packageName": "@rarimo/metamask-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }
