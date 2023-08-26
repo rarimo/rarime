@@ -1,7 +1,7 @@
 {
   "name": "@rarimo/rarime-connector",
   "version": "0.1.0",
-  "description": "Connector for installing snap and exposes API toward snap on dApps",
+  "description": "Facilitates interaction between a DApp and Rarime MetaMask snap",
   "repository": {
     "type": "git",
     "url": "https://github.com/rarimo/rarime.git"
