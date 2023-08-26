@@ -1,15 +1,15 @@
 {
-  "name": "rarimo-snap-monorepo",
+  "name": "rarime-snap-monorepo",
   "version": "0.1.0",
   "private": true,
   "description": "",
-  "homepage": "https://gitlab.com/rarimo/identity/metamask-snap#readme",
+  "homepage": "https://github.com/rarimo/rarime#readme",
   "bugs": {
-    "url": "https://gitlab.com/rarimo/identity/metamask-snap/issues"
+    "url": "https://github.com/rarimo/rarime/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
+    "url": "git+https://github.com/rarimo/rarime.git"
   },
   "license": "(MIT-0 OR Apache-2.0)",
   "author": "Rarimo",
@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "yarn workspaces foreach --parallel --topological --verbose run build",
-    "build:connector": "yarn workspace @rarimo/connector build",
+    "build:connector": "yarn workspace @rarimo/rarime-connector build",
     "lint": "yarn lint:eslint && yarn lint:misc --check",
     "lint:eslint": "eslint . --cache --ext js,ts",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",

@@ -1,10 +1,10 @@
-# Metamask Snap Connector
+# Rarime Connector
 
-MetaMask Snap connector is used to install snap and exposes methods for calling snap on dApps and other applications.
+Rarime connector is used to install snap and exposes methods for calling snap on dApps and other applications.
 
 ## Usage
 
-Adapter has an exposed function for installing the snap.
+Connector has an exposed function for installing the snap.
 
 ```typescript
 async function enableSnap(

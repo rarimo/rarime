@@ -4,9 +4,9 @@ export const config = {
   AUTH_BJJ_CREDENTIAL_HASH: 'cca3371a6cb1b715004407e325bd993c',
   ID_TYPE: Uint8Array.from([1, 0]),
 
-  RARIMO_EVM_RPC_URL: 'https://rpc.evm.node1.mainnet-beta.rarimo.com',
-  RARIMO_CORE_URL: 'https://rpc-api.node1.mainnet-beta.rarimo.com',
-  RARIMO_STATE_CONTRACT_ADDRESS: '0x753a8678c85d5fb70A97CFaE37c84CE2fD67EDE8',
+  RARIMO_EVM_RPC_URL: 'https://rpc.evm.mainnet.rarimo.com',
+  RARIMO_CORE_URL: 'https://rpc-api.mainnet.rarimo.com',
+  RARIMO_STATE_CONTRACT_ADDRESS: '0x5ac96945a771d417B155Cb07A3D7E4b8e2F33FdE',
 
   CIRCUIT_AUTH_WASM_URL:
     'https://ipfs.tokend.io/ipfs/ipfs/QmYd41GHrKQLqbk96zHbmHU5rGVcxwmAgBpRqLCGLK7LQu',
@@ -39,9 +39,24 @@ enum CHAINS {
 }
 
 export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
-  [CHAINS.Sepolia]: {
-    id: CHAINS.Sepolia,
-    rpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
-    stateContractAddress: '0x8a9F505bD8a22BF09b0c19F65C17426cd33f3912',
+  [CHAINS.Polygon]: {
+    id: CHAINS.Polygon,
+    rpcUrl: 'https://polygon-rpc.com',
+    stateContractAddress: '0xf9bA419ad9c82451d31d89917db61253a1e46B3C',
+  },
+  [CHAINS.EthereumMainet]: {
+    id: CHAINS.EthereumMainet,
+    rpcUrl: 'https://eth.llamarpc.com',
+    stateContractAddress: '',
+  },
+  [CHAINS.Bsc]: {
+    id: CHAINS.Bsc,
+    rpcUrl: 'https://bsc-dataseed.binance.org',
+    stateContractAddress: '',
+  },
+  [CHAINS.Avalance]: {
+    id: CHAINS.Avalance,
+    rpcUrl: 'https://avax.meowrpc.com',
+    stateContractAddress: '',
   },
 };

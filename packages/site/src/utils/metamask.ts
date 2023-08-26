@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { isMetamaskInstalled } from '@rarimo/connector';
+import { isMetamaskInstalled } from '@rarimo/rarime-connector';
 
 /**
  * Detect if the wallet injecting the ethereum object is Flask.

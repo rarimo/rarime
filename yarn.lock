@@ -6431,9 +6431,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/connector@workspace:^, @rarimo/connector@workspace:packages/connector":
+"@rarimo/rarime-connector@0.1.0, @rarimo/rarime-connector@workspace:packages/connector":
   version: 0.0.0-use.local
-  resolution: "@rarimo/connector@workspace:packages/connector"
+  resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
     "@ethersproject/providers": 5.7.2
     eslint: 8.21.0
@@ -6441,9 +6441,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rarimo/metamask-snap@workspace:packages/snap":
+"@rarimo/rarime@workspace:packages/snap":
   version: 0.0.0-use.local
-  resolution: "@rarimo/metamask-snap@workspace:packages/snap"
+  resolution: "@rarimo/rarime@workspace:packages/snap"
   dependencies:
     "@ethersproject/abi": 5.0.0
     "@ethersproject/bytes": 5.7.0
@@ -6465,7 +6465,7 @@ __metadata:
     "@metamask/snaps-jest": 0.35.2-flask.1
     "@metamask/snaps-types": 0.32.2
     "@metamask/snaps-ui": 0.32.2
-    "@rarimo/connector": "workspace:^"
+    "@rarimo/rarime-connector": 0.1.0
     "@typechain/ethers-v5": 11.1.1
     "@types/intl": 1.2.0
     "@types/uuid": 9.0.2
@@ -21068,9 +21068,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rarimo-snap-monorepo@workspace:.":
+"rarime-snap-monorepo@workspace:.":
   version: 0.0.0-use.local
-  resolution: "rarimo-snap-monorepo@workspace:."
+  resolution: "rarime-snap-monorepo@workspace:."
   dependencies:
     "@metamask/eslint-config": 10.0.0
     "@metamask/eslint-config-jest": 10.0.0
@@ -22650,7 +22650,7 @@ __metadata:
     "@metamask/eslint-config-nodejs": 10.0.0
     "@metamask/eslint-config-typescript": 10.0.0
     "@metamask/providers": 9.0.0
-    "@rarimo/connector": "workspace:^"
+    "@rarimo/rarime-connector": 0.1.0
     "@svgr/webpack": 6.4.0
     "@testing-library/dom": 8.17.1
     "@testing-library/jest-dom": 5.16.4

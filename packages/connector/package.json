@@ -1,10 +1,10 @@
 {
-  "name": "@rarimo/connector",
+  "name": "@rarimo/rarime-connector",
   "version": "0.1.0",
-  "description": "Adapter for installing snap and exposes API toward snap on dApps",
+  "description": "Connector for installing snap and exposes API toward snap on dApps",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
+    "url": "https://github.com/rarimo/rarime.git"
   },
   "license": "(MIT-0 OR Apache-2.0)",
   "main": "./dist/index.js",
