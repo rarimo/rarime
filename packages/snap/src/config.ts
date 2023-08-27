@@ -47,16 +47,16 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
   [CHAINS.EthereumMainet]: {
     id: CHAINS.EthereumMainet,
     rpcUrl: 'https://eth.llamarpc.com',
-    stateContractAddress: '',
+    stateContractAddress: '0xB11D49e873A1B4a8c54520A9b6a3c8E017AfE7BB',
   },
   [CHAINS.Bsc]: {
     id: CHAINS.Bsc,
     rpcUrl: 'https://bsc-dataseed.binance.org',
-    stateContractAddress: '',
+    stateContractAddress: '0xF3e2491627b9eF3816A4143010B39B2B67F33E55',
   },
   [CHAINS.Avalance]: {
     id: CHAINS.Avalance,
     rpcUrl: 'https://avax.meowrpc.com',
-    stateContractAddress: '',
+    stateContractAddress: '0xF3e2491627b9eF3816A4143010B39B2B67F33E55',
   },
 };
