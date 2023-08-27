@@ -1,6 +1,6 @@
-# Metamask Snap
+# Rarime
 
-MetaMask Snap(extension) that implements an SSI wallet for Rarimo Identity System and facilitates the generation of zero-knowledge proofs.
+Rarime is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.
 
 ## Methods
 ### Create an identity

@@ -1,18 +1,18 @@
 {
   "version": "0.1.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example Snap",
+  "description": "Rarime is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
+  "proposedName": "Rarime",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
+    "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "J2xONjlly4Y036iask1R8PHqGfEqax0PtoSl+ZFoqnc=",
+    "shasum": "geuAzjjt+pmoJkcWXjSze2zPVkKW7AoZgzwC0EhbKKk=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "snap",
+        "packageName": "@rarimo/rarime",
         "registry": "https://registry.npmjs.org/"
       }
     }

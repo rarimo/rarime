@@ -2,7 +2,7 @@
 import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
-import { RPCMethods } from '@rarimo/connector';
+import { RPCMethods } from '@rarimo/rarime-connector';
 import { providers } from 'ethers';
 import { DID } from '@iden3/js-iden3-core';
 import { Identity } from './identity';

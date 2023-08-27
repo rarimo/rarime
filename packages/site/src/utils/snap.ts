@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { enableSnap, SnapConnector } from '@rarimo/connector';
+import { enableSnap, SnapConnector } from '@rarimo/rarime-connector';
 
 let connector: SnapConnector;
 
@@ -19,7 +19,7 @@ export const sendVc = async () => {
   const did = await connector.createIdentity();
 
   const response = await fetch(
-    `https://api.polygon.mainnet-beta.rarimo.com/integrations/issuer/v1/public/claims/offers/${
+    `https://api.poh.rarimo.com/integrations/issuer/v1/public/claims/offers/${
       did.split(':')[2]
     }/IdentityProviders`,
   );

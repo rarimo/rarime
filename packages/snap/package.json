@@ -1,11 +1,10 @@
 {
-  "name": "snap",
+  "name": "@rarimo/rarime",
   "version": "0.1.0",
-  "private": true,
-  "description": "The 'Hello, world!' of MetaMask Snaps, now written in TypeScript.",
+  "description": "Rarime is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/rarimo/identity/metamask-snap.git"
+    "url": "https://github.com/rarimo/rarime.git"
   },
   "license": "(MIT-0 OR Apache-2.0)",
   "files": [
@@ -29,7 +28,8 @@
     "start": "nodemon --watch src/ --ext ts --exec 'yarn build && yarn serve'",
     "test": "jest",
     "typia:generate": "typia generate --input src/typia-templates --output src/typia-generated --project tsconfig.json",
-    "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts"
+    "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts",
+    "prepublishOnly": "yarn build"
   },
   "dependencies": {
     "@ethersproject/abi": "5.0.0",
@@ -44,7 +44,7 @@
     "@metamask/snaps-jest": "0.35.2-flask.1",
     "@metamask/snaps-types": "0.32.2",
     "@metamask/snaps-ui": "0.32.2",
-    "@rarimo/connector": "workspace:^",
+    "@rarimo/rarime-connector": "0.1.0",
     "buffer": "6.0.3",
     "ethers": "5.7.2",
     "intl": "1.2.5",
