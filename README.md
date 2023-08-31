@@ -1,4 +1,8 @@
-<img src="https://github.com/rarimo/rarime/blob/6efa918aeb21d7c5e154e20b048754f417ce0f16/packages/snap/images/icon.svg" alt="Rarime logo" width="250"/>
+<p align="center">
+    <img src="https://github.com/rarimo/rarime/blob/6efa918aeb21d7c5e154e20b048754f417ce0f16/packages/snap/images/icon.svg" alt="Rarime logo" width="240"/>
+</p>
+
+
 
 
 
