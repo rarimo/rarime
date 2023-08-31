@@ -1,22 +1,25 @@
-# @rarime-snap-monorepo
+![alt text](https://github.com/rarimo/rarime/blob/6efa918aeb21d7c5e154e20b048754f417ce0f16/packages/snap/images/icon.svg)
 
-This repository demonstrates how to develop a snap with TypeScript. For detailed instructions, see [the MetaMask documentation](https://docs.metamask.io/guide/snaps.html#serving-a-snap-to-your-local-environment).
 
-MetaMask Snaps is a system that allows anyone to safely expand the capabilities of MetaMask. A _snap_ is a program that we run in an isolated environment that can customize the wallet experience.
+# Rarime
+![npm](https://img.shields.io/npm/v/%40rarimo%2Frarime)
+![npm](https://img.shields.io/npm/dm/%40rarimo%2Frarime)
 
-## Snaps is pre-release software
+Rarime is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and Zero-Knowledge Proof technology.
 
-To interact with (your) Snaps, you will need to install [MetaMask Flask](https://metamask.io/flask/), a canary distribution for developers that provides access to upcoming features.
+## Security
 
-## Getting Started
+Rarime is fully audited. Check out the reports [here](./audits/).
 
-Clone the metamask-snap repository:
+## Contributing
+
+### Getting Started
+
+Clone the repository:
 
 ```shell
 yarn install && yarn start
 ```
-
-## Contributing
 
 ### Testing and Linting
 
