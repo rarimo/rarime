@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2023-09-06
 ### Changed
-- `@rarimo/rarime`:  improved identity creation UX
+- `@rarimo/rarime`: improved identity creation UX
 
 ### Removed
 - `@rarimo/rarime`: removed deprecated `endowment:long-running` permission
