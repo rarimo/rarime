@@ -120,8 +120,18 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
               heading('Identity info'),
               divider(),
               text('Private key:'),
-              copyable(identity.privateKeyHex),
+              text(
+                'Save your private key to recover your account if you lose access',
+              ),
+              copyable(
+                JSON.stringify({
+                  privateKey: identity?.privateKeyHex,
+                }),
+              ),
               text('DID:'),
+              text(
+                'Unique and persistent identifier that enable verifiable and decentralized identities',
+              ),
               copyable(identity.didString),
             ]),
           },

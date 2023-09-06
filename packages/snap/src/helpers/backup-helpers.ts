@@ -38,7 +38,10 @@ export const importKeysAndCredentials = async (backupData: BackupData) => {
   // this method throw an error if private key is not valid
   const identity = await Identity.create(backupData.privateKey);
 
-  if (!validateCredentials(backupData.credentials, identity.didString)) {
+  if (
+    backupData.credentials &&
+    !validateCredentials(backupData.credentials, identity.didString)
+  ) {
     throw new Error('Credentials is not valid');
   }
 

@@ -9,7 +9,7 @@ export const defaultSnapOrigin = 'npm:@rarimo/rarime';
 
 export const enableSnap = async (
   snapOrigin?: string,
-  version?: string,
+  version = '0.2.0',
 ): Promise<MetamaskSnap> => {
   const snapId = snapOrigin ?? defaultSnapOrigin;
 

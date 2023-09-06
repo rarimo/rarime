@@ -6431,7 +6431,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/rarime-connector@0.1.0, @rarimo/rarime-connector@workspace:packages/connector":
+"@rarimo/rarime-connector@0.2.0, @rarimo/rarime-connector@workspace:packages/connector":
   version: 0.0.0-use.local
   resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
@@ -6465,7 +6465,7 @@ __metadata:
     "@metamask/snaps-jest": 0.35.2-flask.1
     "@metamask/snaps-types": 0.32.2
     "@metamask/snaps-ui": 0.32.2
-    "@rarimo/rarime-connector": 0.1.0
+    "@rarimo/rarime-connector": 0.2.0
     "@typechain/ethers-v5": 11.1.1
     "@types/intl": 1.2.0
     "@types/uuid": 9.0.2
@@ -22650,7 +22650,7 @@ __metadata:
     "@metamask/eslint-config-nodejs": 10.0.0
     "@metamask/eslint-config-typescript": 10.0.0
     "@metamask/providers": 9.0.0
-    "@rarimo/rarime-connector": 0.1.0
+    "@rarimo/rarime-connector": 0.2.0
     "@svgr/webpack": 6.4.0
     "@testing-library/dom": 8.17.1
     "@testing-library/jest-dom": 5.16.4
