@@ -1,6 +1,5 @@
 {
   "name": "rarime-snap-monorepo",
-  "version": "0.1.0",
   "private": true,
   "description": "",
   "homepage": "https://github.com/rarimo/rarime#readme",
@@ -25,7 +24,8 @@
     "lint:misc": "prettier '**/*.json' '**/*.md' '!**/CHANGELOG.md' '**/*.yml' --ignore-path .gitignore",
     "start": "yarn build:connector && yarn workspaces foreach --parallel --interlaced --verbose run start",
     "test": "echo \"TODO\"",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "rsc": "node scripts/release-sanity-check.js"
   },
   "devDependencies": {
     "@metamask/eslint-config": "10.0.0",

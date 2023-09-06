@@ -120,8 +120,16 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
               heading('Identity info'),
               divider(),
               text('Private key:'),
-              copyable(identity.privateKeyHex),
+              text(
+                'Please save your private key and keep it safe. The loss of the private key will lead to the loss of access to your profile!',
+              ),
+              copyable(
+                JSON.stringify({
+                  privateKey: identity?.privateKeyHex,
+                }),
+              ),
               text('DID:'),
+              text('Your unique identifier'),
               copyable(identity.didString),
             ]),
           },

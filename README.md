@@ -16,6 +16,10 @@ Rarime is a MetaMask Snap that safely holds any of your credentials and allows y
 
 Rarime is fully audited. Check out the reports [here](./audits/).
 
+## Changelog
+
+For the changelog, see [CHANGELOG.md](https://github.com/rarimo/rarime/blob/main/CHANGELOG.md).
+
 ## Contributing
 
 ### Getting Started
