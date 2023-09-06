@@ -121,7 +121,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
               divider(),
               text('Private key:'),
               text(
-                'Save your private key to recover your account if you lose access',
+                'Please save your private key and keep it safe. The loss of the private key will lead to the loss of access to your profile!',
               ),
               copyable(
                 JSON.stringify({
@@ -129,9 +129,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
                 }),
               ),
               text('DID:'),
-              text(
-                'Unique and persistent identifier that enable verifiable and decentralized identities',
-              ),
+              text('Your unique identifier'),
               copyable(identity.didString),
             ]),
           },

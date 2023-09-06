@@ -18,7 +18,7 @@ Rarime is fully audited. Check out the reports [here](./audits/).
 
 ## Changelog
 
-For the change log, see [CHANGELOG.md](https://github.com/rarimo/rarime/blob/main/CHANGELOG.md).
+For the changelog, see [CHANGELOG.md](https://github.com/rarimo/rarime/blob/main/CHANGELOG.md).
 
 ## Contributing
 
