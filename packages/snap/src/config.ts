@@ -36,6 +36,7 @@ enum CHAINS {
   Polygon = 137,
   Avalance = 43114,
   Sepolia = 11155111,
+  Goerly = 5,
 }
 
 export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
@@ -63,5 +64,10 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
     id: CHAINS.Sepolia,
     rpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
     stateContractAddress: '0x8a9F505bD8a22BF09b0c19F65C17426cd33f3912',
+  },
+  [CHAINS.Goerly]: {
+    id: CHAINS.Goerly,
+    rpcUrl: 'https://ethereum-goerli.publicnode.com',
+    stateContractAddress: '0x0F08e8EA245E63F2090Bf3fF3772402Da9c047ee',
   },
 };
