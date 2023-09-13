@@ -1,9 +1,9 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "This is a test package for the zkp snap",
   "proposedName": "zkp-snap",
   "source": {
-    "shasum": "Xn/ZcQSMb4+ywLZ3M70hC4cSFtDbsDFy0MUKRZop6vQ=",
+    "shasum": "EXbTxqgum+SNHLoW4/Shq+PaiiPOfGly+2Z/L66fvMs=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
