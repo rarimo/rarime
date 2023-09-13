@@ -6272,7 +6272,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/rarime-connector@0.2.0, @rarimo/rarime-connector@workspace:packages/connector":
+"@rarimo/rarime-connector@0.3.0, @rarimo/rarime-connector@workspace:packages/connector":
   version: 0.0.0-use.local
   resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
@@ -6281,6 +6281,15 @@ __metadata:
     typescript: 4.7.4
   languageName: unknown
   linkType: soft
+
+"@rarimo/rarime-connector@npm:0.2.0":
+  version: 0.2.0
+  resolution: "@rarimo/rarime-connector@npm:0.2.0"
+  dependencies:
+    "@ethersproject/providers": 5.7.2
+  checksum: e4d8c06caccb77b529b139f4d866adcf6b13f30f749ff1596e888ec86da6ab33634efb31e0dc2ca788ea03a2853ae12e7f8caae574ca2981ddbea7fd8de1e163
+  languageName: node
+  linkType: hard
 
 "@rarimo/rarime@workspace:packages/snap":
   version: 0.0.0-use.local
@@ -6306,7 +6315,7 @@ __metadata:
     "@metamask/snaps-jest": 0.35.2-flask.1
     "@metamask/snaps-types": 0.32.2
     "@metamask/snaps-ui": 0.32.2
-    "@rarimo/rarime-connector": 0.2.0
+    "@rarimo/rarime-connector": 0.3.0
     "@typechain/ethers-v5": 11.1.1
     "@types/intl": 1.2.0
     "@types/uuid": 9.0.2
@@ -15578,11 +15587,11 @@ __metadata:
   linkType: hard
 
 "hosted-git-info@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "hosted-git-info@npm:7.0.0"
+  version: 7.0.1
+  resolution: "hosted-git-info@npm:7.0.1"
   dependencies:
     lru-cache: ^10.0.1
-  checksum: b892237a3867f827f97e229e2b6ddf17d3ed674f003475c12ecbfc6269416db3a643c1ee3c5d4a989e3f3a596dd1470ee4017fe911710e47aeb7d9319737c05e
+  checksum: be5280f0a20d6153b47e1ab578e09f5ae8ad734301b3ed7e547dc88a6814d7347a4888db1b4f9635cc738e3c0ef1fbff02272aba7d07c75d4c5a50ff8d618db6
   languageName: node
   linkType: hard
 
