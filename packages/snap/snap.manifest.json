@@ -1,14 +1,18 @@
 {
   "version": "0.2.0",
-  "description": "This is a test package for the zkp snap",
-  "proposedName": "zkp-snap",
+  "description": "Rarime is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
+  "proposedName": "Rarime",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rarimo/rarime.git"
+  },
   "source": {
-    "shasum": "EXbTxqgum+SNHLoW4/Shq+PaiiPOfGly+2Z/L66fvMs=",
+    "shasum": "81+13wAkLbFoCF2tztWxSKiL3i51QY6r2+LxGG6tMcg=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/icon.svg",
-        "packageName": "@lukachi/zkp-snap",
+        "packageName": "@rarimo/rarime",
         "registry": "https://registry.npmjs.org/"
       }
     }
