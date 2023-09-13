@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Rarime is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "proposedName": "Rarime",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "81+13wAkLbFoCF2tztWxSKiL3i51QY6r2+LxGG6tMcg=",
+    "shasum": "t1P1fvfOVNkxmlBJcx9e0VShWhsJP+k7pH4PqKmbaKM=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
