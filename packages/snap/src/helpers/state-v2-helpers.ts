@@ -94,9 +94,15 @@ export const checkIfStateSynced = async (): Promise<boolean> => {
   return rarimoGISTRoot === currentChainGISTRoot;
 };
 
-export const loadDataFromRarimoCore = async <T>(url: string): Promise<T> => {
+export const loadDataFromRarimoCore = async <T>(
+  url: string,
+  blockHeight?: string,
+): Promise<T> => {
   const response = await fetch(`${config.RARIMO_CORE_URL}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(blockHeight && { 'X-Cosmos-Block-Height': blockHeight }),
+    },
   });
 
   if (!response.ok) {

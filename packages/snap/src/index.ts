@@ -234,6 +234,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         );
         const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
           `/rarimo/rarimo-core/identity/state/${issuerHexId}/proof`,
+          stateData.state.createdAtBlock,
         );
 
         if (!isSynced) {
