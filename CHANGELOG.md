@@ -8,7 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 
-- RariMe spelling in the docs and meta-descriptions.
+- RariMe casing in the docs and meta-descriptions.
+
+### Changed
+
+- Updated the snap description.
 
 ## [0.3.1] - 2023-09-14
 ### Added
