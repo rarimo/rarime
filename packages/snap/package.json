@@ -29,7 +29,8 @@
     "test": "jest",
     "typia:generate": "typia generate --input src/typia-templates --output src/typia-generated --project tsconfig.json",
     "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts",
-    "prepublishOnly": "yarn && yarn build"
+    "prepublishOnly": "yarn && yarn build",
+    "preversion": "yarn && yarn build && git add snap.manifest.json"
   },
   "dependencies": {
     "@ethersproject/abi": "5.0.0",
