@@ -1,6 +1,6 @@
-# Rarime Connector
+# RariMe Connector
 
-Rarime connector is used to install snap and exposes methods for calling snap on dApps and other applications.
+RariMe connector is used to install snap and exposes methods for calling snap on dApps and other applications.
 
 ## Usage
 
