@@ -1,20 +1,20 @@
 <p align="center">
-    <img src="https://github.com/rarimo/rarime/blob/6efa918aeb21d7c5e154e20b048754f417ce0f16/packages/snap/images/icon.svg" alt="Rarime logo" width="240"/>
+    <img src="https://github.com/rarimo/rarime/blob/6efa918aeb21d7c5e154e20b048754f417ce0f16/packages/snap/images/icon.svg" alt="RariMe logo" width="240"/>
 </p>
 
 
 
 
 
-# Rarime
+# RariMe
 ![npm](https://img.shields.io/npm/v/%40rarimo%2Frarime)
 ![npm](https://img.shields.io/npm/dm/%40rarimo%2Frarime)
 
-Rarime is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and Zero-Knowledge Proof technology.
+RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and Zero-Knowledge Proof technology.
 
 ## Security
 
-Rarime is fully audited. Check out the reports [here](./audits/).
+RariMe is fully audited. Check out the reports [here](./audits/).
 
 ## Changelog
 
