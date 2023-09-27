@@ -1,8 +1,4 @@
-import {
-  proving,
-  // eslint-disable-next-line prettier/prettier
-  type ZKProof,
-} from '@iden3/js-jwz';
+import { proving, type ZKProof } from '@iden3/js-jwz';
 
 
 import { Hex, Signature } from '@iden3/js-crypto';

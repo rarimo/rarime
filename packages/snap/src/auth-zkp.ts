@@ -1,7 +1,6 @@
 import { fromBigEndian } from '@iden3/js-iden3-core';
 import { proving, Token } from '@iden3/js-jwz';
 import * as uuid from 'uuid';
-// eslint-disable-next-line prettier/prettier
 import { type Identity } from './identity';
 
 import { config } from './config';
