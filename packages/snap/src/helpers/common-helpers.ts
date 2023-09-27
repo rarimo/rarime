@@ -1,4 +1,5 @@
-import { SUPPORTED_CHAINS } from '../config';
+import { providers } from 'ethers';
+import { config, SUPPORTED_CHAINS } from '../config';
 import { ChainInfo } from '../types';
 
 export const getChainInfo = (chainId: number): ChainInfo => {
@@ -8,4 +9,25 @@ export const getChainInfo = (chainId: number): ChainInfo => {
   }
 
   return chainInfo;
+};
+
+export const getProviderChainInfo = async (): Promise<ChainInfo> => {
+  const provider = new providers.Web3Provider(window.ethereum);
+  const network = await provider.getNetwork();
+
+  return getChainInfo(network.chainId);
+};
+
+export const getRarimoEvmRpcUrl = (chainId: number) => {
+  return config.RARIMO_EVM_RPC_URL[SUPPORTED_CHAINS[chainId].rarimoNetworkType];
+};
+
+export const getRarimoCoreUrl = (chainId: number) => {
+  return config.RARIMO_CORE_URL[SUPPORTED_CHAINS[chainId].rarimoNetworkType];
+};
+
+export const getRarimoStateContractAddress = (chainId: number) => {
+  return config.RARIMO_STATE_CONTRACT_ADDRESS[
+    SUPPORTED_CHAINS[chainId].rarimoNetworkType
+  ];
 };

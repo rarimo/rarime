@@ -1,4 +1,9 @@
-import { proving, type ZKProof } from '@iden3/js-jwz';
+import {
+  proving,
+  // eslint-disable-next-line prettier/prettier
+  type ZKProof,
+} from '@iden3/js-jwz';
+
 
 import { Hex, Signature } from '@iden3/js-crypto';
 import { fromLittleEndian } from '@iden3/js-iden3-core';
@@ -9,7 +14,7 @@ import {
   CircuitClaim,
   getGISTProof,
   getNodeAuxValue,
-  getPreparedCredential,
+  getPreparedCredential, getProviderChainInfo, getRarimoEvmRpcUrl, getRarimoStateContractAddress,
   newCircuitClaimData,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
@@ -121,10 +126,11 @@ export class ZkpGen {
       this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
       this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
     ) {
+      const providerChainInfo = await getProviderChainInfo();
 
       const gistInfo = await getGISTProof({
-        rpcUrl: config.RARIMO_EVM_RPC_URL,
-        contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
+        rpcUrl: getRarimoEvmRpcUrl(providerChainInfo.id),
+        contractAddress: getRarimoStateContractAddress(providerChainInfo.id),
         userId: this.identity.identityIdBigIntString,
       });
       this.gistProof = toGISTProof(gistInfo);
