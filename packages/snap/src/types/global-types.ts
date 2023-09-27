@@ -19,8 +19,11 @@ declare global {
   }
 }
 
+export type RarimoNetworkType = 'mainnet' | 'beta';
+
 export type ChainInfo = {
   id: number;
   rpcUrl: string;
   stateContractAddress: string;
+  rarimoNetworkType: RarimoNetworkType;
 };

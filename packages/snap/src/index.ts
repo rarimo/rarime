@@ -3,7 +3,6 @@ import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
 import { RPCMethods } from '@rarimo/rarime-connector';
-import { providers } from 'ethers';
 import { DID } from '@iden3/js-iden3-core';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
@@ -23,8 +22,8 @@ import {
   saveCredentials,
   checkIfStateSynced,
   getUpdateStateTx,
-  getChainInfo,
   loadDataFromRarimoCore,
+  getProviderChainInfo,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -220,9 +219,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
         let updateStateTx;
 
-        const provider = new providers.Web3Provider(window.ethereum);
-        const network = await provider.getNetwork();
-        const chainInfo = getChainInfo(network.chainId);
+        const chainInfo = await getProviderChainInfo();
 
         const isSynced = await checkIfStateSynced();
 

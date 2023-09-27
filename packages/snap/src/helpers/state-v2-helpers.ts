@@ -11,8 +11,13 @@ import {
   StateProof,
   StateV2__factory,
 } from '../types';
-import { config } from '../config';
-import { getChainInfo } from './common-helpers';
+import {
+  getChainInfo,
+  getProviderChainInfo,
+  getRarimoCoreUrl,
+  getRarimoEvmRpcUrl,
+  getRarimoStateContractAddress,
+} from './common-helpers';
 import { FetcherError } from './error-helper';
 
 export const getGISTProof = async ({
@@ -45,22 +50,23 @@ export const getGISTProof = async ({
 };
 
 // getRarimoGISTRoot returns the latest GIST root from the Rarimo state contract
-export const getRarimoGISTRoot = async (
-  {
-    rpcUrl,
-    contractAddress,
-  }: {
-    rpcUrl: string;
-    contractAddress: string;
-  } = {
-    rpcUrl: config.RARIMO_EVM_RPC_URL,
-    contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
-  },
-): Promise<bigint> => {
-  const rawProvider = new providers.JsonRpcProvider(rpcUrl, 'any');
+export const getRarimoGISTRoot = async ({
+  rpcUrl,
+  contractAddress,
+}: {
+  rpcUrl?: string;
+  contractAddress?: string;
+} = {}): Promise<bigint> => {
+  const providerChainInfo = await getProviderChainInfo();
+
+  const _rpcUrl = rpcUrl ?? getRarimoEvmRpcUrl(providerChainInfo.id);
+  const _contractAddress =
+    contractAddress ?? getRarimoStateContractAddress(providerChainInfo.id);
+
+  const rawProvider = new providers.JsonRpcProvider(_rpcUrl, 'any');
 
   const contractInstance = StateV2__factory.connect(
-    contractAddress,
+    _contractAddress,
     rawProvider,
   );
 
@@ -98,7 +104,11 @@ export const loadDataFromRarimoCore = async <T>(
   url: string,
   blockHeight?: string,
 ): Promise<T> => {
-  const response = await fetch(`${config.RARIMO_CORE_URL}${url}`, {
+  const providerChainInfo = await getProviderChainInfo();
+
+  const rarimoCoreUrl = getRarimoCoreUrl(providerChainInfo.id);
+
+  const response = await fetch(`${rarimoCoreUrl}${url}`, {
     headers: {
       'Content-Type': 'application/json',
       ...(blockHeight && { 'X-Cosmos-Block-Height': blockHeight }),

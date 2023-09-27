@@ -7,7 +7,7 @@ import { config } from './config';
 import { W3CCredential, ClaimOffer } from './types';
 import {
   getGISTProof,
-  getNodeAuxValue,
+  getNodeAuxValue, getProviderChainInfo, getRarimoEvmRpcUrl, getRarimoStateContractAddress,
   prepareSiblingsStr,
   readBytesFile,
   toGISTProof,
@@ -77,10 +77,12 @@ export class AuthZkp {
   async #prepareInputs(messageHash: Uint8Array): Promise<Uint8Array> {
     const messageHashBigInt = fromBigEndian(messageHash);
 
+    const providerChainInfo = await getProviderChainInfo()
+
     const signature = this.identity.privateKey.signPoseidon(messageHashBigInt);
     const gistInfo = await getGISTProof({
-      rpcUrl: config.RARIMO_EVM_RPC_URL,
-      contractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS,
+      rpcUrl: getRarimoEvmRpcUrl(providerChainInfo.id),
+      contractAddress: getRarimoStateContractAddress(providerChainInfo.id),
       userId: this.identity.identityIdBigIntString,
     });
 
