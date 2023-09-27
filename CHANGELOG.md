@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2023-09-27
+### Changed
+- `@rarimo/rarime`: separate `beta` and `mainnet` details in config
+
+## [Unreleased]
+
 ## [0.3.2] - 2023-09-26
 ### Fixed
 
@@ -44,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
 
-[Unreleased]: https://github.com/rarimo/rarime/compare/0.3.2...HEAD
+[Unreleased]: https://github.com/rarimo/rarime/compare/0.3.3...HEAD
+[0.3.3]: https://github.com/rarimo/rarime/compare/0.3.2...0.3.3
 [0.3.2]: https://github.com/rarimo/rarime/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/rarimo/rarime/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/rarimo/rarime/compare/0.2.0...0.3.0
