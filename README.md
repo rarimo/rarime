@@ -7,8 +7,8 @@
 
 
 # RariMe
-![npm](https://img.shields.io/npm/v/%40rarimo%2Frarime)
-![npm](https://img.shields.io/npm/dm/%40rarimo%2Frarime)
+[![npm](https://img.shields.io/npm/v/%40rarimo%2Frarime)](https://www.npmjs.com/package/@rarimo/rarime)
+[![npm](https://img.shields.io/npm/dm/%40rarimo%2Frarime)](https://npm-stat.com/charts.html?package=%40rarimo%2Frarime)
 
 RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and Zero-Knowledge Proof technology.
 
