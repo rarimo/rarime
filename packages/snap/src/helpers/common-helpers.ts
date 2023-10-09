@@ -12,7 +12,9 @@ export const getChainInfo = (chainId: number): ChainInfo => {
 };
 
 export const getProviderChainInfo = async (): Promise<ChainInfo> => {
-  const provider = new providers.Web3Provider(window.ethereum);
+  const provider = new providers.Web3Provider(
+    (ethereum as any) as providers.ExternalProvider,
+  );
   const network = await provider.getNetwork();
 
   return getChainInfo(network.chainId);

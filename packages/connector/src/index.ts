@@ -1,5 +1,5 @@
 import { MetamaskSnap } from './snap';
-import { isMetamaskInstalled, isSnapInstalled } from './utils';
+import { isMetamaskInstalled } from './utils';
 
 export { MetamaskSnap } from './snap';
 export * from './types';
@@ -17,16 +17,12 @@ export const enableSnap = async (
     throw new Error('Metamask is not installed');
   }
 
-  const isInstalled = await isSnapInstalled(snapId, version);
-
-  if (!isInstalled) {
-    await window.ethereum.request({
-      method: 'wallet_requestSnaps',
-      params: {
-        [snapId]: { ...(version && { version }) },
-      },
-    });
-  }
+  await window.ethereum.request({
+    method: 'wallet_requestSnaps',
+    params: {
+      [snapId]: { ...(version && { version }) },
+    },
+  });
 
   return new MetamaskSnap(snapId);
 };

@@ -19,7 +19,7 @@ export const sendVc = async () => {
   const did = await connector.createIdentity();
 
   const response = await fetch(
-    `https://api.poh.rarimo.com/integrations/issuer/v1/public/claims/offers/${
+    `https://api.polygon.mainnet-beta.rarimo.com/integrations/issuer/v1/public/claims/offers/${
       did.split(':')[2]
     }/IdentityProviders`,
   );
