@@ -65,6 +65,12 @@ export const checkStateContractSync = async () => {
   alert(`State contract is synced: ${isSynced}`);
 };
 
+export const getCredentials = async () => {
+  const data = await connector.getCredentials();
+
+  console.log(data);
+};
+
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
 
 export const reconnectSnap = async (

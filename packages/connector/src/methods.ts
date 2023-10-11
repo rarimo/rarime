@@ -73,3 +73,12 @@ export const checkStateContractSync = async function (
     this.snapId,
   );
 };
+
+export const getCredentials = async function (
+  this: MetamaskSnap,
+): Promise<W3CCredential[]> {
+  return await sendSnapMethod(
+    { method: RPCMethods.GetCredentials },
+    this.snapId,
+  );
+};

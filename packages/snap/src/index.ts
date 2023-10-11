@@ -24,15 +24,18 @@ import {
   getUpdateStateTx,
   loadDataFromRarimoCore,
   getProviderChainInfo,
+  getDomain,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
   isValidSaveCredentialsOfferRequest,
   isValidCreateProofRequest,
 } from './typia-generated';
+import { GET_CREDENTIALS_SUPPORTED_DOMAINS } from './config';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
+  origin,
 }): Promise<unknown> => {
   switch (request.method) {
     case RPCMethods.SaveCredentials: {
@@ -310,6 +313,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const isSynced = await checkIfStateSynced();
 
       return isSynced;
+    }
+
+    case RPCMethods.GetCredentials: {
+      if (!GET_CREDENTIALS_SUPPORTED_DOMAINS.includes(getDomain(origin))) {
+        throw new Error('This origin does not have access to credentials');
+      }
+      return (await getItemFromStore(StorageKeys.credentials)) || [];
     }
 
     default:

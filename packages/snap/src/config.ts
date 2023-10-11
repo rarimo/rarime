@@ -86,3 +86,5 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
     rarimoNetworkType: 'beta',
   },
 };
+
+export const GET_CREDENTIALS_SUPPORTED_DOMAINS = ['localhost'];

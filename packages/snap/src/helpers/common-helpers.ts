@@ -33,3 +33,7 @@ export const getRarimoStateContractAddress = (chainId: number) => {
     SUPPORTED_CHAINS[chainId].rarimoNetworkType
   ];
 };
+
+export const getDomain = (origin: string): string => {
+  return new URL(origin).hostname.split('.').slice(-2).join('.');
+};
