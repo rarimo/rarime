@@ -32,6 +32,10 @@ function validateSemverCompatibility () {
 
 function validatePackageJsonVersion () {
   Object.entries(PACKAGE_JSON_MAP).forEach(([pack, packageJSON]) => {
+   if(pack === 'snap' &&  packageJSON.dependencies['@electr1xxxx/snapp-connector']!== VERSION) {
+    issuesFound
+    .push(`@rarimo/${pack} version in snap should equal ${VERSION}, got ${packageJSON.dependencies['@electr1xxxx/snapp-connector']}`)
+   }
   if (packageJSON.version !== VERSION) {
     issuesFound
       .push(`@rarimo/${pack} package.json version should equal ${VERSION}, got ${packageJSON.version}`)
