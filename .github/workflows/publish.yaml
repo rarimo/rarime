@@ -20,8 +20,6 @@ jobs:
       - name: Publish
         run: |
           yarn install
-          yarn build
-          yarn lint
           yarn publish
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
