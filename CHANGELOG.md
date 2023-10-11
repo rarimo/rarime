@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `@rarimo/rarime`: private key from `Identity info` snap dialog
-- `@rarimo/rarime-connector`: `isSnapInstalled` check from `enableSnap` method
+- `@electr1xxxx/snapp-connector`: `isSnapInstalled` check from `enableSnap` method
 
 ## [0.4.0] - 2023-09-27
 ### Changed
@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `@rarimo/rarime`: preversion hook in package.json
 
 ### Changed
-- `@rarimo/rarime-connector`: bumped required snap version
+- `@electr1xxxx/snapp-connector`: bumped required snap version
 
 ### Fixed
 - `@rarimo/rarime`: manifest shasum on npm
@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `@rarimo/rarime`: optional parameter `blockHeight` in `loadDataFromRarimoCore` method
 
 ### Changed
-- `@rarimo/rarime-connector`: `snap` version
+- `@electr1xxxx/snapp-connector`: `snap` version
 
 ## [0.2.0] - 2023-09-06
 ### Changed
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2023-08-27
 ### Added
-- Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
+- Implemented `@electr1xxxx/snapp-connector` and `@rarimo/rarime` packages
 
 [Unreleased]: https://github.com/rarimo/rarime/compare/0.4.0...HEAD
 [0.4.0]: https://github.com/rarimo/rarime/compare/0.3.2...0.4.0

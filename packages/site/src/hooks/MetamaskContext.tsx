@@ -7,7 +7,7 @@ import {
   useReducer,
 } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { isSnapInstalled, MetamaskSnap } from '@rarimo/rarime-connector';
+import { isSnapInstalled, MetamaskSnap } from '@electr1xxxx/snapp-connector';
 import { isFlask, connectSnap } from '../utils';
 
 export type MetamaskState = {
