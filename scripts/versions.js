@@ -38,6 +38,10 @@ function applyVersion() {
     const packageJsonPath = path.resolve(__dirname, `../packages/${pkg}/package.json`)
     const packageJson = require(packageJsonPath)
 
+    if(pkg === 'snap') {
+      packageJson.dependencies['@electr1xxxx/snapp-connector'] = VERSION
+    }
+
     if (packageJson.version === VERSION) {
       continue
     }

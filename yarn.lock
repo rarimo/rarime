@@ -2836,7 +2836,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electr1xxxx/snapp-connector@workspace:^, @electr1xxxx/snapp-connector@workspace:packages/connector":
+"@electr1xxxx/snapp-connector@0.4.0, @electr1xxxx/snapp-connector@workspace:^, @electr1xxxx/snapp-connector@workspace:packages/connector":
   version: 0.0.0-use.local
   resolution: "@electr1xxxx/snapp-connector@workspace:packages/connector"
   dependencies:
@@ -2850,7 +2850,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@electr1xxxx/snapp@workspace:packages/snap"
   dependencies:
-    "@electr1xxxx/snapp-connector": "workspace:^"
+    "@electr1xxxx/snapp-connector": 0.4.0
     "@ethersproject/abi": 5.0.0
     "@ethersproject/bytes": 5.7.0
     "@ethersproject/keccak256": 5.7.0
