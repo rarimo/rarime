@@ -5,11 +5,10 @@ export { MetamaskSnap } from './snap';
 export * from './types';
 export { isMetamaskInstalled, isSnapInstalled } from './utils';
 
-export const defaultSnapOrigin = 'local:http://localhost:8081';
-
+export const defaultSnapOrigin = 'npm:@electr1xxxx/snapp';
 export const enableSnap = async (
   snapOrigin?: string,
-  version = '0.4.x',
+  version = '0.8.x',
 ): Promise<MetamaskSnap> => {
   const snapId = snapOrigin ?? defaultSnapOrigin;
 
