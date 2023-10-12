@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `@rarimo/rarime`: get credentials method
+- Publish snap and connector to npm on creating tag
 
 ### Changed
 - `@rarimo/rarime`: use ethereum provider instead window.ethereum

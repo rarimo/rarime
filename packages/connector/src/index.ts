@@ -1,5 +1,6 @@
 import { MetamaskSnap } from './snap';
 import { isMetamaskInstalled } from './utils';
+import versionJson from './version.json';
 
 export { MetamaskSnap } from './snap';
 export * from './types';
@@ -9,7 +10,7 @@ export const defaultSnapOrigin = 'npm:@rarimo/rarime';
 
 export const enableSnap = async (
   snapOrigin?: string,
-  version = '0.4.x',
+  version = versionJson.version,
 ): Promise<MetamaskSnap> => {
   const snapId = snapOrigin ?? defaultSnapOrigin;
 
