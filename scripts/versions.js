@@ -42,6 +42,16 @@ function applyVersion() {
       packageJson.dependencies['@electr1xxxx/snapp-connector'] = VERSION
     }
 
+    if(pkg === 'connector') {
+      const packageJsonVersionPath = path.resolve(__dirname, `../packages/${pkg}/src/version.json`)
+      const packageJsonVersion = require(packageJsonVersionPath)
+      packageJsonVersion.version = VERSION
+
+      fs.writeFile(packageJsonVersionPath, `${JSON.stringify(packageJsonVersion, null, 2)}\n`, (err) => {
+        if (err) issuesFound.push(`[${ORGANIZATION_NAME}/${pkg}]: Connector: snap version apply failed: ${err.toString()}`)
+      });
+    }
+
     if (packageJson.version === VERSION) {
       continue
     }

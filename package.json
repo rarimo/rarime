@@ -26,8 +26,8 @@
     "test": "echo \"TODO\"",
     "postinstall": "patch-package",
     "rsc": "node scripts/release-sanity-check.js",
-    "apply-version": "node scripts/versions.js $0 && yarn workspace @electr1xxxx/snapp preversion",
-    "publish": "yarn workspaces foreach --no-private exec npm publish"
+    "apply-version": "node scripts/versions.js $0 && yarn build:connector && yarn workspace @electr1xxxx/snapp preversion",
+    "publish": "yarn workspaces foreach --no-private exec yarn npm publish"
   },
   "devDependencies": {
     "@metamask/eslint-config": "10.0.0",
