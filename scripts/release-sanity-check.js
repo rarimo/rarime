@@ -32,10 +32,10 @@ function validateSemverCompatibility () {
 
 function validatePackageJsonVersion () {
   Object.entries(PACKAGE_JSON_MAP).forEach(([pack, packageJSON]) => {
-    if(pack === 'snap' &&  packageJSON.dependencies['@rarimo/rarime-connector']!== VERSION) {
-      issuesFound
-      .push(`@rarimo/rarime-connector version in snap should equal ${VERSION}, got ${packageJSON.dependencies['@rarimo/rarime-connector']}`)
-     }
+  if(pack === 'snap' &&  packageJSON.dependencies['@rarimo/rarime-connector']!== VERSION) {
+    issuesFound
+    .push(`@rarimo/rarime-connector version in snap should equal ${VERSION}, got ${packageJSON.dependencies['@rarimo/rarime-connector']}`)
+    }
   if (packageJSON.version !== VERSION) {
     issuesFound
       .push(`@rarimo/${pack} package.json version should equal ${VERSION}, got ${packageJSON.version}`)
