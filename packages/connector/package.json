@@ -1,6 +1,6 @@
 {
   "name": "@electr1xxxx/snapp-connector",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Facilitates interaction between a DApp and RariMe MetaMask snap",
   "repository": {
     "type": "git",
