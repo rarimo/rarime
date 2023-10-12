@@ -34,7 +34,7 @@ function validatePackageJsonVersion () {
   Object.entries(PACKAGE_JSON_MAP).forEach(([pack, packageJSON]) => {
    if(pack === 'snap' &&  packageJSON.dependencies['@rarimo/rarime-connector']!== VERSION) {
     issuesFound
-    .push(`@rarimo/${pack} version in snap should equal ${VERSION}, got ${packageJSON.dependencies['@rarimo/rarime-connector']}`)
+    .push(`@rarimo/rarime-connector version in snap should equal ${VERSION}, got ${packageJSON.dependencies['@rarimo/rarime-connector']}`)
    }
   if (packageJSON.version !== VERSION) {
     issuesFound
