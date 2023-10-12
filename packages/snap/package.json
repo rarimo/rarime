@@ -1,6 +1,6 @@
 {
-  "name": "@electr1xxxx/snapp",
-  "version": "0.13.0",
+  "name": "@rarimo/rarime",
+  "version": "0.4.0",
   "description": "RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "repository": {
     "type": "git",
@@ -33,7 +33,6 @@
     "preversion": "yarn && yarn build && git add snap.manifest.json"
   },
   "dependencies": {
-    "@electr1xxxx/snapp-connector": "0.13.0",
     "@ethersproject/abi": "5.0.0",
     "@ethersproject/bytes": "5.7.0",
     "@ethersproject/keccak256": "5.7.0",
@@ -46,6 +45,7 @@
     "@metamask/snaps-jest": "0.35.2-flask.1",
     "@metamask/snaps-types": "0.32.2",
     "@metamask/snaps-ui": "0.32.2",
+    "@rarimo/rarime-connector": "0.4.0",
     "buffer": "6.0.3",
     "ethers": "5.7.2",
     "intl": "1.2.5",

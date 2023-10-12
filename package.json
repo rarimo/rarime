@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "yarn workspaces foreach --parallel --topological --verbose run build",
-    "build:connector": "yarn workspace @electr1xxxx/snapp-connector build",
+    "build:connector": "yarn workspace @rarimo/rarime-connector build",
     "lint": "yarn lint:eslint && yarn lint:misc --check",
     "lint:eslint": "eslint . --cache --ext js,ts",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",
@@ -26,7 +26,7 @@
     "test": "echo \"TODO\"",
     "postinstall": "patch-package",
     "rsc": "node scripts/release-sanity-check.js",
-    "apply-version": "node scripts/versions.js $0 && yarn build:connector && yarn workspace @electr1xxxx/snapp preversion",
+    "apply-version": "node scripts/versions.js $0 && yarn build:connector && yarn workspace @rarimo/rarime preversion",
     "publish": "yarn workspaces foreach --no-private exec yarn npm publish"
   },
   "devDependencies": {

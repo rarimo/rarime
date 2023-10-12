@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { enableSnap, SnapConnector } from '@electr1xxxx/snapp-connector';
+import { enableSnap, SnapConnector } from '@rarimo/rarime-connector';
 
 let connector: SnapConnector;
 
