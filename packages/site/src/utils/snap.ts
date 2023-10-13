@@ -68,7 +68,7 @@ export const checkStateContractSync = async () => {
 export const getCredentials = async () => {
   const data = await connector.getCredentials();
 
-  console.log(data);
+  alert(JSON.stringify(data));
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

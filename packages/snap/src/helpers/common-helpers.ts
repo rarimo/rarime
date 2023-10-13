@@ -34,6 +34,6 @@ export const getRarimoStateContractAddress = (chainId: number) => {
   ];
 };
 
-export const getDomain = (origin: string): string => {
-  return new URL(origin).hostname.split('.').slice(-2).join('.');
+export const getHostname = (origin: string): string => {
+  return new URL(origin).hostname;
 };

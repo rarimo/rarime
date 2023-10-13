@@ -364,7 +364,7 @@ const Index = () => {
         <Card
           content={{
             title: 'Get credentials',
-            description: 'Getting verifiable credentials from snap',
+            description: 'Getting verifiable credentials from the snap',
             button: (
               <SendHelloButton
                 onClick={handleGetCredentialsClick}

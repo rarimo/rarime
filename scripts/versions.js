@@ -45,7 +45,8 @@ function applyVersion() {
     if(pkg === 'connector') {
       const packageJsonVersionPath = path.resolve(__dirname, `../packages/${pkg}/src/version.json`)
       const packageJsonVersion = require(packageJsonVersionPath)
-      packageJsonVersion.version = VERSION
+      const splitVersion = VERSION.split('.')
+      packageJsonVersion.version = `${splitVersion[0]}.${splitVersion[1]}.x`
 
       fs.writeFile(packageJsonVersionPath, `${JSON.stringify(packageJsonVersion, null, 2)}\n`, (err) => {
         if (err) issuesFound.push(`[${ORGANIZATION_NAME}/${pkg}]: Connector: snap version apply failed: ${err.toString()}`)

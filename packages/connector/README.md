@@ -186,7 +186,7 @@ Returns true if the lightweight state contract on current chain doesn't need to 
 getCredentials(): Promise<W3CCredential[]>
 ```
 
-Returns all Verifiable Credentials saved inside the snap state
+Returns all Verifiable Credentials saved inside the snap storage
 
 ```typescript
 type W3CCredential = {

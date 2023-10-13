@@ -30,7 +30,7 @@ Clone the repository:
 yarn install && yarn start
 ```
 
-### Basics
+### Publishing new versions
 
 #### Check release version
 

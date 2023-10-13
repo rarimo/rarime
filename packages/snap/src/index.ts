@@ -24,14 +24,14 @@ import {
   getUpdateStateTx,
   loadDataFromRarimoCore,
   getProviderChainInfo,
-  getDomain,
+  getHostname,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
   isValidSaveCredentialsOfferRequest,
   isValidCreateProofRequest,
 } from './typia-generated';
-import { GET_CREDENTIALS_SUPPORTED_DOMAINS } from './config';
+import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
@@ -119,10 +119,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           params: {
             type: 'alert',
             content: panel([
-              heading('Identity info'),
+              heading('Your RariMe is ready for use!'),
               divider(),
-              text('DID:'),
-              text('Your unique identifier'),
+              text('Your unique identifier(DID):'),
               copyable(identity.didString),
             ]),
           },
@@ -316,7 +315,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     }
 
     case RPCMethods.GetCredentials: {
-      if (!GET_CREDENTIALS_SUPPORTED_DOMAINS.includes(getDomain(origin))) {
+      if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
         throw new Error('This origin does not have access to credentials');
       }
       return (await getItemFromStore(StorageKeys.credentials)) || [];

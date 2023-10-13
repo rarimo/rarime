@@ -5,13 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.0] - 2023-10-12
+## [Unreleased]
+
+## [0.5.0] - 2023-10-13
 ### Added
 - `@rarimo/rarime`: get credentials method
-- Publish snap and connector to npm on creating tag
+- Publish snap and connector to npm on git tag push
 
 ### Changed
-- `@rarimo/rarime`: use ethereum provider instead window.ethereum
+- `@rarimo/rarime`: use `ethereum` provider instead of `window.ethereum`
 
 ### Removed
 - `@rarimo/rarime`: private key from `Identity info` snap dialog

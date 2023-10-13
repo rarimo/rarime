@@ -87,4 +87,4 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
   },
 };
 
-export const GET_CREDENTIALS_SUPPORTED_DOMAINS = ['localhost'];
+export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = ['localhost'];
