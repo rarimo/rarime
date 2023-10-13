@@ -24,15 +24,18 @@ import {
   getUpdateStateTx,
   loadDataFromRarimoCore,
   getProviderChainInfo,
+  getHostname,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
   isValidSaveCredentialsOfferRequest,
   isValidCreateProofRequest,
 } from './typia-generated';
+import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
+  origin,
 }): Promise<unknown> => {
   switch (request.method) {
     case RPCMethods.SaveCredentials: {
@@ -116,19 +119,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           params: {
             type: 'alert',
             content: panel([
-              heading('Identity info'),
+              heading('Your RariMe is ready for use!'),
               divider(),
-              text('Private key:'),
-              text(
-                'Please save your private key and keep it safe. The loss of the private key will lead to the loss of access to your profile!',
-              ),
-              copyable(
-                JSON.stringify({
-                  privateKey: identity?.privateKeyHex,
-                }),
-              ),
-              text('DID:'),
-              text('Your unique identifier'),
+              text('Your unique identifier(DID):'),
               copyable(identity.didString),
             ]),
           },
@@ -319,6 +312,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const isSynced = await checkIfStateSynced();
 
       return isSynced;
+    }
+
+    case RPCMethods.GetCredentials: {
+      if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
+        throw new Error('This origin does not have access to credentials');
+      }
+      return (await getItemFromStore(StorageKeys.credentials)) || [];
     }
 
     default:

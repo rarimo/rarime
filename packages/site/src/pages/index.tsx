@@ -11,6 +11,7 @@ import {
   recoverBackup,
   reconnectSnap,
   checkStateContractSync,
+  getCredentials,
 } from '../utils';
 import {
   ConnectButton,
@@ -184,6 +185,15 @@ const Index = () => {
     }
   };
 
+  const handleGetCredentialsClick = async () => {
+    try {
+      await getCredentials();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
   return (
     <Container>
       <Heading>
@@ -340,6 +350,24 @@ const Index = () => {
             button: (
               <SendHelloButton
                 onClick={handleCheckStateContractSyncClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Get credentials',
+            description: 'Getting verifiable credentials from the snap',
+            button: (
+              <SendHelloButton
+                onClick={handleGetCredentialsClick}
                 disabled={!state.installedSnap}
               />
             ),

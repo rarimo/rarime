@@ -19,7 +19,7 @@ export const sendVc = async () => {
   const did = await connector.createIdentity();
 
   const response = await fetch(
-    `https://api.poh.rarimo.com/integrations/issuer/v1/public/claims/offers/${
+    `https://api.polygon.mainnet-beta.rarimo.com/integrations/issuer/v1/public/claims/offers/${
       did.split(':')[2]
     }/IdentityProviders`,
   );
@@ -63,6 +63,12 @@ export const checkStateContractSync = async () => {
   const isSynced = await connector.checkStateContractSync();
 
   alert(`State contract is synced: ${isSynced}`);
+};
+
+export const getCredentials = async () => {
+  const data = await connector.getCredentials();
+
+  alert(JSON.stringify(data));
 };
 
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

@@ -30,6 +30,20 @@ Clone the repository:
 yarn install && yarn start
 ```
 
+### Publishing new versions
+
+#### Check release version
+
+```bash
+yarn rsc 0.1.0
+```
+
+#### Bump version for all packages
+
+```bash
+yarn apply-version 0.1.0
+```
+
 ### Testing and Linting
 
 Run `yarn test` to run the tests once.

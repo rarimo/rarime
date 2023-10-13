@@ -6272,7 +6272,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/rarime-connector@0.4.0, @rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
+"@rarimo/rarime-connector@0.5.0, @rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
   version: 0.0.0-use.local
   resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
@@ -6306,7 +6306,7 @@ __metadata:
     "@metamask/snaps-jest": 0.35.2-flask.1
     "@metamask/snaps-types": 0.32.2
     "@metamask/snaps-ui": 0.32.2
-    "@rarimo/rarime-connector": 0.4.0
+    "@rarimo/rarime-connector": 0.5.0
     "@typechain/ethers-v5": 11.1.1
     "@types/intl": 1.2.0
     "@types/uuid": 9.0.2
@@ -10095,6 +10095,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:4.1.2, chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0, chalk@npm:^4.1.1, chalk@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "chalk@npm:4.1.2"
+  dependencies:
+    ansi-styles: ^4.1.0
+    supports-color: ^7.1.0
+  checksum: fe75c9d5c76a7a98d45495b91b2172fa3b7a09e0cc9370e5c8feb1c567b85c4288e2b3fded7cfdd7359ac28d6b3844feb8b82b8686842e93d23c827c417e83fc
+  languageName: node
+  linkType: hard
+
 "chalk@npm:^2.4.2":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
@@ -10113,16 +10123,6 @@ __metadata:
     ansi-styles: ^4.1.0
     supports-color: ^7.1.0
   checksum: 8e3ddf3981c4da405ddbd7d9c8d91944ddf6e33d6837756979f7840a29272a69a5189ecae0ff84006750d6d1e92368d413335eab4db5476db6e6703a1d1e0505
-  languageName: node
-  linkType: hard
-
-"chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0, chalk@npm:^4.1.1, chalk@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "chalk@npm:4.1.2"
-  dependencies:
-    ansi-styles: ^4.1.0
-    supports-color: ^7.1.0
-  checksum: fe75c9d5c76a7a98d45495b91b2172fa3b7a09e0cc9370e5c8feb1c567b85c4288e2b3fded7cfdd7359ac28d6b3844feb8b82b8686842e93d23c827c417e83fc
   languageName: node
   linkType: hard
 
@@ -21297,6 +21297,7 @@ __metadata:
     "@metamask/eslint-config-typescript": 10.0.0
     "@typescript-eslint/eslint-plugin": 5.33.0
     "@typescript-eslint/parser": 5.33.0
+    chalk: 4.1.2
     eslint: 8.21.0
     eslint-config-prettier: 8.1.0
     eslint-plugin-import: 2.26.0

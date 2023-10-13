@@ -77,7 +77,9 @@ export const getRarimoGISTRoot = async ({
 
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
 export const getCurrentChainGISTRoot = async (): Promise<bigint> => {
-  const provider = new providers.Web3Provider(window.ethereum);
+  const provider = new providers.Web3Provider(
+    (ethereum as any) as providers.ExternalProvider,
+  );
   const network = await provider.getNetwork();
   const chainInfo = getChainInfo(network.chainId);
 

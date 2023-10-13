@@ -67,7 +67,7 @@ type SaveCredentialsRequestParams = {
 };
 ```
 
-Returns all Verifiable Credentials saved inside the snap state
+Returns saved Verifiable Credentials
 ```typescript
 type W3CCredential = {
   id: string;
@@ -178,6 +178,42 @@ checkStateContractSync(): Promise<boolean>
 ```
 
 Returns true if the lightweight state contract on current chain doesn't need to be synced with the state contract on Rarimo chain.
+
+### Get Verifiable Credentials
+* Only supported domains
+
+```typescript
+getCredentials(): Promise<W3CCredential[]>
+```
+
+Returns all Verifiable Credentials saved inside the snap storage
+
+```typescript
+type W3CCredential = {
+  id: string;
+  '@context': string[];
+  type: string[];
+  expirationDate?: string;
+  issuanceDate?: string;
+  credentialSubject: { [key: string]: object | string | number };
+  credentialStatus: CredentialStatus;
+  issuer: string;
+  credentialSchema: CredentialSchema;
+  proof?: { [key: string]: any } | any[];
+};
+
+type CredentialStatus = {
+  id: string;
+  type: string;
+  revocationNonce?: number;
+  statusIssuer?: CredentialStatus;
+};
+
+type CredentialSchema = {
+  id: string;
+  type: string;
+};
+```
 
 ## Snap connector usage examples
 

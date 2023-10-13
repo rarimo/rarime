@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2023-10-13
+### Added
+- `@rarimo/rarime`: get credentials method
+- Publish snap and connector to npm on git tag push
+
+### Changed
+- `@rarimo/rarime`: use `ethereum` provider instead of `window.ethereum`
+
+### Removed
+- `@rarimo/rarime`: private key from `Identity info` snap dialog
+- `@rarimo/rarime-connector`: `isSnapInstalled` check from `enableSnap` method
+
 ## [0.4.0] - 2023-09-27
 ### Changed
 - `@rarimo/rarime`: use Rarimo's beta network when user switches to a testnet in MetaMask
@@ -48,7 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
 
-[Unreleased]: https://github.com/rarimo/rarime/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/rarimo/rarime/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/rarimo/rarime/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/rarimo/rarime/compare/0.3.2...0.4.0
 [0.3.2]: https://github.com/rarimo/rarime/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/rarimo/rarime/compare/0.3.0...0.3.1

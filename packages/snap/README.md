@@ -139,6 +139,23 @@ await window.ethereum.request({
 });
 ```
 
+### Get Verifiable Credentials
+* Only supported domains
+
+Return a list of Verifiable Credentials:
+
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: {
+      method: 'get_credentials'
+    },
+  },
+});
+```
+
 
 ## Testing
 
