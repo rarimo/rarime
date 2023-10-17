@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { panel, text, divider, heading, copyable } from '@metamask/snaps-ui';
+import { copyable, divider, heading, panel, text } from '@metamask/snaps-ui';
 import { RPCMethods } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import { Identity } from './identity';
@@ -16,20 +16,21 @@ import {
 } from './types';
 import { AuthZkp } from './auth-zkp';
 import {
+  checkIfStateSynced,
   exportKeysAndCredentials,
   findCredentialsByQuery,
-  importKeysAndCredentials,
-  saveCredentials,
-  checkIfStateSynced,
-  getUpdateStateTx,
-  loadDataFromRarimoCore,
-  getProviderChainInfo,
   getHostname,
+  getProviderChainInfo,
+  getUpdateStateDetails,
+  getUpdateStateTx,
+  importKeysAndCredentials,
+  loadDataFromRarimoCore,
+  saveCredentials,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
-  isValidSaveCredentialsOfferRequest,
   isValidCreateProofRequest,
+  isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
 import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
@@ -227,11 +228,14 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           stateData.state.createdAtBlock,
         );
 
+        const updateStateDetails = await getUpdateStateDetails(stateData.state);
+
         if (!isSynced) {
           updateStateTx = await getUpdateStateTx(
             accountAddress!,
             chainInfo,
             stateData.state,
+            updateStateDetails,
           );
         }
 
@@ -243,6 +247,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           },
           zkpProof,
           ...(updateStateTx && { updateStateTx }),
+          updateStateDetails,
         };
       }
       throw new Error('User rejected request');
@@ -309,9 +314,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     }
 
     case RPCMethods.CheckStateContractSync: {
-      const isSynced = await checkIfStateSynced();
-
-      return isSynced;
+      return await checkIfStateSynced();
     }
 
     case RPCMethods.GetCredentials: {

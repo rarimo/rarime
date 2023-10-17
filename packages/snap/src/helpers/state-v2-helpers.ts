@@ -11,6 +11,7 @@ import {
   StateProof,
   StateV2__factory,
 } from '../types';
+import { ILightweightStateV2 } from '../types/contracts/LightweightStateV2';
 import {
   getChainInfo,
   getProviderChainInfo,
@@ -124,11 +125,15 @@ export const loadDataFromRarimoCore = async <T>(
   return await response.json();
 };
 
-export const getUpdateStateTx = async (
-  accountId: string,
-  chainInfo: ChainInfo,
+type UpdateStateDetails = {
+  stateRootHash: string;
+  gistRootDataStruct: ILightweightStateV2.GistRootDataStruct;
+  proof: string;
+};
+
+export const getUpdateStateDetails = async (
   state: StateInfo,
-): Promise<TransactionRequest> => {
+): Promise<UpdateStateDetails> => {
   let operationProof;
   do {
     try {
@@ -164,14 +169,30 @@ export const getUpdateStateTx = async (
     [decodedPath, decodedSignature],
   );
 
-  const contractInterface = LightweightStateV2__factory.createInterface();
-
-  const txData = contractInterface.encodeFunctionData('signedTransitState', [
-    operationResponse.operation.details.stateRootHash,
-    {
+  return {
+    stateRootHash: operationResponse.operation.details.stateRootHash,
+    gistRootDataStruct: {
       root: operationResponse.operation.details.GISTHash,
       createdAtTimestamp: Number(operationResponse.operation.details.timestamp),
     },
+    proof,
+  };
+};
+
+export const getUpdateStateTx = async (
+  accountId: string,
+  chainInfo: ChainInfo,
+  state: StateInfo,
+  updateStateDetails?: UpdateStateDetails,
+): Promise<TransactionRequest> => {
+  const { stateRootHash, gistRootDataStruct, proof } =
+    updateStateDetails ?? (await getUpdateStateDetails(state));
+
+  const contractInterface = LightweightStateV2__factory.createInterface();
+
+  const txData = contractInterface.encodeFunctionData('signedTransitState', [
+    stateRootHash,
+    gistRootDataStruct,
     proof,
   ]);
   return {
