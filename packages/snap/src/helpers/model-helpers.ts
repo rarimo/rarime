@@ -18,6 +18,8 @@ export class IssuerData {
   mtp?: Proof;
 
   credentialStatus?: CredentialStatus;
+
+  updateUrl!: string;
 }
 
 export class Iden3SparseMerkleTreeProof {
@@ -40,8 +42,6 @@ export class BJJSignatureProof2021 {
   signature!: string;
 
   coreClaim!: string;
-
-  issuerProofUpdateUrl!: string;
 }
 
 export class CircuitClaim {

@@ -178,10 +178,11 @@ export const newCircuitClaimData = async (
   const sigProof = getBJJSignature2021Proof(credential.proof!);
 
   if (sigProof) {
+    console.log('sigProof', JSON.stringify(sigProof));
     const decodedSignature = Hex.decodeString(sigProof.signature);
     const signature = Signature.newFromCompressed(decodedSignature);
     const issuerAuthClaimIncMtp = await loadDataByUrl(
-      sigProof.issuerProofUpdateUrl,
+      sigProof.issuerData.updateUrl,
     );
     const rs: RevocationStatus = await getRevocationStatus(
       sigProof.issuerData.credentialStatus!,
