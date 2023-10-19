@@ -11,6 +11,7 @@ import {
   StateProof,
   StateV2__factory,
 } from '../types';
+import { ILightweightStateV2 } from '../types/contracts/LightweightStateV2';
 import {
   getChainInfo,
   getProviderChainInfo,
@@ -24,10 +25,12 @@ export const getGISTProof = async ({
   rpcUrl,
   contractAddress,
   userId,
+  rootHash,
 }: {
   rpcUrl: string;
   contractAddress: string;
   userId: string;
+  rootHash?: string;
 }): Promise<StateProof> => {
   const rawProvider = new providers.JsonRpcProvider(rpcUrl, 'any');
 
@@ -35,7 +38,9 @@ export const getGISTProof = async ({
     contractAddress,
     rawProvider,
   );
-  const data = await contractInstance.getGISTProof(userId);
+  const data = rootHash
+    ? await contractInstance.getGISTProofByRoot(userId, rootHash)
+    : await contractInstance.getGISTProof(userId);
 
   return {
     root: BigInt(data.root.toString()),
@@ -124,11 +129,22 @@ export const loadDataFromRarimoCore = async <T>(
   return await response.json();
 };
 
-export const getUpdateStateTx = async (
-  accountId: string,
-  chainInfo: ChainInfo,
+type UpdateStateDetails = {
+  stateRootHash: string;
+  gistRootDataStruct: ILightweightStateV2.GistRootDataStruct;
+  proof: string;
+};
+
+export const getCoreOperationByIndex = async (index: string) => {
+  return loadDataFromRarimoCore<OperationResponse>(
+    `/rarimo/rarimo-core/rarimocore/operation/${index}`,
+  );
+};
+
+export const getUpdateStateDetails = async (
   state: StateInfo,
-): Promise<TransactionRequest> => {
+  operation: OperationResponse,
+): Promise<UpdateStateDetails> => {
   let operationProof;
   do {
     try {
@@ -137,16 +153,12 @@ export const getUpdateStateTx = async (
       );
     } catch (e) {
       if (e instanceof FetcherError && e.response.status === 400) {
-        await new Promise((resolve) => setTimeout(resolve, 30000));
+        await new Promise((resolve) => setTimeout(resolve, 30_000));
       } else {
         throw e;
       }
     }
   } while (!operationProof);
-
-  const operationResponse = await loadDataFromRarimoCore<OperationResponse>(
-    `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}`,
-  );
 
   const decodedPath = operationProof?.path?.map((el: string) =>
     utils.arrayify(el),
@@ -164,14 +176,31 @@ export const getUpdateStateTx = async (
     [decodedPath, decodedSignature],
   );
 
+  return {
+    stateRootHash: operation.operation.details.stateRootHash,
+    gistRootDataStruct: {
+      root: operation.operation.details.GISTHash,
+      createdAtTimestamp: Number(operation.operation.details.timestamp),
+    },
+    proof,
+  };
+};
+
+export const getUpdateStateTx = async (
+  accountId: string,
+  chainInfo: ChainInfo,
+  state: StateInfo,
+  operation: OperationResponse,
+  updateStateDetails?: UpdateStateDetails,
+): Promise<TransactionRequest> => {
+  const { stateRootHash, gistRootDataStruct, proof } =
+    updateStateDetails ?? (await getUpdateStateDetails(state, operation));
+
   const contractInterface = LightweightStateV2__factory.createInterface();
 
   const txData = contractInterface.encodeFunctionData('signedTransitState', [
-    operationResponse.operation.details.stateRootHash,
-    {
-      root: operationResponse.operation.details.GISTHash,
-      createdAtTimestamp: Number(operationResponse.operation.details.timestamp),
-    },
+    stateRootHash,
+    gistRootDataStruct,
     proof,
   ]);
   return {

@@ -80,7 +80,7 @@ export class ZkpGen {
     this.proofRequest = proofRequest;
   }
 
-  async generateProof() {
+  async generateProof(coreStateHash: string, operationGistHash: string) {
     const preparedCredential = await getPreparedCredential(
       this.verifiableCredential,
     );
@@ -88,6 +88,7 @@ export class ZkpGen {
     this.circuitClaimData = await newCircuitClaimData(
       preparedCredential.credential,
       preparedCredential.credentialCoreClaim,
+      coreStateHash,
     );
 
     this.query = await toCircuitsQuery(
@@ -128,6 +129,7 @@ export class ZkpGen {
         rpcUrl: getRarimoEvmRpcUrl(providerChainInfo.id),
         contractAddress: getRarimoStateContractAddress(providerChainInfo.id),
         userId: this.identity.identityIdBigIntString,
+        rootHash: operationGistHash,
       });
       this.gistProof = toGISTProof(gistInfo);
 

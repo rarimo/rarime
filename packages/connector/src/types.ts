@@ -121,7 +121,17 @@ export type StateInfo = {
   lastUpdateOperationIndex: string;
 };
 
+export type UpdateStateDetails = {
+  stateRootHash: string;
+  gistRootDataStruct: {
+    root: string | number;
+    createdAtTimestamp: string | number;
+  };
+  proof: string;
+};
+
 export type ZKPProofResponse = {
+  updateStateDetails: UpdateStateDetails;
   updateStateTx?: TransactionRequest;
   zkpProof: ZKProof;
   statesMerkleData?: {

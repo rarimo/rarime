@@ -118,8 +118,15 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
   };
 };
 
-export const loadDataByUrl = async (url: string) => {
-  const response = await fetch(url);
+export const loadDataByUrl = async (
+  url: string,
+  endianSwappedCoreStateHash?: string,
+) => {
+  const response = await fetch(
+    endianSwappedCoreStateHash
+      ? `${url}?state=${endianSwappedCoreStateHash}`
+      : url,
+  );
 
   if (!response.ok) {
     const message = `An error has occured: ${response.status}`;
