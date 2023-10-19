@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [0.6.0] - 2023-10-18
-### Added
-- `@rarimo/rarime`: expose transit state details on `createProof`, update `IssuerData` and `BJJSignatureProof2021` classes
+### Changed
+- `@rarimo/rarime`:
+  - expose transit state details on `createProof`
+  - update `IssuerData` and `BJJSignatureProof2021` classes
+  - rearrange loading state details, cause generating proof must be specific by block to prevent possible conflicts
 
 
 ## [0.5.0] - 2023-10-13
