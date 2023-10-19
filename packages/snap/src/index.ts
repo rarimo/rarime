@@ -19,6 +19,7 @@ import {
   checkIfStateSynced,
   exportKeysAndCredentials,
   findCredentialsByQuery,
+  getCoreOperationByIndex,
   getHostname,
   getProviderChainInfo,
   getUpdateStateDetails,
@@ -205,13 +206,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
         const zkpGen = new ZkpGen(identity, params, credentials[0]);
-        const zkpProof = await zkpGen.generateProof();
 
-        if (!isOnChainProof) {
-          return { zkpProof };
-        }
-
-        let updateStateTx;
+        // ================ LOAD STATE DETAILS  =====================
 
         const chainInfo = await getProviderChainInfo();
 
@@ -228,13 +224,34 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           stateData.state.createdAtBlock,
         );
 
-        const updateStateDetails = await getUpdateStateDetails(stateData.state);
+        const operation = await getCoreOperationByIndex(
+          stateData.state.lastUpdateOperationIndex,
+        );
+
+        // ================== USE STATE DETAILS TO GEN PROOF =====================
+
+        const zkpProof = await zkpGen.generateProof(
+          stateData.state.hash,
+          operation.operation.details.GISTHash,
+        );
+
+        if (!isOnChainProof) {
+          return { zkpProof };
+        }
+
+        const updateStateDetails = await getUpdateStateDetails(
+          stateData.state,
+          operation,
+        );
+
+        let updateStateTx;
 
         if (!isSynced) {
           updateStateTx = await getUpdateStateTx(
             accountAddress!,
             chainInfo,
             stateData.state,
+            operation,
             updateStateDetails,
           );
         }

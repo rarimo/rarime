@@ -1,7 +1,12 @@
 /* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { Hex, Signature } from '@iden3/js-crypto';
-import { Claim, DID, MerklizedRootPosition } from '@iden3/js-iden3-core';
+import {
+  Claim,
+  DID,
+  fromLittleEndian,
+  MerklizedRootPosition,
+} from '@iden3/js-iden3-core';
 import {
   Hash,
   NodeAux,
@@ -151,9 +156,20 @@ export const buildTreeState = (
   rootOfRoots: newHashFromHex(rootOfRoots),
 });
 
+export const convertEndianSwappedCoreStateHashHex = (hash: string) => {
+  const convertedStateHash = fromLittleEndian(
+    Hex.decodeString(hash.slice(2)),
+  ).toString(16);
+
+  return convertedStateHash?.length < 64
+    ? `0x0${convertedStateHash}`
+    : `0x${convertedStateHash}`;
+};
+
 export const newCircuitClaimData = async (
   credential: W3CCredential,
   coreClaim: Claim,
+  coreStateHash: string,
 ): Promise<CircuitClaim> => {
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
@@ -162,7 +178,10 @@ export const newCircuitClaimData = async (
   const smtProof = getIden3SparseMerkleTreeProof(credential.proof!);
 
   if (smtProof) {
-    const data = await loadDataByUrl(smtProof.id);
+    const data = await loadDataByUrl(
+      smtProof.id,
+      convertEndianSwappedCoreStateHashHex(coreStateHash),
+    );
 
     circuitClaim.incProof = {
       proof: data.mtp,
@@ -182,6 +201,7 @@ export const newCircuitClaimData = async (
     const signature = Signature.newFromCompressed(decodedSignature);
     const issuerAuthClaimIncMtp = await loadDataByUrl(
       sigProof.issuerData.updateUrl,
+      convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
     const rs: RevocationStatus = await getRevocationStatus(
       sigProof.issuerData.credentialStatus!,
