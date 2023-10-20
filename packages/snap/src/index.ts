@@ -9,7 +9,7 @@ import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
 import {
   ClaimOffer,
-  CreateProofRequest,
+  CreateProofRequestParams,
   GetStateInfoResponse,
   MerkleProof,
   TextField,
@@ -140,13 +140,15 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw new Error('Identity not created');
       }
 
-      const params = (request.params as any) as CreateProofRequest;
+      const params = (request.params as any) as CreateProofRequestParams;
 
-      isValidCreateProofRequest(params);
+      const { issuerDID, ...createProofRequest } = params;
 
-      const credentialType = params.query.type;
-      const { credentialSubject } = params.query;
-      const { circuitId, accountAddress } = params;
+      isValidCreateProofRequest(createProofRequest);
+
+      const credentialType = createProofRequest.query.type;
+      const { credentialSubject } = createProofRequest.query;
+      const { circuitId, accountAddress } = createProofRequest;
 
       const isOnChainProof =
         circuitId === CircuitId.AtomicQuerySigV2OnChain ||
@@ -156,8 +158,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         throw new Error('Account address is required');
       }
 
-      const credentials = (await findCredentialsByQuery(params.query)).filter(
-        (cred) => cred.credentialSubject.id === identityStorage.did,
+      const credentials = (
+        await findCredentialsByQuery(createProofRequest.query)
+      ).filter(
+        (cred) =>
+          cred.credentialSubject.id === identityStorage.did &&
+          cred.issuer === issuerDID,
       );
 
       if (!credentials.length) {
@@ -205,7 +211,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       if (res) {
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
-        const zkpGen = new ZkpGen(identity, params, credentials[0]);
+        const zkpGen = new ZkpGen(identity, createProofRequest, credentials[0]);
 
         // ================ LOAD STATE DETAILS  =====================
 
