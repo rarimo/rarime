@@ -92,6 +92,7 @@ await window.ethereum.request({
 where:
 - **circuitId**: type of proof
 - **accountAddress**(optional): Metamask user address for onchain proofs
+- **issuerDid**: did of the issuer trusted by the verifier
 - **challenge**(optional): text that will be signed
 - **query**
 	- **allowedIssuers**: types of issuers allowed
