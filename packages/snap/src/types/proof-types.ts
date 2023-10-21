@@ -22,6 +22,10 @@ export type CreateProofRequest = {
   query: ProofQuery;
 };
 
+export type CreateProofRequestParams = {
+  issuerDid: string;
+} & CreateProofRequest;
+
 export type State = {
   txId?: string;
   blockTimestamp?: number;

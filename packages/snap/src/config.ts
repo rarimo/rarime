@@ -18,25 +18,25 @@ export const config = {
   },
 
   CIRCUIT_AUTH_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmYd41GHrKQLqbk96zHbmHU5rGVcxwmAgBpRqLCGLK7LQu',
+    'https://ipfs.rarimo.com/ipfs/QmYd41GHrKQLqbk96zHbmHU5rGVcxwmAgBpRqLCGLK7LQu',
   CIRCUIT_AUTH_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmWKor7i9r2zbM6oqSdgPUCvgyYESH39qXk1f5tbdeaAg7',
+    'https://ipfs.rarimo.com/ipfs/QmWKor7i9r2zbM6oqSdgPUCvgyYESH39qXk1f5tbdeaAg7',
   CIRCUIT_SIG_V2_ON_CHAIN_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmS4vURQ1c8tgALSokdTYVqx5E9FmASbu964W3JevnM3B4',
+    'https://ipfs.rarimo.com/ipfs/QmS4vURQ1c8tgALSokdTYVqx5E9FmASbu964W3JevnM3B4',
   CIRCUIT_SIG_V2_ON_CHAIN_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmT45Y62hfZnADq6VvKGjNR8foNb2KjcyG4AStRRAN9iHm',
+    'https://ipfs.rarimo.com/ipfs/QmT45Y62hfZnADq6VvKGjNR8foNb2KjcyG4AStRRAN9iHm',
   CIRCUIT_SIG_V2_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmYB5QLvH5ihiedxvzkG3XPQngjxcS8wc1xCAoKnGS5GfC',
+    'https://ipfs.rarimo.com/ipfs/QmYB5QLvH5ihiedxvzkG3XPQngjxcS8wc1xCAoKnGS5GfC',
   CIRCUIT_SIG_V2_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmeXxRXxYGCwa48ANikH5Knzi9cgkmhumPbMtjTKNYkThL',
+    'https://ipfs.rarimo.com/ipfs/QmeXxRXxYGCwa48ANikH5Knzi9cgkmhumPbMtjTKNYkThL',
   CIRCUIT_MTP_V2_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmRqGgnN6Qy4LuPxQKH2wrADNe4aJb8wYJhS1ky9zbLS8t',
+    'https://ipfs.rarimo.com/ipfs/QmRqGgnN6Qy4LuPxQKH2wrADNe4aJb8wYJhS1ky9zbLS8t',
   CIRCUIT_MTP_V2_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmcLyDLPWJpyEWeR9KkWQuGHAqifnwpDAWBX1R6a7g6F6a',
+    'https://ipfs.rarimo.com/ipfs/QmcLyDLPWJpyEWeR9KkWQuGHAqifnwpDAWBX1R6a7g6F6a',
   CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmPtPiFgZigau2VNpSCoagNj36ZpuuATRNvyNPAvvUgvq6',
+    'https://ipfs.rarimo.com/ipfs/QmPtPiFgZigau2VNpSCoagNj36ZpuuATRNvyNPAvvUgvq6',
   CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmU8fC3xwjMcmnsB88SrdKRZpskhxUwBRnaLMa1AcN9ERj',
+    'https://ipfs.rarimo.com/ipfs/QmU8fC3xwjMcmnsB88SrdKRZpskhxUwBRnaLMa1AcN9ERj',
 };
 
 enum CHAINS {

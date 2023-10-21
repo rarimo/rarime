@@ -72,6 +72,7 @@ await window.ethereum.request({
       method: 'create_proof',
       params: {
         circuitId: 'credentialAtomicQuerySigV2OnChain',
+        issuerDid: 'did:iden3:[...]',
         accountAddress: '0x......',
         challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
         query: {
@@ -91,6 +92,7 @@ await window.ethereum.request({
 where:
 - **circuitId**: type of proof
 - **accountAddress**(optional): Metamask user address for onchain proofs
+- **issuerDid**: did of the issuer trusted by the verifier
 - **challenge**(optional): text that will be signed
 - **query**
 	- **allowedIssuers**: types of issuers allowed
