@@ -23,7 +23,7 @@ export type CreateProofRequest = {
 };
 
 export type CreateProofRequestParams = {
-  issuerDID: string;
+  issuerDid: string;
 } & CreateProofRequest;
 
 export type State = {

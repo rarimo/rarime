@@ -94,7 +94,7 @@ export type ProofQuery = {
 export type CreateProofRequestParams = {
   id?: number;
   accountAddress?: string; // Metamask user address for onchain proofs
-  issuerDID: string;
+  issuerDid: string;
   circuitId:
     | 'credentialAtomicQueryMTPV2'
     | 'credentialAtomicQueryMTPV2OnChain'

@@ -72,6 +72,7 @@ await window.ethereum.request({
       method: 'create_proof',
       params: {
         circuitId: 'credentialAtomicQuerySigV2OnChain',
+        issuerDid: 'did:iden3:[...]',
         accountAddress: '0x......',
         challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
         query: {

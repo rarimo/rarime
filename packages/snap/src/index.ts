@@ -142,7 +142,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       const params = (request.params as any) as CreateProofRequestParams;
 
-      const { issuerDID, ...createProofRequest } = params;
+      const { issuerDid, ...createProofRequest } = params;
 
       isValidCreateProofRequest(createProofRequest);
 
@@ -163,7 +163,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       ).filter(
         (cred) =>
           cred.credentialSubject.id === identityStorage.did &&
-          cred.issuer === issuerDID,
+          cred.issuer === issuerDid,
       );
 
       if (!credentials.length) {
