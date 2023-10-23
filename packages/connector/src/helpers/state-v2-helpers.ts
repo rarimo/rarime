@@ -10,7 +10,9 @@ import {
   UpdateStateDetails,
 } from '../types';
 import { LightweightStateV2__factory } from '../contracts';
+import { CORE_POLLING_INTERVAL } from '../consts';
 import { FetcherError } from './error-helper';
+import { sleep } from './promise.helpers';
 
 export const loadDataFromRarimoCore = async <T>(
   url: string,
@@ -45,7 +47,7 @@ export const getUpdateStateDetails = async (
       );
     } catch (e) {
       if (e instanceof FetcherError && e.response.status === 400) {
-        await new Promise((resolve) => setTimeout(resolve, 5_000));
+        await sleep(CORE_POLLING_INTERVAL);
       } else {
         throw e;
       }
