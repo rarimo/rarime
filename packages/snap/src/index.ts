@@ -22,8 +22,7 @@ import {
   getCoreOperationByIndex,
   getHostname,
   getProviderChainInfo,
-  getUpdateStateDetails,
-  getUpdateStateTx,
+  getRarimoCoreUrl,
   importKeysAndCredentials,
   loadDataFromRarimoCore,
   saveCredentials,
@@ -217,6 +216,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
         const chainInfo = await getProviderChainInfo();
 
+        const rarimoCoreUrl = getRarimoCoreUrl(chainInfo.id);
+
         const isSynced = await checkIfStateSynced();
 
         const ID = DID.parse(credentials[0].issuer).id;
@@ -241,36 +242,18 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           operation.operation.details.GISTHash,
         );
 
-        if (!isOnChainProof) {
-          return { zkpProof };
-        }
-
-        const updateStateDetails = await getUpdateStateDetails(
-          stateData.state,
-          operation,
-        );
-
-        let updateStateTx;
-
-        if (!isSynced) {
-          updateStateTx = await getUpdateStateTx(
-            accountAddress!,
-            chainInfo,
-            stateData.state,
-            operation,
-            updateStateDetails,
-          );
-        }
-
         return {
-          statesMerkleData: {
-            issuerId: issuerHexId,
-            state: stateData.state,
-            merkleProof: merkleProof.proof,
-          },
+          chainInfo,
+          rarimoCoreUrl,
+          isSynced,
+
+          issuerHexId,
+
+          stateData: stateData.state,
+          merkleProof,
+          operation: operation.operation,
+
           zkpProof,
-          ...(updateStateTx && { updateStateTx }),
-          updateStateDetails,
         };
       }
       throw new Error('User rejected request');

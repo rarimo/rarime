@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2023-10-23
+### Changed
+- `@rarimo/rarime`:
+  - Return `state` and `zkp proof` details instead of `update state details`
+- `@rarimo/rarime-connector`:
+  - Get update state details after receive zkProof from rarime snap
+
 ## [0.7.2] - 2023-10-23
 ### Fixed
 - `@rarimo/rarime`:
   - Reduced TSS fetching retry time
-
 
 ## [0.7.1] - 2023-10-23
 ### Fixed
@@ -88,7 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
 
-[Unreleased]: https://github.com/rarimo/rarime/compare/0.7.2...HEAD
+[Unreleased]: https://github.com/rarimo/rarime/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/rarimo/rarime/compare/0.7.2...0.8.0
 [0.7.2]: https://github.com/rarimo/rarime/compare/0.7.1...0.7.2
 [0.7.1]: https://github.com/rarimo/rarime/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/rarimo/rarime/compare/0.6.0...0.7.0

@@ -1,4 +1,5 @@
 /* eslint-disable no-invalid-this */
+import { getUpdateStateDetails, getUpdateStateTx } from './helpers';
 import { MetamaskSnap } from './snap';
 import {
   CreateProofRequestParams,
@@ -6,6 +7,7 @@ import {
   SaveCredentialsRequestParams,
   W3CCredential,
   ZKPProofResponse,
+  ZKPProofSnapResponse,
 } from './types';
 
 const sendSnapMethod = async <T>(
@@ -59,10 +61,41 @@ export const createProof = async function (
   this: MetamaskSnap,
   params: CreateProofRequestParams,
 ): Promise<ZKPProofResponse> {
-  return await sendSnapMethod(
+  const snapResponse = (await sendSnapMethod(
     { method: RPCMethods.CreateProof, params },
     this.snapId,
+  )) as ZKPProofSnapResponse;
+
+  const updateStateDetails = await getUpdateStateDetails(
+    snapResponse.stateData,
+    snapResponse.operation,
+    snapResponse.rarimoCoreUrl,
   );
+
+  let updateStateTx;
+
+  if (!snapResponse.isSynced) {
+    updateStateTx = await getUpdateStateTx(
+      params.accountAddress!,
+      snapResponse.chainInfo,
+      snapResponse.stateData,
+      snapResponse.operation,
+      snapResponse.rarimoCoreUrl,
+      updateStateDetails,
+    );
+  }
+
+  return {
+    statesMerkleData: {
+      issuerId: snapResponse.issuerHexId,
+      state: snapResponse.stateData,
+      merkleProof: snapResponse.merkleProof.proof,
+    },
+    zkpProof: snapResponse.zkpProof,
+    updateStateDetails,
+
+    ...(updateStateTx && { updateStateTx }),
+  };
 };
 
 export const checkStateContractSync = async function (

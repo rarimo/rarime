@@ -141,3 +141,56 @@ export type ZKPProofResponse = {
     merkleProof: string[];
   };
 };
+
+export enum OperationStatus {
+  Signed = 'SIGNED',
+  Initialized = 'INITIALIZED',
+  Approved = 'APPROVED',
+  NotApproved = 'NOT_APPROVED',
+}
+
+export type Operation = {
+  index: string;
+  operationType: string;
+  details: {
+    '@type': string;
+    contract: string;
+    chain: string;
+    GISTHash: string;
+    stateRootHash: string;
+    timestamp: string;
+  };
+  status: OperationStatus;
+  creator: string;
+  timestamp: string;
+};
+
+export type RarimoNetworkType = 'mainnet' | 'beta';
+
+export type ChainInfo = {
+  id: number;
+  rpcUrl: string;
+  stateContractAddress: string;
+  rarimoNetworkType: RarimoNetworkType;
+};
+
+export type OperationProof = {
+  path: string[];
+  signature: string;
+};
+
+export type ZKPProofSnapResponse = {
+  chainInfo: ChainInfo;
+  rarimoCoreUrl: string;
+  isSynced: boolean;
+
+  issuerHexId: string;
+
+  stateData: StateInfo;
+  merkleProof: {
+    proof: string[];
+  };
+  operation: Operation;
+
+  zkpProof: ZKProof;
+};
