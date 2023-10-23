@@ -153,7 +153,7 @@ export const getUpdateStateDetails = async (
       );
     } catch (e) {
       if (e instanceof FetcherError && e.response.status === 400) {
-        await new Promise((resolve) => setTimeout(resolve, 30_000));
+        await new Promise((resolve) => setTimeout(resolve, 5_000));
       } else {
         throw e;
       }
