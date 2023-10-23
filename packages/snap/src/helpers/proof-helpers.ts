@@ -174,14 +174,17 @@ export const newCircuitClaimData = async (
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
   circuitClaim.issuerId = DID.parse(credential.issuer).id;
+  console.log('credential.proof', credential.proof);
 
   const smtProof = getIden3SparseMerkleTreeProof(credential.proof!);
+  console.log('smtProof', smtProof);
 
   if (smtProof) {
     const data = await loadDataByUrl(
       smtProof.id,
       convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
+    console.log('data', data);
 
     circuitClaim.incProof = {
       proof: data.mtp,
@@ -192,20 +195,26 @@ export const newCircuitClaimData = async (
         data.issuer.rootOfRoots,
       ),
     };
+    console.log('circuitClaim.incProof', circuitClaim.incProof);
   }
 
   const sigProof = getBJJSignature2021Proof(credential.proof!);
+  console.log('sigProof', sigProof);
 
   if (sigProof) {
     const decodedSignature = Hex.decodeString(sigProof.signature);
+    console.log('decodedSignature', decodedSignature);
     const signature = Signature.newFromCompressed(decodedSignature);
+    console.log('signature', signature);
     const issuerAuthClaimIncMtp = await loadDataByUrl(
       sigProof.issuerData.updateUrl,
       convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
+    console.log('issuerAuthClaimIncMtp', issuerAuthClaimIncMtp);
     const rs: RevocationStatus = await getRevocationStatus(
       sigProof.issuerData.credentialStatus!,
     );
+    console.log('rs', rs);
 
     const issuerAuthNonRevProof: MTProof = {
       treeState: buildTreeState(
@@ -216,6 +225,7 @@ export const newCircuitClaimData = async (
       ),
       proof: rs.mtp,
     };
+    console.log('issuerAuthNonRevProof', issuerAuthNonRevProof);
     if (!sigProof.issuerData.mtp) {
       throw new Error('issuer auth credential must have a mtp proof');
     }
@@ -238,6 +248,7 @@ export const newCircuitClaimData = async (
       issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
       issuerAuthNonRevProof,
     };
+    console.log('circuitClaim.signatureProof', circuitClaim.signatureProof);
   }
 
   return circuitClaim;

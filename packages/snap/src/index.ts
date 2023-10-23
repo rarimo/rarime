@@ -209,31 +209,40 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       if (res) {
         const identity = await Identity.create(identityStorage.privateKeyHex);
+        console.log('identity', identity);
 
         const zkpGen = new ZkpGen(identity, createProofRequest, credentials[0]);
+        console.log('zkpGen', zkpGen);
 
         // ================ LOAD STATE DETAILS  =====================
 
         const chainInfo = await getProviderChainInfo();
+        console.log('chainInfo', chainInfo);
 
         const rarimoCoreUrl = getRarimoCoreUrl(chainInfo.id);
+        console.log('rarimoCoreUrl', rarimoCoreUrl);
 
         const isSynced = await checkIfStateSynced();
+        console.log('isSynced', isSynced);
 
         const ID = DID.parse(credentials[0].issuer).id;
         const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
+        console.log('issuerHexId', issuerHexId);
 
         const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
           `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
         );
+        console.log('stateData', stateData);
         const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
           `/rarimo/rarimo-core/identity/state/${issuerHexId}/proof`,
           stateData.state.createdAtBlock,
         );
+        console.log('merkleProof', merkleProof);
 
         const operation = await getCoreOperationByIndex(
           stateData.state.lastUpdateOperationIndex,
         );
+        console.log('operation', operation);
 
         // ================== USE STATE DETAILS TO GEN PROOF =====================
 
@@ -241,6 +250,21 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           stateData.state.hash,
           operation.operation.details.GISTHash,
         );
+        console.log('zkpProof', zkpProof);
+
+        console.log({
+          chainInfo,
+          rarimoCoreUrl,
+          isSynced,
+
+          issuerHexId,
+
+          stateData: stateData.state,
+          merkleProof,
+          operation: operation.operation,
+
+          zkpProof,
+        });
 
         return {
           chainInfo,

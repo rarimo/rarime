@@ -84,18 +84,21 @@ export class ZkpGen {
     const preparedCredential = await getPreparedCredential(
       this.verifiableCredential,
     );
+    console.log('preparedCredential', preparedCredential);
 
     this.circuitClaimData = await newCircuitClaimData(
       preparedCredential.credential,
       preparedCredential.credentialCoreClaim,
       coreStateHash,
     );
+    console.log('circuitClaimData', this.circuitClaimData);
 
     this.query = await toCircuitsQuery(
       this.proofRequest.query,
       preparedCredential.credential,
       preparedCredential.credentialCoreClaim,
     );
+    console.log('query', this.query);
 
     this.nonRevProof = {
       proof: preparedCredential.revStatus.mtp,
@@ -106,24 +109,32 @@ export class ZkpGen {
         preparedCredential.revStatus.issuer.rootOfRoots!,
       ),
     };
+    console.log('nonRevProof', this.nonRevProof);
 
     this.timestamp = Math.floor(Date.now() / 1000);
+    console.log('timestamp', this.timestamp);
 
     this.nodeAuxIssuerAuthNonRev = getNodeAuxValue(
       this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
     );
+    console.log('nodeAuxIssuerAuthNonRev', this.nodeAuxIssuerAuthNonRev);
     this.nodeAuxNonRev = getNodeAuxValue(this.nonRevProof.proof);
+    console.log('nodeAuxNonRev', this.nodeAuxNonRev);
     this.nodAuxJSONLD = getNodeAuxValue(this.query.valueProof!.mtp);
+    console.log('nodAuxJSONLD', this.nodAuxJSONLD);
     this.value = prepareCircuitArrayValues(
       this.query.values,
       defaultValueArraySize,
     ).map((a) => a.toString());
+    console.log('value', this.value);
 
     if (
       this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
       this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
     ) {
+      console.log('this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain || this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain');
       const providerChainInfo = await getProviderChainInfo();
+      console.log('providerChainInfo', providerChainInfo);
 
       const gistInfo = await getGISTProof({
         rpcUrl: getRarimoEvmRpcUrl(providerChainInfo.id),
@@ -131,22 +142,30 @@ export class ZkpGen {
         userId: this.identity.identityIdBigIntString,
         rootHash: operationGistHash,
       });
+      console.log('gistInfo', gistInfo);
       this.gistProof = toGISTProof(gistInfo);
+      console.log('gistProof', this.gistProof);
 
       const challenge = fromLittleEndian(
         Hex.decodeString(this.proofRequest.accountAddress!.substring(2)),
       ).toString();
+      console.log('challenge', challenge);
       this.challenge = BigInt(this.proofRequest.challenge ?? challenge);
+      console.log('this.challenge', this.challenge);
 
       this.signatureChallenge = this.identity.privateKey.signPoseidon(
         this.challenge,
       );
+      console.log('this.signatureChallenge', this.signatureChallenge);
 
       this.globalNodeAux = getNodeAuxValue(this.gistProof.proof);
+      console.log('this.globalNodeAux', this.globalNodeAux);
       this.nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
+      console.log('this.nodeAuxAuth', this.nodeAuxAuth);
     }
 
     const circuiInfo = this.getCircuitInfo();
+    console.log('circuiInfo', circuiInfo);
 
     const [wasm, provingKey] = await Promise.all([
       readBytesFile(circuiInfo.wasm),
@@ -157,6 +176,7 @@ export class ZkpGen {
       provingKey,
       wasm,
     );
+    console.log('subjectProof', this.subjectProof);
 
     return this.subjectProof;
   }

@@ -18,25 +18,25 @@ export const config = {
   },
 
   CIRCUIT_AUTH_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmYd41GHrKQLqbk96zHbmHU5rGVcxwmAgBpRqLCGLK7LQu',
+    'https://storage.googleapis.com/rarimo-store/snap/QmYd41GHrKQLqbk96zHbmHU5rGVcxwmAgBpRqLCGLK7LQu',
   CIRCUIT_AUTH_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmWKor7i9r2zbM6oqSdgPUCvgyYESH39qXk1f5tbdeaAg7',
+    'https://storage.googleapis.com/rarimo-store/snap/QmWKor7i9r2zbM6oqSdgPUCvgyYESH39qXk1f5tbdeaAg7',
   CIRCUIT_SIG_V2_ON_CHAIN_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmS4vURQ1c8tgALSokdTYVqx5E9FmASbu964W3JevnM3B4',
+    'https://storage.googleapis.com/rarimo-store/snap/QmS4vURQ1c8tgALSokdTYVqx5E9FmASbu964W3JevnM3B4',
   CIRCUIT_SIG_V2_ON_CHAIN_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmT45Y62hfZnADq6VvKGjNR8foNb2KjcyG4AStRRAN9iHm',
+    'https://storage.googleapis.com/rarimo-store/snap/QmT45Y62hfZnADq6VvKGjNR8foNb2KjcyG4AStRRAN9iHm',
   CIRCUIT_SIG_V2_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmYB5QLvH5ihiedxvzkG3XPQngjxcS8wc1xCAoKnGS5GfC',
+    'https://storage.googleapis.com/rarimo-store/snap/QmYB5QLvH5ihiedxvzkG3XPQngjxcS8wc1xCAoKnGS5GfC',
   CIRCUIT_SIG_V2_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmeXxRXxYGCwa48ANikH5Knzi9cgkmhumPbMtjTKNYkThL',
+    'https://storage.googleapis.com/rarimo-store/snap/QmeXxRXxYGCwa48ANikH5Knzi9cgkmhumPbMtjTKNYkThL',
   CIRCUIT_MTP_V2_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmRqGgnN6Qy4LuPxQKH2wrADNe4aJb8wYJhS1ky9zbLS8t',
+    'https://storage.googleapis.com/rarimo-store/snap/QmRqGgnN6Qy4LuPxQKH2wrADNe4aJb8wYJhS1ky9zbLS8t',
   CIRCUIT_MTP_V2_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmcLyDLPWJpyEWeR9KkWQuGHAqifnwpDAWBX1R6a7g6F6a',
+    'https://storage.googleapis.com/rarimo-store/snap/QmcLyDLPWJpyEWeR9KkWQuGHAqifnwpDAWBX1R6a7g6F6a',
   CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmPtPiFgZigau2VNpSCoagNj36ZpuuATRNvyNPAvvUgvq6',
+    'https://storage.googleapis.com/rarimo-store/snap/QmPtPiFgZigau2VNpSCoagNj36ZpuuATRNvyNPAvvUgvq6',
   CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmU8fC3xwjMcmnsB88SrdKRZpskhxUwBRnaLMa1AcN9ERj',
+    'https://storage.googleapis.com/rarimo-store/snap/QmU8fC3xwjMcmnsB88SrdKRZpskhxUwBRnaLMa1AcN9ERj',
 };
 
 enum CHAINS {
