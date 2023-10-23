@@ -54,14 +54,18 @@ export const getUpdateStateDetails = async (
     }
   } while (!operationProof);
 
-  const decodedPath = operationProof?.path?.map((el: string) =>
+  const decodedPath = operationProof.path.map((el: string) =>
     utils.arrayify(el),
   );
-  const decodedSignature = operationProof?.signature
-    ? utils.arrayify(operationProof?.signature)
+  const decodedSignature = operationProof.signature
+    ? utils.arrayify(operationProof.signature)
     : undefined;
 
-  if (decodedSignature?.[64] !== undefined) {
+  if (!decodedSignature) {
+    throw new Error('Signature is not defined');
+  }
+
+  if (decodedSignature[64] !== undefined) {
     decodedSignature[64] += 27;
   }
 
