@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.1] - 2023-10-23
 ### Fixed
 - `@rarimo/rarime`:
-  - rollback ipfs urls
+  - Rolled back IPFS urls to fix performance issues;
 
 ## [0.7.0] - 2023-10-21
 ### Changed
