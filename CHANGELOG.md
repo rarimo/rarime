@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.2] - 2023-10-23
 ### Fixed
 - `@rarimo/rarime`:
-  - Reduce operation proof awaiting delay time
+  - Reduced TSS fetching retry time
 
 
 ## [0.7.1] - 2023-10-23
