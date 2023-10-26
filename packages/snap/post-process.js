@@ -9,6 +9,11 @@ let bundleString = fs.readFileSync(bundlePath, 'utf8');
 
 bundleString = 'var Worker = {};\n'.concat(bundleString);
 
+bundleString = bundleString.replace(
+  "/** @type {import('cborg').TagDecoder[]} */",
+  '',
+);
+
 // Remove eval
 bundleString = bundleString.replaceAll(`eval(`, 'evalIn(');
 

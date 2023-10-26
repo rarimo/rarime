@@ -4,6 +4,12 @@ import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { copyable, divider, heading, panel, text } from '@metamask/snaps-ui';
 import { RPCMethods } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
+import { DID as CeramicDID } from 'dids';
+import { Ed25519Provider } from 'key-did-provider-ed25519';
+import { getResolver } from 'key-did-resolver';
+import { CeramicClient } from '@ceramicnetwork/http-client';
+import { DIDDataStore } from '@glazed/did-datastore';
+import { Hex } from '@iden3/js-crypto';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -34,6 +40,14 @@ import {
 } from './typia-generated';
 import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
+const aliases = {
+  definitions: {},
+  schemas: {
+    EncryptedData:
+      'ceramic://k3y52l7qbv1fryeghrncru9wr52ymzypt944gdg5mmo3qjicnqurtrn3vfrmnkr9c',
+  },
+  tiles: {},
+};
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
   origin,
@@ -84,7 +98,21 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (identityStorage) {
-        return identityStorage.did;
+        const did = new CeramicDID({
+          provider: new Ed25519Provider(
+            Hex.decodeString(identityStorage.privateKeyHex),
+          ),
+          resolver: getResolver(),
+        });
+        await did.authenticate();
+        const ceramic = new CeramicClient('http://localhost:7007');
+        ceramic.setDID(did);
+        const datastore = new DIDDataStore({ ceramic, model: aliases });
+
+        // await datastore.set('EncryptedData', { data: '123' });
+        const d = await datastore.get('EncryptedData');
+        console.log(d);
+        return identityStorage;
       }
 
       const res = await snap.request({
