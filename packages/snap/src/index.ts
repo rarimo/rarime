@@ -10,6 +10,7 @@ import { getResolver } from 'key-did-resolver';
 import { CeramicClient } from '@ceramicnetwork/http-client';
 import { DIDDataStore } from '@glazed/did-datastore';
 import { Hex } from '@iden3/js-crypto';
+import { DataModel } from '@glazed/datamodel';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -41,10 +42,13 @@ import {
 import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
 const aliases = {
-  definitions: {},
+  definitions: {
+    encryptedData:
+      'kjzl6cwe1jw146prg8mrph19hpdioq3c35g0likt0lzrhsfancn04ruibgsg9nc',
+  },
   schemas: {
     EncryptedData:
-      'ceramic://k3y52l7qbv1fryeghrncru9wr52ymzypt944gdg5mmo3qjicnqurtrn3vfrmnkr9c',
+      'ceramic://k3y52l7qbv1fryhxouyfmpmct2tiehvosfgkcqiqc2enafrolcq0i34ocim3p0ge8',
   },
   tiles: {},
 };
@@ -105,14 +109,26 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           resolver: getResolver(),
         });
         await did.authenticate();
-        const ceramic = new CeramicClient('http://localhost:7007');
+        const ceramic = new CeramicClient('https://ceramic-clay.3boxlabs.com');
         ceramic.setDID(did);
-        const datastore = new DIDDataStore({ ceramic, model: aliases });
+        const model = new DataModel({ ceramic, aliases });
 
-        // await datastore.set('EncryptedData', { data: '123' });
-        const d = await datastore.get('EncryptedData');
+        const datastore = new DIDDataStore({ ceramic, model });
+
+        const enc = new TextEncoder();
+        const data = await did.createJWE(enc.encode('ffffff'), [did.id]);
+        console.log(data);
+        await datastore.merge('encryptedData', {
+          data: btoa(JSON.stringify(data)),
+        });
+        console.log(datastore);
+        const d = await datastore.get('encryptedData');
         console.log(d);
-        return identityStorage;
+        const dec = await did.decryptJWE(JSON.parse(atob(d.data)));
+
+        console.log(new TextDecoder().decode(dec));
+
+        return identityStorage.did;
       }
 
       const res = await snap.request({
