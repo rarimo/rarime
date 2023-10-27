@@ -35,7 +35,7 @@ export const getCeramicAndStore = async () => {
   return { ceramic, datastore };
 };
 
-export const saveEncryptedCredentials = async (data: any) => {
+export const saveEncryptedCredentials = async (data: W3CCredential[]) => {
   const { ceramic, datastore } = await getCeramicAndStore();
 
   const jwe = await ceramic.did?.createJWE(

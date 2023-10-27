@@ -6,7 +6,7 @@ export { MetamaskSnap } from './snap';
 export * from './types';
 export { isMetamaskInstalled, isSnapInstalled } from './utils';
 
-export const defaultSnapOrigin = 'local:http://localhost:8081';
+export const defaultSnapOrigin = 'npm:@rarimo/rarime';
 
 export const enableSnap = async (
   snapOrigin?: string,
