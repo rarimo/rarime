@@ -38,6 +38,7 @@ export const createProof = async () => {
   const data = await connector.createProof({
     circuitId: 'credentialAtomicQueryMTPV2OnChain',
     accountAddress: accounts[0],
+    issuerDid: 'did:iden3:tJgV5GSETVoEdg3BeQygWJdNEHHwZTSSiCB1NkM1u',
     query: {
       allowedIssuers: ['*'],
       credentialSubject: {

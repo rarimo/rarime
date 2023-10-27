@@ -4,13 +4,6 @@ import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { copyable, divider, heading, panel, text } from '@metamask/snaps-ui';
 import { RPCMethods } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
-import { DID as CeramicDID } from 'dids';
-import { Ed25519Provider } from 'key-did-provider-ed25519';
-import { getResolver } from 'key-did-resolver';
-import { CeramicClient } from '@ceramicnetwork/http-client';
-import { DIDDataStore } from '@glazed/did-datastore';
-import { Hex } from '@iden3/js-crypto';
-import { DataModel } from '@glazed/datamodel';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -40,18 +33,8 @@ import {
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
 import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
+import { getDecryptedCredentials } from './helpers/ceramic-helpers';
 
-const aliases = {
-  definitions: {
-    encryptedData:
-      'kjzl6cwe1jw146prg8mrph19hpdioq3c35g0likt0lzrhsfancn04ruibgsg9nc',
-  },
-  schemas: {
-    EncryptedData:
-      'ceramic://k3y52l7qbv1fryhxouyfmpmct2tiehvosfgkcqiqc2enafrolcq0i34ocim3p0ge8',
-  },
-  tiles: {},
-};
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
   origin,
@@ -102,32 +85,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (identityStorage) {
-        const did = new CeramicDID({
-          provider: new Ed25519Provider(
-            Hex.decodeString(identityStorage.privateKeyHex),
-          ),
-          resolver: getResolver(),
-        });
-        await did.authenticate();
-        const ceramic = new CeramicClient('https://ceramic-clay.3boxlabs.com');
-        ceramic.setDID(did);
-        const model = new DataModel({ ceramic, aliases });
-
-        const datastore = new DIDDataStore({ ceramic, model });
-
-        const enc = new TextEncoder();
-        const data = await did.createJWE(enc.encode('ffffff'), [did.id]);
-        console.log(data);
-        await datastore.merge('encryptedData', {
-          data: btoa(JSON.stringify(data)),
-        });
-        console.log(datastore);
-        const d = await datastore.get('encryptedData');
-        console.log(d);
-        const dec = await did.decryptJWE(JSON.parse(atob(d.data)));
-
-        console.log(new TextDecoder().decode(dec));
-
         return identityStorage.did;
       }
 
@@ -371,7 +328,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
         throw new Error('This origin does not have access to credentials');
       }
-      return (await getItemFromStore(StorageKeys.credentials)) || [];
+      return await getDecryptedCredentials();
     }
 
     default:

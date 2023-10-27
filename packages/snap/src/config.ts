@@ -88,3 +88,17 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
 };
 
 export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = ['localhost'];
+
+export const CERAMIC_ALIASES = {
+  definitions: {
+    encryptedCredentials:
+      'kjzl6cwe1jw149in7sud7u3s0cw4863vjos3rc2zickw6f091q9cg9n370e42xk',
+  },
+  schemas: {
+    EncryptedCredentials:
+      'ceramic://k3y52l7qbv1fry2o4dqxfgxjb8rcyw78vsv82o21pf5md2m2y252fm0ll68y3ddz4',
+  },
+  tiles: {},
+};
+
+export const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com';

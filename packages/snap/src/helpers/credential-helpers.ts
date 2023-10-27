@@ -1,6 +1,5 @@
 import { Claim } from '@iden3/js-iden3-core';
-import { ProofType, StorageKeys } from '../enums';
-import { getItemFromStore, setItemInStore } from '../rpc';
+import { ProofType } from '../enums';
 import {
   CredentialStatus,
   ProofQuery,
@@ -9,40 +8,36 @@ import {
 } from '../types';
 import { StandardJSONCredentialsQueryFilter } from './json-query-helpers';
 import { getCoreClaimFromProof } from './proof-helpers';
-
-export const saveCredential = async (
-  key: string,
-  value: W3CCredential,
-  keyName = 'id' as keyof W3CCredential,
-): Promise<void> => {
-  const data = (await getItemFromStore(
-    StorageKeys.credentials,
-  )) as W3CCredential[];
-  const items = data || [];
-
-  const itemIndex = items.findIndex((i) => i[keyName] === key);
-  if (itemIndex === -1) {
-    items.push(value);
-  } else {
-    items[itemIndex] = value;
-  }
-  await setItemInStore(StorageKeys.credentials, items);
-};
+import {
+  getDecryptedCredentials,
+  saveEncryptedCredentials,
+} from './ceramic-helpers';
 
 export const saveCredentials = async (
-  value: W3CCredential[],
+  credentials: W3CCredential[],
   keyName = 'id' as keyof W3CCredential,
 ): Promise<void> => {
-  for (const credential of value) {
-    await saveCredential(credential.id, credential, keyName);
+  const data = await getDecryptedCredentials();
+  const items = [...data];
+
+  for (const credential of credentials) {
+    const itemIndex = items.findIndex(
+      (i) => i[keyName] === credential[keyName],
+    );
+    if (itemIndex === -1) {
+      items.push(credential);
+    } else {
+      items[itemIndex] = credential;
+    }
   }
+  await saveEncryptedCredentials(items);
 };
 
 export const findCredentialsByQuery = async (
   query: ProofQuery,
 ): Promise<W3CCredential[]> => {
   const filters = StandardJSONCredentialsQueryFilter(query);
-  const credentials = (await getItemFromStore(StorageKeys.credentials)) || [];
+  const credentials = await getDecryptedCredentials();
   return credentials.filter((credential: W3CCredential) =>
     filters.every((filter) => filter.execute(credential)),
   );
