@@ -12,24 +12,14 @@ import {
   getDecryptedCredentials,
   saveEncryptedCredentials,
 } from './ceramic-helpers';
+import { uniqBy } from './common-helpers';
 
 export const saveCredentials = async (
   credentials: W3CCredential[],
   keyName = 'id' as keyof W3CCredential,
 ): Promise<void> => {
   const data = await getDecryptedCredentials();
-  const items = [...data];
-
-  for (const credential of credentials) {
-    const itemIndex = items.findIndex(
-      (i) => i[keyName] === credential[keyName],
-    );
-    if (itemIndex === -1) {
-      items.push(credential);
-    } else {
-      items[itemIndex] = credential;
-    }
-  }
+  const items = uniqBy([...credentials, ...data], keyName);
   await saveEncryptedCredentials(items);
 };
 

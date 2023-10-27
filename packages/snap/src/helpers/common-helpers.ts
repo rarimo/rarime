@@ -37,3 +37,18 @@ export const getRarimoStateContractAddress = (chainId: number) => {
 export const getHostname = (origin: string): string => {
   return new URL(origin).hostname;
 };
+
+export const uniqBy = (arr: any[], predicate: string) => {
+  return [
+    ...arr
+      .reduce((map, item) => {
+        const key =
+          item === null || item === undefined ? item : item[predicate];
+
+        map.has(key) || map.set(key, item);
+
+        return map;
+      }, new Map())
+      .values(),
+  ];
+};
