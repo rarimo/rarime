@@ -12,7 +12,7 @@ import { W3CCredential } from '../types';
 export const getCeramic = async () => {
   const identityStorage = await getItemFromStore(StorageKeys.identity);
   if (!identityStorage) {
-    throw new Error('Identity not created');
+    throw new Error('Identity not created yet');
   }
   const did = new CeramicDID({
     provider: new Ed25519Provider(
@@ -29,7 +29,7 @@ export const getCeramic = async () => {
 export const getCeramicAndStore = async () => {
   const ceramic = await getCeramic();
   if (!ceramic.did) {
-    throw new Error('DID not setted');
+    throw new Error("DID wasn't set");
   }
   const datastore = new DIDDataStore({ ceramic, model: CERAMIC_ALIASES });
   return { ceramic, datastore };
