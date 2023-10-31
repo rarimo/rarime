@@ -101,30 +101,6 @@ where:
 	- **type**: type of credentials allowed
 	- **credentialSubject**: query request to a query circuit
 
-### Create a backup
-To create a backup of keys and credentials:
-```javascript
-await window.ethereum.request({
-  method: 'wallet_invokeSnap',
-  params: {
-  snapId: 'snapId',
-    request: { method: 'create_backup' },
-  },
-});
-```
-
-### Recovery from a backup
-Recovering the identity and credentials from a backup:
-```javascript
-await window.ethereum.request({
-  method: 'wallet_invokeSnap',
-  params: {
-  snapId: 'snapId',
-    request: { method: 'recover_backup' },
-  },
-});
-```
-
 ### Check state contract
 
 Returns `true` if the state contract on current chain need to be synced:

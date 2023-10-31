@@ -7,8 +7,6 @@ import {
   createIdentity,
   sendVc,
   shouldDisplayReconnectButton,
-  createBackup,
-  recoverBackup,
   reconnectSnap,
   checkStateContractSync,
   getCredentials,
@@ -158,24 +156,6 @@ const Index = () => {
     }
   };
 
-  const handleCreateBackupClick = async () => {
-    try {
-      await createBackup();
-    } catch (e) {
-      console.error(e);
-      dispatch({ type: MetamaskActions.SetError, payload: e });
-    }
-  };
-
-  const handleRecoverBackupClick = async () => {
-    try {
-      await recoverBackup();
-    } catch (e) {
-      console.error(e);
-      dispatch({ type: MetamaskActions.SetError, payload: e });
-    }
-  };
-
   const handleCheckStateContractSyncClick = async () => {
     try {
       await checkStateContractSync();
@@ -294,43 +274,6 @@ const Index = () => {
             button: (
               <SendHelloButton
                 onClick={handleCreateProofClick}
-                disabled={!state.installedSnap}
-              />
-            ),
-          }}
-          disabled={!state.installedSnap}
-          fullWidth={
-            state.isFlask &&
-            Boolean(state.installedSnap) &&
-            !shouldDisplayReconnectButton(state.installedSnap)
-          }
-        />
-        <Card
-          content={{
-            title: 'Create a backup',
-            description: 'Creating a backup of keys and credentials',
-            button: (
-              <SendHelloButton
-                onClick={handleCreateBackupClick}
-                disabled={!state.installedSnap}
-              />
-            ),
-          }}
-          disabled={!state.installedSnap}
-          fullWidth={
-            state.isFlask &&
-            Boolean(state.installedSnap) &&
-            !shouldDisplayReconnectButton(state.installedSnap)
-          }
-        />
-        <Card
-          content={{
-            title: 'Recovery from a backup',
-            description:
-              'Recovering the identity and credentials from a backup',
-            button: (
-              <SendHelloButton
-                onClick={handleRecoverBackupClick}
                 disabled={!state.installedSnap}
               />
             ),
