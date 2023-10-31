@@ -38,7 +38,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
   origin,
 }): Promise<unknown> => {
-  await moveStoreVCtoCeramic();
+  if (request.method !== RPCMethods.CreateIdentity) {
+    await moveStoreVCtoCeramic();
+  }
 
   switch (request.method) {
     case RPCMethods.SaveCredentials: {
