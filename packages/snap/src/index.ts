@@ -25,6 +25,7 @@ import {
   getRarimoCoreUrl,
   importKeysAndCredentials,
   loadDataFromRarimoCore,
+  moveStoreVCtoCeramic,
   saveCredentials,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
@@ -39,6 +40,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
   origin,
 }): Promise<unknown> => {
+  await moveStoreVCtoCeramic();
+
   switch (request.method) {
     case RPCMethods.SaveCredentials: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);

@@ -1,11 +1,12 @@
 import { Claim } from '@iden3/js-iden3-core';
-import { ProofType } from '../enums';
+import { ProofType, StorageKeys } from '../enums';
 import {
   CredentialStatus,
   ProofQuery,
   RevocationStatus,
   W3CCredential,
 } from '../types';
+import { getItemFromStore, setItemInStore } from '../rpc';
 import { StandardJSONCredentialsQueryFilter } from './json-query-helpers';
 import { getCoreClaimFromProof } from './proof-helpers';
 import {
@@ -21,6 +22,14 @@ export const saveCredentials = async (
   const data = await getDecryptedCredentials();
   const items = uniqBy([...credentials, ...data], keyName);
   await saveEncryptedCredentials(items);
+};
+
+export const moveStoreVCtoCeramic = async () => {
+  const credentials = (await getItemFromStore(StorageKeys.credentials)) || [];
+  if (credentials.length) {
+    await saveCredentials(credentials);
+    await setItemInStore(StorageKeys.credentials, []);
+  }
 };
 
 export const findCredentialsByQuery = async (

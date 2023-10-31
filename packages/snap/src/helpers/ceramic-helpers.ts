@@ -51,7 +51,7 @@ export const getDecryptedCredentials = async (): Promise<W3CCredential[]> => {
   const { ceramic, datastore } = await getCeramicAndStore();
 
   const encryptedData = await datastore.get('encryptedCredentials');
-  if (!encryptedData) {
+  if (!encryptedData?.data) {
     return [];
   }
   const data = await ceramic.did?.decryptJWE(
