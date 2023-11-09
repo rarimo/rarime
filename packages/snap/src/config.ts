@@ -89,7 +89,6 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
 
 export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = ['localhost'];
 
-// TODO: change
 export const CERAMIC_ALIASES = {
   definitions: {
     encryptedCredentials:
@@ -102,5 +101,4 @@ export const CERAMIC_ALIASES = {
   tiles: {},
 };
 
-// TODO: change
 export const CERAMIC_URL = 'https://ceramic.rarimo.com';
