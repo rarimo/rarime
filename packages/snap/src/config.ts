@@ -93,14 +93,14 @@ export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = ['localhost'];
 export const CERAMIC_ALIASES = {
   definitions: {
     encryptedCredentials:
-      'kjzl6cwe1jw149in7sud7u3s0cw4863vjos3rc2zickw6f091q9cg9n370e42xk',
+      'kjzl6cwe1jw148ogdspueenn4m3zbose42od00t7j17su653wql2rp73plm3biq',
   },
   schemas: {
     EncryptedCredentials:
-      'ceramic://k3y52l7qbv1fry2o4dqxfgxjb8rcyw78vsv82o21pf5md2m2y252fm0ll68y3ddz4',
+      'ceramic://k3y52l7qbv1frymy245dkbe095vtpn9vqz4o5fu43gxrsu5c2h227i2ddw95y6a68',
   },
   tiles: {},
 };
 
 // TODO: change
-export const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com';
+export const CERAMIC_URL = 'https://ceramic.rarimo.com';
