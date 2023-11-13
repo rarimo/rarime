@@ -12,9 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `@rarimo/rarime`:
-  - `Create` and `recover` backup methods
+  - `create` and `recover` backup methods
 - `@rarimo/rarime-connector`:
-  - `Create` and `recover` backup methods
+  - `create` and `recover` backup methods
 
 ## [0.8.0] - 2023-10-23
 ### Changed
