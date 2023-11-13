@@ -32,21 +32,6 @@ export const createIdentity = async function (
   );
 };
 
-export const createBackup = async function (
-  this: MetamaskSnap,
-): Promise<boolean> {
-  return await sendSnapMethod({ method: RPCMethods.CreateBackup }, this.snapId);
-};
-
-export const recoverBackup = async function (
-  this: MetamaskSnap,
-): Promise<boolean> {
-  return await sendSnapMethod(
-    { method: RPCMethods.RecoverBackup },
-    this.snapId,
-  );
-};
-
 export const saveCredentials = async function (
   this: MetamaskSnap,
   params: SaveCredentialsRequestParams,

@@ -17,14 +17,13 @@ import {
 import { AuthZkp } from './auth-zkp';
 import {
   checkIfStateSynced,
-  exportKeysAndCredentials,
   findCredentialsByQuery,
   getCoreOperationByIndex,
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
-  importKeysAndCredentials,
   loadDataFromRarimoCore,
+  moveStoreVCtoCeramic,
   saveCredentials,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
@@ -33,11 +32,16 @@ import {
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
 import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
+import { getDecryptedCredentials } from './helpers/ceramic-helpers';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
   origin,
 }): Promise<unknown> => {
+  if (request.method !== RPCMethods.CreateIdentity) {
+    await moveStoreVCtoCeramic();
+  }
+
   switch (request.method) {
     case RPCMethods.SaveCredentials: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
@@ -259,66 +263,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       throw new Error('User rejected request');
     }
 
-    case RPCMethods.CreateBackup: {
-      const res = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: panel([
-            heading('Export keys and credentials'),
-            divider(),
-            text('Backup provides full access to your snap'),
-            text('Do not share this with anyone'),
-            text('Make sure no one is looking at your screen'),
-            divider(),
-            text('Would you like to export keys and credentials?'),
-          ]),
-        },
-      });
-
-      if (res) {
-        const data = await exportKeysAndCredentials();
-
-        snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'alert',
-            content: panel([
-              heading('Keys and credentials'),
-              divider(),
-              copyable(data),
-            ]),
-          },
-        });
-
-        return true;
-      }
-      throw new Error('User rejected request');
-    }
-
-    case RPCMethods.RecoverBackup: {
-      const res = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'prompt',
-          content: panel([
-            heading('Recover your identity and credentials'),
-            divider(),
-            text('Your current identity will be overwritten!'),
-            divider(),
-            text('Enter your JSON string from the backup here:'),
-          ]),
-          placeholder: 'Backup data',
-        },
-      });
-
-      if (res !== null) {
-        await importKeysAndCredentials(JSON.parse(res as string));
-        return true;
-      }
-      throw new Error('User rejected request');
-    }
-
     case RPCMethods.CheckStateContractSync: {
       return await checkIfStateSynced();
     }
@@ -327,7 +271,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
         throw new Error('This origin does not have access to credentials');
       }
-      return (await getItemFromStore(StorageKeys.credentials)) || [];
+      return await getDecryptedCredentials();
     }
 
     default:

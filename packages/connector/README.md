@@ -156,21 +156,6 @@ type StateInfo = {
 };
 ```
 
-
-### Create a backup
-To create a backup of keys and credentials:
-```typescript
-createBackup(): Promise<boolean>
-```
-Returns true if backup created
-
-### Recovery from a backup
-Recovering the identity and credentials from a backup:
-```typescript
-recoverBackup(): Promise<boolean>
-```
-Returns true if backup recovered
-
 ### Check state contract sync
 
 ```typescript

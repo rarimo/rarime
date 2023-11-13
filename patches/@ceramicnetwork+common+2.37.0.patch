@@ -1,0 +1,10 @@
+diff --git a/node_modules/@ceramicnetwork/common/lib/utils/fetch-json.js b/node_modules/@ceramicnetwork/common/lib/utils/fetch-json.js
+index b3f4d3f..e3ac5b8 100644
+--- a/node_modules/@ceramicnetwork/common/lib/utils/fetch-json.js
++++ b/node_modules/@ceramicnetwork/common/lib/utils/fetch-json.js
+@@ -1,4 +1,4 @@
+-import fetch from 'cross-fetch';
++import {fetch} from 'cross-fetch';
+ import { mergeAbortSignals, TimedAbortSignal, abortable } from './abort-signal-utils.js';
+ const DEFAULT_FETCH_TIMEOUT = 60 * 1000 * 3;
+ export async function fetchJson(url, opts = {}) {

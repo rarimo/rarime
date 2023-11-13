@@ -1,9 +1,7 @@
 import { SnapConnector } from './types';
 import {
-  createBackup,
   createIdentity,
   createProof,
-  recoverBackup,
   saveCredentials,
   checkStateContractSync,
   getCredentials,
@@ -19,8 +17,6 @@ export class MetamaskSnap {
   public getConnector = async (): Promise<SnapConnector> => {
     return {
       createIdentity: createIdentity.bind(this),
-      createBackup: createBackup.bind(this),
-      recoverBackup: recoverBackup.bind(this),
       saveCredentials: saveCredentials.bind(this),
       createProof: createProof.bind(this),
       checkStateContractSync: checkStateContractSync.bind(this),
