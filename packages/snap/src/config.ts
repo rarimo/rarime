@@ -17,26 +17,28 @@ export const config = {
     mainnet: '0x5ac96945a771d417B155Cb07A3D7E4b8e2F33FdE',
   },
 
-  CIRCUIT_AUTH_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmYd41GHrKQLqbk96zHbmHU5rGVcxwmAgBpRqLCGLK7LQu',
-  CIRCUIT_AUTH_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmWKor7i9r2zbM6oqSdgPUCvgyYESH39qXk1f5tbdeaAg7',
+  CIRCUIT_AUTH_WASM_URL: './assets/circuits/auth/circuit.wasm',
+  CIRCUIT_AUTH_FINAL_KEY_URL: './assets/circuits/auth/circuit_final.zkey',
+
   CIRCUIT_SIG_V2_ON_CHAIN_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmS4vURQ1c8tgALSokdTYVqx5E9FmASbu964W3JevnM3B4',
+    './assets/circuits/credentialAtomicQuerySigV2OnChain/circuit.wasm',
   CIRCUIT_SIG_V2_ON_CHAIN_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmT45Y62hfZnADq6VvKGjNR8foNb2KjcyG4AStRRAN9iHm',
+    './assets/circuits/credentialAtomicQuerySigV2OnChain/circuit_final.zkey',
+
   CIRCUIT_SIG_V2_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmYB5QLvH5ihiedxvzkG3XPQngjxcS8wc1xCAoKnGS5GfC',
+    './assets/circuits/credentialAtomicQuerySigV2/circuit.wasm',
   CIRCUIT_SIG_V2_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmeXxRXxYGCwa48ANikH5Knzi9cgkmhumPbMtjTKNYkThL',
+    './assets/circuits/credentialAtomicQuerySigV2/circuit_final.zkey',
+
   CIRCUIT_MTP_V2_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmRqGgnN6Qy4LuPxQKH2wrADNe4aJb8wYJhS1ky9zbLS8t',
+    './assets/circuits/credentialAtomicQueryMTPV2/circuit.wasm',
   CIRCUIT_MTP_V2_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmcLyDLPWJpyEWeR9KkWQuGHAqifnwpDAWBX1R6a7g6F6a',
+    './assets/circuits/credentialAtomicQueryMTPV2/circuit_final.zkey',
+
   CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmPtPiFgZigau2VNpSCoagNj36ZpuuATRNvyNPAvvUgvq6',
+    './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit.wasm',
   CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL:
-    'https://ipfs.tokend.io/ipfs/ipfs/QmU8fC3xwjMcmnsB88SrdKRZpskhxUwBRnaLMa1AcN9ERj',
+    './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey',
 };
 
 enum CHAINS {

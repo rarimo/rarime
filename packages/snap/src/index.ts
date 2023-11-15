@@ -1,7 +1,13 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
-import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { copyable, divider, heading, panel, text } from '@metamask/snaps-ui';
+import {
+  OnRpcRequestHandler,
+  copyable,
+  divider,
+  heading,
+  panel,
+  text,
+} from '@metamask/snaps-sdk';
 import { RPCMethods } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import { Identity } from './identity';
@@ -37,7 +43,7 @@ import { getDecryptedCredentials } from './helpers/ceramic-helpers';
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
   origin,
-}): Promise<unknown> => {
+}) => {
   if (request.method !== RPCMethods.CreateIdentity) {
     await moveStoreVCtoCeramic();
   }
