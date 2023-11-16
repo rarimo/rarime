@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `@rarimo/rarime`:
   - Save credentials to ceramic instead of snap store
-  - Return did in bigint representation within default one in createIdentity method
+  - Return did in bigint representation alongside the default representation```
 
 ### Removed
 - `@rarimo/rarime`:
