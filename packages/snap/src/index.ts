@@ -132,7 +132,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           },
         });
 
-        return identity.didString;
+        return {
+          identityIdString: identity.didString,
+          identityIdBigIntString: identity.identityIdBigIntString,
+        };
       }
       throw new Error('User rejected request');
     }
