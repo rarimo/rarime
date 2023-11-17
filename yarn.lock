@@ -6589,17 +6589,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/rarime-connector@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@rarimo/rarime-connector@npm:0.8.0"
-  dependencies:
-    "@ethersproject/providers": 5.7.2
-    ethers: 5.7.2
-  checksum: d59f4742aa7e5bfa26f9353106ee3f8dca29a49d24e644a8fc1718515dd79fb1861def89a2cacceca7373be6eeb3de15c2681d940dd82092173e88d3cb74abde
-  languageName: node
-  linkType: hard
-
-"@rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
+"@rarimo/rarime-connector@1.0.0-rc.1, @rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
   version: 0.0.0-use.local
   resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
@@ -6636,7 +6626,7 @@ __metadata:
     "@metamask/snaps-jest": 0.35.2-flask.1
     "@metamask/snaps-types": 0.32.2
     "@metamask/snaps-ui": 0.32.2
-    "@rarimo/rarime-connector": 0.8.0
+    "@rarimo/rarime-connector": 1.0.0-rc.1
     "@typechain/ethers-v5": 11.1.1
     "@types/intl": 1.2.0
     "@types/uuid": 9.0.2
