@@ -89,8 +89,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (identityStorage) {
         return {
-          did: identityStorage.did,
-          didBigInt: identityStorage.didBigInt,
+          identityIdString: identityStorage.did,
+          identityIdBigIntString: identityStorage.didBigInt,
         };
       }
 
