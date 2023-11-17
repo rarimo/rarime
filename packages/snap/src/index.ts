@@ -88,7 +88,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (identityStorage) {
-        return identityStorage.did;
+        return {
+          did: identityStorage.did,
+          didBigInt: identityStorage.didBigInt,
+        };
       }
 
       const res = await snap.request({
@@ -117,6 +120,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         await setItemInStore(StorageKeys.identity, {
           privateKeyHex: identity.privateKeyHex,
           did: identity.didString,
+          didBigInt: identity.identityIdBigIntString,
         });
 
         snap.request({

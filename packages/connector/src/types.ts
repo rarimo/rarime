@@ -16,7 +16,10 @@ export enum RPCMethods {
 }
 
 export type SnapConnector = {
-  createIdentity(): Promise<string>;
+  createIdentity(): Promise<{
+    identityIdString: string;
+    identityIdBigIntString: string;
+  }>;
   saveCredentials(
     params: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]>;

@@ -25,7 +25,10 @@ const sendSnapMethod = async <T>(
 
 export const createIdentity = async function (
   this: MetamaskSnap,
-): Promise<string> {
+): Promise<{
+  identityIdString: string;
+  identityIdBigIntString: string;
+}> {
   return await sendSnapMethod(
     { method: RPCMethods.CreateIdentity },
     this.snapId,
