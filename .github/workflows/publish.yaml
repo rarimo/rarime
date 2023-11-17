@@ -20,6 +20,7 @@ jobs:
       - name: Publish
         run: |
           yarn install
+          yarn postinstall
           yarn build
           yarn publish
         env:
