@@ -94,7 +94,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (identityStorage) {
-        return identityStorage.did;
+        return {
+          identityIdString: identityStorage.did,
+          identityIdBigIntString: identityStorage.didBigInt,
+        };
       }
 
       const res = await snap.request({
@@ -123,6 +126,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         await setItemInStore(StorageKeys.identity, {
           privateKeyHex: identity.privateKeyHex,
           did: identity.didString,
+          didBigInt: identity.identityIdBigIntString,
         });
 
         snap.request({
@@ -138,7 +142,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           },
         });
 
-        return identity.didString;
+        return {
+          identityIdString: identity.didString,
+          identityIdBigIntString: identity.identityIdBigIntString,
+        };
       }
       throw new Error('User rejected request');
     }
