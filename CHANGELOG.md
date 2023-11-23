@@ -6,14 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `@rarimo/rarime`:
+  - `@metamask/snaps-sdk`
+  - `@metamask/snaps-utils`
+
 ### Changed
 - `@rarimo/rarime`:
   - Save credentials to ceramic instead of snap store
   - Return did in bigint representation alongside the default representation```
+  - Bump
+    - `@metamask/snaps-jest` to "^4.0.0"
+    - `@metamask/snaps-cli` to "3.0.2"
 
 ### Removed
 - `@rarimo/rarime`:
   - `create` and `recover` backup methods
+  - `@metamask/snaps-types` and `@metamask/snaps-ui` packages
 - `@rarimo/rarime-connector`:
   - `create` and `recover` backup methods
 
