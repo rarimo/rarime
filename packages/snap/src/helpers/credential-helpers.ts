@@ -24,7 +24,6 @@ const hashVC = (type: string, issuerDid: string) => {
 
 export const encryptAndSaveVC = async (credential: W3CCredential) => {
   const ceramicProvider = new CeramicProvider();
-  await ceramicProvider.auth();
 
   const encryptedVC = await ceramicProvider.encrypt(credential);
 
@@ -60,7 +59,6 @@ export const encryptAndSaveVC = async (credential: W3CCredential) => {
 // TODO: add pagination
 export const getAllDecryptedVCs = async (): Promise<W3CCredential[]> => {
   const ceramicProvider = new CeramicProvider();
-  await ceramicProvider.auth();
 
   const client = await ceramicProvider.client();
 
@@ -97,7 +95,6 @@ export const getVCsByQuery = async (
   issuerDiD: string,
 ): Promise<W3CCredential[]> => {
   const ceramicProvider = new CeramicProvider();
-  await ceramicProvider.auth();
 
   const queryHash = hashVC(String(query.type), issuerDiD);
 
