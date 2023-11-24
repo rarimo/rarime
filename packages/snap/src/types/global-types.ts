@@ -1,4 +1,4 @@
-import { NodeType } from '@metamask/snaps-ui';
+import { NodeType } from '@metamask/snaps-sdk';
 import { providers } from 'ethers';
 
 export type TextField = {

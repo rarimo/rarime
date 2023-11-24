@@ -1,11 +1,16 @@
 const fs = require('fs');
 const pathUtils = require('path');
+const { postProcessBundle } = require('@metamask/snaps-utils');
 
 const bundlePath = pathUtils.join('dist', 'bundle.js');
 console.log('Bundle replace code to SES', bundlePath);
 
 // eslint-disable-next-line node/no-sync
 let bundleString = fs.readFileSync(bundlePath, 'utf8');
+
+bundleString = postProcessBundle(bundleString, {
+  stripComments: true,
+}).code;
 
 bundleString = 'var Worker = {};\n'.concat(bundleString);
 

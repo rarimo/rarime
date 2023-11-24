@@ -10,12 +10,15 @@ import {
   CircuitClaim,
   getGISTProof,
   getNodeAuxValue,
-  getPreparedCredential, getProviderChainInfo, getRarimoEvmRpcUrl, getRarimoStateContractAddress,
+  getPreparedCredential,
+  getProviderChainInfo,
+  getRarimoEvmRpcUrl,
+  getRarimoStateContractAddress,
+  getFileBytes,
   newCircuitClaimData,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
   Query,
-  readBytesFile,
   toCircuitsQuery,
   toGISTProof,
 } from './helpers';
@@ -149,8 +152,8 @@ export class ZkpGen {
     const circuiInfo = this.getCircuitInfo();
 
     const [wasm, provingKey] = await Promise.all([
-      readBytesFile(circuiInfo.wasm),
-      readBytesFile(circuiInfo.finalKey),
+      getFileBytes(circuiInfo.wasm),
+      getFileBytes(circuiInfo.finalKey),
     ]);
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
       new TextEncoder().encode(circuiInfo.generateInputFn()),

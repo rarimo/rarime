@@ -7,9 +7,12 @@ import { config } from './config';
 import { W3CCredential, ClaimOffer } from './types';
 import {
   getGISTProof,
-  getNodeAuxValue, getProviderChainInfo, getRarimoEvmRpcUrl, getRarimoStateContractAddress,
+  getNodeAuxValue,
+  getProviderChainInfo,
+  getRarimoEvmRpcUrl,
+  getRarimoStateContractAddress,
+  getFileBytes,
   prepareSiblingsStr,
-  readBytesFile,
   toGISTProof,
 } from './helpers';
 import { defaultMTLevels, defaultMTLevelsOnChain } from './const';
@@ -51,8 +54,8 @@ export class AuthZkp {
       );
 
       const [wasm, provingKey] = await Promise.all([
-        readBytesFile(config.CIRCUIT_AUTH_WASM_URL),
-        readBytesFile(config.CIRCUIT_AUTH_FINAL_KEY_URL),
+        getFileBytes(config.CIRCUIT_AUTH_WASM_URL),
+        getFileBytes(config.CIRCUIT_AUTH_FINAL_KEY_URL),
       ]);
 
       const jwzTokenRaw = await token2.prove(provingKey, wasm);

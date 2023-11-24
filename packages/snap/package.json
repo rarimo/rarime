@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.7",
   "description": "RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "repository": {
     "type": "git",
@@ -10,6 +10,7 @@
   "files": [
     "dist/",
     "images/",
+    "assets/",
     "snap.manifest.json",
     "README.md"
   ],
@@ -52,10 +53,10 @@
     "@iden3/js-jsonld-merklization": "1.0.0-beta.14",
     "@iden3/js-jwz": "1.0.0-beta.2",
     "@iden3/js-merkletree": "1.0.0-beta.1",
-    "@metamask/snaps-jest": "0.35.2-flask.1",
-    "@metamask/snaps-types": "0.32.2",
-    "@metamask/snaps-ui": "0.32.2",
-    "@rarimo/rarime-connector": "1.0.0-rc.4",
+    "@metamask/snaps-jest": "^4.0.0",
+    "@metamask/snaps-sdk": "^1.1.0",
+    "@metamask/snaps-utils": "^4.0.0",
+    "@rarimo/rarime-connector": "1.0.0-rc.7",
     "buffer": "6.0.3",
     "dids": "4.0.4",
     "ethers": "5.7.2",
@@ -81,7 +82,7 @@
     "@metamask/eslint-config-jest": "10.0.0",
     "@metamask/eslint-config-nodejs": "10.0.0",
     "@metamask/eslint-config-typescript": "10.0.0",
-    "@metamask/snaps-cli": "0.32.2",
+    "@metamask/snaps-cli": "^3.0.3",
     "@typechain/ethers-v5": "11.1.1",
     "@types/intl": "1.2.0",
     "@types/lodash": "^4.14.202",
