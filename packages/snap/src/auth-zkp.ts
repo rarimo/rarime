@@ -7,7 +7,11 @@ import { config } from './config';
 import { W3CCredential, ClaimOffer } from './types';
 import {
   getGISTProof,
-  getNodeAuxValue, getProviderChainInfo, getRarimoEvmRpcUrl, getRarimoStateContractAddress, getSnapFileBytes,
+  getNodeAuxValue,
+  getProviderChainInfo,
+  getRarimoEvmRpcUrl,
+  getRarimoStateContractAddress,
+  getFileBytes,
   prepareSiblingsStr,
   toGISTProof,
 } from './helpers';
@@ -50,8 +54,8 @@ export class AuthZkp {
       );
 
       const [wasm, provingKey] = await Promise.all([
-        getSnapFileBytes(config.CIRCUIT_AUTH_WASM_URL),
-        getSnapFileBytes(config.CIRCUIT_AUTH_FINAL_KEY_URL),
+        getFileBytes(config.CIRCUIT_AUTH_WASM_URL),
+        getFileBytes(config.CIRCUIT_AUTH_FINAL_KEY_URL),
       ]);
 
       const jwzTokenRaw = await token2.prove(provingKey, wasm);

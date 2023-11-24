@@ -20,3 +20,11 @@ export const getSnapFileBytes = async (path: string) => {
 
   return bytes;
 };
+
+export const getFileBytes = async (path: string) => {
+  try {
+    return await readBytesFile(new URL(path).href);
+  } catch (error) {
+    return await getSnapFileBytes(path);
+  }
+};

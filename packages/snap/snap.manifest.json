@@ -7,7 +7,7 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "EAYQxH7rrSlJ0KdUvLFxEqsue9VGo9RH/KlotIZmo7M=",
+    "shasum": "gYYyr1oruC077Ln2IfM9ZVEFDM9oQ7xkKAQZDJp7pVI=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -19,12 +19,6 @@
     "files": [
       "./assets/circuits/auth/circuit.wasm",
       "./assets/circuits/auth/circuit_final.zkey",
-      "./assets/circuits/credentialAtomicQuerySigV2OnChain/circuit.wasm",
-      "./assets/circuits/credentialAtomicQuerySigV2OnChain/circuit_final.zkey",
-      "./assets/circuits/credentialAtomicQuerySigV2/circuit.wasm",
-      "./assets/circuits/credentialAtomicQuerySigV2/circuit_final.zkey",
-      "./assets/circuits/credentialAtomicQueryMTPV2/circuit.wasm",
-      "./assets/circuits/credentialAtomicQueryMTPV2/circuit_final.zkey",
       "./assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit.wasm",
       "./assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey"
     ]
