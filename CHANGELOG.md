@@ -7,13 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `@rarimo/rarime` added new dev dependencies:
+- `@rarimo/rarime` new dev dependencies:
   - `@metamask/snaps-sdk`
   - `@metamask/snaps-utils`
 
 ### Changed
 - `@rarimo/rarime`:
   - Save credentials to ceramic instead of snap store
+  - Use MetaMask File API for `MTPv2OnChain` and Auth circuits
   - Return did in bigint representation alongside the default representation```
   - Updated dependencies:
     - `@metamask/snaps-jest` to "^4.0.0"
