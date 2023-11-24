@@ -116,4 +116,5 @@ export const CERAMIC_ALIASES = {
   tiles: {},
 };
 
-export const CERAMIC_URL = 'https://ceramic.rarimo.com';
+// export const CERAMIC_URL = 'https://ceramic.rarimo.com';
+export const CERAMIC_URL = 'http://localhost:7007';

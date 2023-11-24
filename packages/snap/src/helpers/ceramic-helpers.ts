@@ -4,10 +4,19 @@ import { getResolver } from 'key-did-resolver';
 import { CeramicClient } from '@ceramicnetwork/http-client';
 import { DIDDataStore } from '@glazed/did-datastore';
 import { Hex } from '@iden3/js-crypto';
+import { ComposeClient } from '@composedb/client';
+// import {
+// ApolloClient,
+// InMemoryCache,
+// Observable,
+// ApolloLink,
+// } from '@apollo/client/core';
+import type { RuntimeCompositeDefinition } from '@composedb/types';
+
 import { CERAMIC_ALIASES, CERAMIC_URL } from '../config';
 import { getItemFromStore } from '../rpc';
 import { StorageKeys } from '../enums';
-import { W3CCredential } from '../types';
+import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
 
 export const getCeramic = async () => {
   const identityStorage = await getItemFromStore(StorageKeys.identity);
@@ -35,28 +44,72 @@ export const getCeramicAndStore = async () => {
   return { ceramic, datastore };
 };
 
-export const saveEncryptedCredentials = async (data: W3CCredential[]) => {
-  const { ceramic, datastore } = await getCeramicAndStore();
-
-  const jwe = await ceramic.did?.createJWE(
-    new TextEncoder().encode(JSON.stringify(data)),
-    [ceramic.did.id],
-  );
-  await datastore.merge('encryptedCredentials', {
-    data: btoa(JSON.stringify(jwe)),
+export class CeramicProvider {
+  private _compose = new ComposeClient({
+    ceramic: CERAMIC_URL,
+    definition: VerifiableRuntimeComposite as RuntimeCompositeDefinition,
   });
-};
 
-export const getDecryptedCredentials = async (): Promise<W3CCredential[]> => {
-  const { ceramic, datastore } = await getCeramicAndStore();
+  async auth() {
+    const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-  const encryptedData = await datastore.get('encryptedCredentials');
-  if (!encryptedData?.data) {
-    return [];
+    if (!identityStorage) {
+      throw new Error('Identity not created yet');
+    }
+
+    const did = new CeramicDID({
+      provider: new Ed25519Provider(
+        Hex.decodeString(identityStorage.privateKeyHex),
+      ),
+      resolver: getResolver(),
+    });
+
+    this._compose.setDID(did);
   }
-  const data = await ceramic.did?.decryptJWE(
-    JSON.parse(atob(encryptedData.data)),
-  );
 
-  return JSON.parse(new TextDecoder().decode(data));
-};
+  // TODO: will auth affect on this properly?
+  public async client() {
+    await this.auth();
+
+    // const link = Object.assign(
+    //   {},
+    //   new ApolloLink((operation) => {
+    //     return new Observable((observer) => {
+    //       this._compose.execute(operation.query, operation.variables).then(
+    //         (result) => {
+    //           observer.next(result);
+    //           observer.complete();
+    //         },
+    //         (error) => {
+    //           observer.error(error);
+    //         },
+    //       );
+    //     });
+    //   }),
+    // );
+
+    // Use ApolloLink instance in ApolloClient config
+    // return new ApolloClient({
+    //   cache: new InMemoryCache(),
+    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //   // @ts-ignore
+    //   // link: { ...link },
+    // });
+
+    return this._compose;
+  }
+
+  public encrypt = async (data: unknown) => {
+    const jwe = await this._compose.did?.createJWE(
+      new TextEncoder().encode(JSON.stringify(data)),
+      [this._compose.did.id],
+    );
+    return btoa(JSON.stringify(jwe));
+  };
+
+  public decrypt = async <T>(data: string): Promise<T> => {
+    const jwe = JSON.parse(atob(data));
+    const decrypted = await this._compose.did?.decryptJWE(jwe);
+    return JSON.parse(new TextDecoder().decode(decrypted));
+  };
+}

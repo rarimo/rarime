@@ -1,45 +1,150 @@
 import { Claim } from '@iden3/js-iden3-core';
+import { sha256 } from 'ethers/lib/utils';
 import { ProofType, StorageKeys } from '../enums';
 import {
+  CreateVc,
+  // CreateVcMutation,
+  // CreateVcMutationVariables,
   CredentialStatus,
+  GetAllVerifiableCredentials,
+  GetAllVerifiableCredentialsQuery,
+  GetVerifiableCredentialsByQueryHash,
+  GetVerifiableCredentialsByQueryHashQuery,
   ProofQuery,
   RevocationStatus,
   W3CCredential,
 } from '../types';
 import { getItemFromStore, setItemInStore } from '../rpc';
-import { StandardJSONCredentialsQueryFilter } from './json-query-helpers';
 import { getCoreClaimFromProof } from './proof-helpers';
-import {
-  getDecryptedCredentials,
-  saveEncryptedCredentials,
-} from './ceramic-helpers';
-import { uniqBy } from './common-helpers';
+import { CeramicProvider } from './ceramic-helpers';
 
-export const saveCredentials = async (
-  credentials: W3CCredential[],
-  keyName = 'id' as keyof W3CCredential,
-): Promise<void> => {
-  const data = await getDecryptedCredentials();
-  const items = uniqBy([...credentials, ...data], keyName);
-  await saveEncryptedCredentials(items);
+const hashVC = (type: string, issuerDid: string) => {
+  return sha256(Buffer.from(issuerDid + type));
+};
+
+export const encryptAndSaveVC = async (credential: W3CCredential) => {
+  const ceramicProvider = new CeramicProvider();
+  await ceramicProvider.auth();
+
+  const encryptedVC = await ceramicProvider.encrypt(credential);
+
+  const queryHash = hashVC(
+    String(credential.credentialSubject.type),
+    credential.issuer,
+  );
+
+  const client = await ceramicProvider.client();
+
+  // await client.mutate<CreateVcMutation, CreateVcMutationVariables>({
+  //   mutation: CreateVc,
+  //   variables: {
+  //     input: {
+  //       content: {
+  //         data: encryptedVC,
+  //         queryHash,
+  //       },
+  //     },
+  //   },
+  // });
+
+  await client.execute(CreateVc, {
+    input: {
+      content: {
+        data: encryptedVC,
+        queryHash,
+      },
+    },
+  });
+};
+
+// TODO: add pagination
+export const getAllDecryptedVCs = async (): Promise<W3CCredential[]> => {
+  const ceramicProvider = new CeramicProvider();
+  await ceramicProvider.auth();
+
+  const client = await ceramicProvider.client();
+
+  // const { data } = await client.query<GetAllVerifiableCredentialsQuery>({
+  //   query: GetAllVerifiableCredentials,
+  //   fetchPolicy: 'network-only',
+  //   variables: {
+  //     last: 1000,
+  //   },
+  // });
+
+  const { data } = await client.execute<GetAllVerifiableCredentialsQuery>(
+    GetAllVerifiableCredentials,
+    {
+      last: 1000,
+    },
+  );
+
+  if (!data?.verifiableCredentialIndex?.edges?.length) {
+    return [];
+  }
+
+  return await Promise.all(
+    data.verifiableCredentialIndex.edges.map(async (el) => {
+      const encryptedVC = el?.node?.data as string;
+
+      return await ceramicProvider.decrypt<W3CCredential>(encryptedVC);
+    }),
+  );
+};
+
+export const getVCsByQuery = async (
+  query: ProofQuery,
+  issuerDiD: string,
+): Promise<W3CCredential[]> => {
+  const ceramicProvider = new CeramicProvider();
+  await ceramicProvider.auth();
+
+  const queryHash = hashVC(String(query.type), issuerDiD);
+
+  const client = await ceramicProvider.client();
+
+  // const { data } = await client.query<GetVerifiableCredentialsByQueryHashQuery>(
+  //   {
+  //     query: GetVerifiableCredentialsByQueryHash,
+  //     fetchPolicy: 'network-only',
+  //     variables: {
+  //       queryHash,
+  //     },
+  //   },
+  // );
+
+  const {
+    data,
+  } = await client.execute<GetVerifiableCredentialsByQueryHashQuery>(
+    GetVerifiableCredentialsByQueryHash,
+    {
+      queryHash,
+    },
+  );
+
+  if (!data?.verifiableCredentialIndex?.edges?.length) {
+    return [];
+  }
+
+  return await Promise.all(
+    data.verifiableCredentialIndex.edges.map(async (el) => {
+      const encryptedVC = el?.node?.data as string;
+
+      return await ceramicProvider.decrypt<W3CCredential>(encryptedVC);
+    }),
+  );
 };
 
 export const moveStoreVCtoCeramic = async () => {
   const credentials = (await getItemFromStore(StorageKeys.credentials)) || [];
   if (credentials.length) {
-    await saveCredentials(credentials);
+    await Promise.all(
+      credentials.map(async (credential: W3CCredential) => {
+        await encryptAndSaveVC(credential);
+      }),
+    );
     await setItemInStore(StorageKeys.credentials, []);
   }
-};
-
-export const findCredentialsByQuery = async (
-  query: ProofQuery,
-): Promise<W3CCredential[]> => {
-  const filters = StandardJSONCredentialsQueryFilter(query);
-  const credentials = await getDecryptedCredentials();
-  return credentials.filter((credential: W3CCredential) =>
-    filters.every((filter) => filter.execute(credential)),
-  );
 };
 
 export const getRevocationStatus = async (

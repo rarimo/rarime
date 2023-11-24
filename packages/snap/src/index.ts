@@ -17,14 +17,15 @@ import {
 import { AuthZkp } from './auth-zkp';
 import {
   checkIfStateSynced,
-  findCredentialsByQuery,
   getCoreOperationByIndex,
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
-  saveCredentials,
+  getAllDecryptedVCs,
+  getVCsByQuery,
+  encryptAndSaveVC,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -32,7 +33,6 @@ import {
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
 import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
-import { getDecryptedCredentials } from './helpers/ceramic-helpers';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
@@ -79,7 +79,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         const identity = await Identity.create(identityStorage.privateKeyHex);
         const authProof = new AuthZkp(identity, offer);
         const credentials = await authProof.getVerifiableCredentials();
-        await saveCredentials(credentials);
+        await Promise.all(
+          credentials.map(async (credential) => {
+            await encryptAndSaveVC(credential);
+          }),
+        );
         return credentials;
       }
       throw new Error('User rejected request');
@@ -169,12 +173,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       }
 
       const credentials = (
-        await findCredentialsByQuery(createProofRequest.query)
-      ).filter(
-        (cred) =>
-          cred.credentialSubject.id === identityStorage.did &&
-          cred.issuer === issuerDid,
-      );
+        await getVCsByQuery(createProofRequest.query, issuerDid)
+      ).filter((cred) => cred.credentialSubject.id === identityStorage.did);
 
       if (!credentials.length) {
         throw new Error(
@@ -278,7 +278,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
         throw new Error('This origin does not have access to credentials');
       }
-      return await getDecryptedCredentials();
+      return await getAllDecryptedVCs();
     }
 
     default:
