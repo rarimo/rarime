@@ -22,8 +22,48 @@ const hashVC = (type: string, issuerDid: string) => {
   return sha256(Buffer.from(issuerDid + type));
 };
 
+export const getDecryptedVCsByQueryHash = async (queryHash: string) => {
+  const ceramicProvider = new CeramicProvider();
+
+  const client = await ceramicProvider.client();
+
+  // const { data } = await client.query<GetVerifiableCredentialsByQueryHashQuery>(
+  //   {
+  //     query: GetVerifiableCredentialsByQueryHash,
+  //     fetchPolicy: 'network-only',
+  //     variables: {
+  //       queryHash,
+  //     },
+  //   },
+  // );
+
+  const {
+    data,
+  } = await client.execute<GetVerifiableCredentialsByQueryHashQuery>(
+    GetVerifiableCredentialsByQueryHash,
+    {
+      queryHash,
+      last: 1000,
+    },
+  );
+
+  if (!data?.verifiableCredentialIndex?.edges?.length) {
+    return [];
+  }
+
+  return await Promise.all(
+    data.verifiableCredentialIndex.edges.map(async (el) => {
+      const encryptedVC = el?.node?.data as string;
+
+      return await ceramicProvider.decrypt<W3CCredential>(encryptedVC);
+    }),
+  );
+};
+
 export const encryptAndSaveVC = async (credential: W3CCredential) => {
   const ceramicProvider = new CeramicProvider();
+
+  const client = await ceramicProvider.client();
 
   const encryptedVC = await ceramicProvider.encrypt(credential);
 
@@ -32,7 +72,11 @@ export const encryptAndSaveVC = async (credential: W3CCredential) => {
     credential.issuer,
   );
 
-  const client = await ceramicProvider.client();
+  const foundedVCs = await getDecryptedVCsByQueryHash(queryHash);
+
+  if (foundedVCs.length) {
+    return;
+  }
 
   // await client.mutate<CreateVcMutation, CreateVcMutationVariables>({
   //   mutation: CreateVc,
@@ -90,46 +134,13 @@ export const getAllDecryptedVCs = async (): Promise<W3CCredential[]> => {
   );
 };
 
-export const getVCsByQuery = async (
+export const getDecryptedVCsByQuery = async (
   query: ProofQuery,
   issuerDiD: string,
 ): Promise<W3CCredential[]> => {
-  const ceramicProvider = new CeramicProvider();
-
   const queryHash = hashVC(String(query.type), issuerDiD);
 
-  const client = await ceramicProvider.client();
-
-  // const { data } = await client.query<GetVerifiableCredentialsByQueryHashQuery>(
-  //   {
-  //     query: GetVerifiableCredentialsByQueryHash,
-  //     fetchPolicy: 'network-only',
-  //     variables: {
-  //       queryHash,
-  //     },
-  //   },
-  // );
-
-  const {
-    data,
-  } = await client.execute<GetVerifiableCredentialsByQueryHashQuery>(
-    GetVerifiableCredentialsByQueryHash,
-    {
-      queryHash,
-    },
-  );
-
-  if (!data?.verifiableCredentialIndex?.edges?.length) {
-    return [];
-  }
-
-  return await Promise.all(
-    data.verifiableCredentialIndex.edges.map(async (el) => {
-      const encryptedVC = el?.node?.data as string;
-
-      return await ceramicProvider.decrypt<W3CCredential>(encryptedVC);
-    }),
-  );
+  return getDecryptedVCsByQueryHash(queryHash);
 };
 
 export const moveStoreVCtoCeramic = async () => {

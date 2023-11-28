@@ -64,6 +64,8 @@ export class CeramicProvider {
       resolver: getResolver(),
     });
 
+    await did.authenticate();
+
     this._compose.setDID(did);
   }
 

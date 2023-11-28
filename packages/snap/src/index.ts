@@ -30,7 +30,7 @@ import {
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
   getAllDecryptedVCs,
-  getVCsByQuery,
+  getDecryptedVCsByQuery,
   encryptAndSaveVC,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
@@ -179,7 +179,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       }
 
       const credentials = (
-        await getVCsByQuery(createProofRequest.query, issuerDid)
+        await getDecryptedVCsByQuery(createProofRequest.query, issuerDid)
       ).filter((cred) => cred.credentialSubject.id === identityStorage.did);
 
       if (!credentials.length) {

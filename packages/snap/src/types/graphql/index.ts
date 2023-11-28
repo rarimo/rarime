@@ -287,6 +287,7 @@ export type GetAllVerifiableCredentialsQuery = {
 };
 
 export type GetVerifiableCredentialsByQueryHashQueryVariables = Exact<{
+  last: Scalars['Int']['input'];
   queryHash: Scalars['String']['input'];
 }>;
 
@@ -340,8 +341,9 @@ export const GetAllVerifiableCredentials = gql`
   ${VerifiableCredentialFragment}
 `;
 export const GetVerifiableCredentialsByQueryHash = gql`
-  query GetVerifiableCredentialsByQueryHash($queryHash: String!) {
+  query GetVerifiableCredentialsByQueryHash($last: Int!, $queryHash: String!) {
     verifiableCredentialIndex(
+      last: $last
       filters: { where: { queryHash: { equalTo: $queryHash } } }
     ) {
       ...VerifiableCredentialFragment

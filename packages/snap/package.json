@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime",
-  "version": "1.0.0",
+  "version": "1.1.0-rc.0",
   "description": "RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
     "ceramic:deploy-vc": "composedb composite:deploy ./ceramic/composites/VerifiableCredentials.json --ceramic-url=http://0.0.0.0:7007 --did-private-key=fbb8731ecc9c36542f9caf9d9e3535c8f661c21e6490bb67d0545d36fc4405ee",
     "ceramic:compile-vc": "composedb composite:compile ./ceramic/composites/VerifiableCredentials.json --ceramic-url=http://0.0.0.0:7007 ./ceramic/composites/VerifiableCredentials-runtime.json",
     "ceramic:prepare-vc": "yarn ceramic:create-vc && yarn ceramic:deploy-vc && yarn ceramic:compile-vc",
-    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=http://0.0.0.0:7007 --graphiql ./ceramic/composites/VerifiableCredentials-runtime.json --did-private-key=fbb8731ecc9c36542f9caf9d9e3535c8f661c21e6490bb67d0545d36fc4405ee --port=5005",
+    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=http://0.0.0.0:7007 --graphiql ./ceramic/composites/VerifiableCredentials-runtime.json --did-private-key=0212de733cbfa4f9f204efe701232555031f5f32a414236c86b2089dfa71249e --port=5005",
     "generate-graphql-types": "graphql-codegen --config ./codegen.ts"
   },
   "dependencies": {
@@ -56,7 +56,7 @@
     "@metamask/snaps-jest": "^4.0.0",
     "@metamask/snaps-sdk": "^1.1.0",
     "@metamask/snaps-utils": "^4.0.0",
-    "@rarimo/rarime-connector": "1.0.0",
+    "@rarimo/rarime-connector": "1.1.0-rc.0",
     "buffer": "6.0.3",
     "dids": "4.0.4",
     "ethers": "5.7.2",
