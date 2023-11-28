@@ -2,12 +2,15 @@ import { Claim } from '@iden3/js-iden3-core';
 import { sha256 } from 'ethers/lib/utils';
 import { ProofType, StorageKeys } from '../enums';
 import {
+  ClaimOffer,
   CreateVc,
   // CreateVcMutation,
   // CreateVcMutationVariables,
   CredentialStatus,
   GetAllVerifiableCredentials,
   GetAllVerifiableCredentialsQuery,
+  GetVerifiableCredentialsByClaimId,
+  GetVerifiableCredentialsByClaimIdQuery,
   GetVerifiableCredentialsByQueryHash,
   GetVerifiableCredentialsByQueryHashQuery,
   ProofQuery,
@@ -22,7 +25,25 @@ const hashVC = (type: string, issuerDid: string) => {
   return sha256(Buffer.from(issuerDid + type));
 };
 
-export const getDecryptedVCsByQueryHash = async (queryHash: string) => {
+const getClaimIdFromVC = (credential: W3CCredential) => {
+  try {
+    const claimIdUrl = new URL(credential.id);
+
+    const pathNameParts = claimIdUrl.pathname.split('/');
+
+    return pathNameParts[pathNameParts.length - 1];
+  } catch (error) {
+    return credential.id;
+  }
+};
+
+const getClaimIdsFromOffer = (offer: ClaimOffer) => {
+  return offer.body.credentials.map((cred) => cred.id);
+};
+
+export const getDecryptedVCsByQueryHash = async (
+  queryHash: string,
+): Promise<W3CCredential[]> => {
   const ceramicProvider = new CeramicProvider();
 
   const client = await ceramicProvider.client();
@@ -60,6 +81,52 @@ export const getDecryptedVCsByQueryHash = async (queryHash: string) => {
   );
 };
 
+export const getDecryptedVCsByOffer = async (
+  offer: ClaimOffer,
+): Promise<W3CCredential[]> => {
+  const claimIds = getClaimIdsFromOffer(offer);
+
+  const ceramicProvider = new CeramicProvider();
+
+  const client = await ceramicProvider.client();
+
+  const encryptedVCs = await Promise.all(
+    claimIds.map(async (claimId) => {
+      const {
+        data,
+      } = await client.execute<GetVerifiableCredentialsByClaimIdQuery>(
+        GetVerifiableCredentialsByClaimId,
+        {
+          claimId,
+          last: 1000,
+        },
+      );
+
+      return data;
+    }),
+  );
+
+  if (!encryptedVCs?.length) {
+    return [];
+  }
+
+  return await Promise.all(
+    encryptedVCs
+      .filter((el) =>
+        el?.verifiableCredentialIndex?.edges?.every(
+          (encryptedVC) => encryptedVC?.node?.data,
+        ),
+      )
+      .map((el) => el?.verifiableCredentialIndex?.edges)
+      .flat()
+      .map(async (el) => {
+        const encryptedVC = el?.node?.data as string;
+
+        return await ceramicProvider.decrypt<W3CCredential>(encryptedVC);
+      }),
+  );
+};
+
 export const encryptAndSaveVC = async (credential: W3CCredential) => {
   const ceramicProvider = new CeramicProvider();
 
@@ -74,9 +141,21 @@ export const encryptAndSaveVC = async (credential: W3CCredential) => {
 
   const foundedVCs = await getDecryptedVCsByQueryHash(queryHash);
 
+  const claimId = getClaimIdFromVC(credential);
+
   if (foundedVCs.length) {
     return;
   }
+
+  await client.execute(CreateVc, {
+    input: {
+      content: {
+        data: encryptedVC,
+        queryHash,
+        claimId,
+      },
+    },
+  });
 
   // await client.mutate<CreateVcMutation, CreateVcMutationVariables>({
   //   mutation: CreateVc,
@@ -89,15 +168,6 @@ export const encryptAndSaveVC = async (credential: W3CCredential) => {
   //     },
   //   },
   // });
-
-  await client.execute(CreateVc, {
-    input: {
-      content: {
-        data: encryptedVC,
-        queryHash,
-      },
-    },
-  });
 };
 
 // TODO: add pagination

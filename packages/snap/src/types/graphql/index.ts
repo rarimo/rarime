@@ -104,6 +104,7 @@ export type PageInfo = {
 };
 
 export type PartialVerifiableCredentialInput = {
+  claimId?: InputMaybe<Scalars['String']['input']>;
   data?: InputMaybe<Scalars['String']['input']>;
   queryHash?: InputMaybe<Scalars['String']['input']>;
 };
@@ -188,6 +189,7 @@ export type UpdateVerifiableCredentialPayloadNodeArgs = {
 
 export type VerifiableCredential = Node & {
   __typename?: 'VerifiableCredential';
+  claimId: Scalars['String']['output'];
   data: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   queryHash: Scalars['String']['output'];
@@ -219,15 +221,18 @@ export type VerifiableCredentialFiltersInput = {
 };
 
 export type VerifiableCredentialInput = {
+  claimId: Scalars['String']['input'];
   data: Scalars['String']['input'];
   queryHash: Scalars['String']['input'];
 };
 
 export type VerifiableCredentialObjectFilterInput = {
+  claimId?: InputMaybe<StringValueFilterInput>;
   queryHash?: InputMaybe<StringValueFilterInput>;
 };
 
 export type VerifiableCredentialSortingInput = {
+  claimId?: InputMaybe<SortOrder>;
   queryHash?: InputMaybe<SortOrder>;
 };
 
@@ -241,6 +246,7 @@ export type VerifiableCredentialFragmentFragment = {
           id: string;
           data: string;
           queryHash: string;
+          claimId: string;
         } | null;
       } | null)[]
     | null;
@@ -260,6 +266,7 @@ export type CreateVcMutation = {
       id: string;
       data: string;
       queryHash: string;
+      claimId: string;
     };
   } | null;
 };
@@ -280,6 +287,7 @@ export type GetAllVerifiableCredentialsQuery = {
             id: string;
             data: string;
             queryHash: string;
+            claimId: string;
           } | null;
         } | null)[]
       | null;
@@ -303,6 +311,31 @@ export type GetVerifiableCredentialsByQueryHashQuery = {
             id: string;
             data: string;
             queryHash: string;
+            claimId: string;
+          } | null;
+        } | null)[]
+      | null;
+  } | null;
+};
+
+export type GetVerifiableCredentialsByClaimIdQueryVariables = Exact<{
+  last: Scalars['Int']['input'];
+  claimId: Scalars['String']['input'];
+}>;
+
+export type GetVerifiableCredentialsByClaimIdQuery = {
+  __typename?: 'Query';
+  verifiableCredentialIndex?: {
+    __typename?: 'VerifiableCredentialConnection';
+    edges?:
+      | ({
+          __typename?: 'VerifiableCredentialEdge';
+          node?: {
+            __typename?: 'VerifiableCredential';
+            id: string;
+            data: string;
+            queryHash: string;
+            claimId: string;
           } | null;
         } | null)[]
       | null;
@@ -316,6 +349,7 @@ export const VerifiableCredentialFragment = gql`
         id
         data
         queryHash
+        claimId
       }
     }
   }
@@ -328,6 +362,7 @@ export const CreateVc = gql`
         id
         data
         queryHash
+        claimId
       }
     }
   }
@@ -345,6 +380,17 @@ export const GetVerifiableCredentialsByQueryHash = gql`
     verifiableCredentialIndex(
       last: $last
       filters: { where: { queryHash: { equalTo: $queryHash } } }
+    ) {
+      ...VerifiableCredentialFragment
+    }
+  }
+  ${VerifiableCredentialFragment}
+`;
+export const GetVerifiableCredentialsByClaimId = gql`
+  query GetVerifiableCredentialsByClaimId($last: Int!, $claimId: String!) {
+    verifiableCredentialIndex(
+      last: $last
+      filters: { where: { claimId: { equalTo: $claimId } } }
     ) {
       ...VerifiableCredentialFragment
     }

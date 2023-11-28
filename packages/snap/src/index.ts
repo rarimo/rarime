@@ -32,6 +32,7 @@ import {
   getAllDecryptedVCs,
   getDecryptedVCsByQuery,
   encryptAndSaveVC,
+  getDecryptedVCsByOffer,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -82,6 +83,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       if (res) {
+        const existedVC = await getDecryptedVCsByOffer(offer);
+
+        if (existedVC.length) {
+          return existedVC;
+        }
+
         const identity = await Identity.create(identityStorage.privateKeyHex);
         const authProof = new AuthZkp(identity, offer);
         const credentials = await authProof.getVerifiableCredentials();
