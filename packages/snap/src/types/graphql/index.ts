@@ -236,7 +236,18 @@ export type VerifiableCredentialSortingInput = {
   queryHash?: InputMaybe<SortOrder>;
 };
 
-export type VerifiableCredentialFragmentFragment = {
+export type PageInfoFragment = {
+  __typename?: 'VerifiableCredentialConnection';
+  pageInfo: {
+    __typename?: 'PageInfo';
+    endCursor?: string | null;
+    hasNextPage: boolean;
+    startCursor?: string | null;
+    hasPreviousPage: boolean;
+  };
+};
+
+export type VerifiableCredentialFragment = {
   __typename?: 'VerifiableCredentialConnection';
   edges?:
     | ({
@@ -250,6 +261,13 @@ export type VerifiableCredentialFragmentFragment = {
         } | null;
       } | null)[]
     | null;
+  pageInfo: {
+    __typename?: 'PageInfo';
+    endCursor?: string | null;
+    hasNextPage: boolean;
+    startCursor?: string | null;
+    hasPreviousPage: boolean;
+  };
 };
 
 export type CreateVcMutationVariables = Exact<{
@@ -272,7 +290,8 @@ export type CreateVcMutation = {
 };
 
 export type GetAllVerifiableCredentialsQueryVariables = Exact<{
-  last?: InputMaybe<Scalars['Int']['input']>;
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 export type GetAllVerifiableCredentialsQuery = {
@@ -291,11 +310,19 @@ export type GetAllVerifiableCredentialsQuery = {
           } | null;
         } | null)[]
       | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      startCursor?: string | null;
+      hasPreviousPage: boolean;
+    };
   } | null;
 };
 
 export type GetVerifiableCredentialsByQueryHashQueryVariables = Exact<{
-  last: Scalars['Int']['input'];
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
   queryHash: Scalars['String']['input'];
 }>;
 
@@ -315,11 +342,19 @@ export type GetVerifiableCredentialsByQueryHashQuery = {
           } | null;
         } | null)[]
       | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      startCursor?: string | null;
+      hasPreviousPage: boolean;
+    };
   } | null;
 };
 
 export type GetVerifiableCredentialsByClaimIdQueryVariables = Exact<{
-  last: Scalars['Int']['input'];
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
   claimId: Scalars['String']['input'];
 }>;
 
@@ -339,11 +374,28 @@ export type GetVerifiableCredentialsByClaimIdQuery = {
           } | null;
         } | null)[]
       | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      startCursor?: string | null;
+      hasPreviousPage: boolean;
+    };
   } | null;
 };
 
-export const VerifiableCredentialFragment = gql`
-  fragment VerifiableCredentialFragment on VerifiableCredentialConnection {
+export const PageInfo = gql`
+  fragment PageInfo on VerifiableCredentialConnection {
+    pageInfo {
+      endCursor
+      hasNextPage
+      startCursor
+      hasPreviousPage
+    }
+  }
+`;
+export const VerifiableCredential = gql`
+  fragment VerifiableCredential on VerifiableCredentialConnection {
     edges {
       node {
         id
@@ -352,7 +404,9 @@ export const VerifiableCredentialFragment = gql`
         claimId
       }
     }
+    ...PageInfo
   }
+  ${PageInfo}
 `;
 export const CreateVc = gql`
   mutation createVC($input: CreateVerifiableCredentialInput!) {
@@ -368,32 +422,42 @@ export const CreateVc = gql`
   }
 `;
 export const GetAllVerifiableCredentials = gql`
-  query GetAllVerifiableCredentials($last: Int) {
-    verifiableCredentialIndex(last: $last) {
-      ...VerifiableCredentialFragment
+  query GetAllVerifiableCredentials($first: Int!, $after: String) {
+    verifiableCredentialIndex(first: $first, after: $after) {
+      ...VerifiableCredential
     }
   }
-  ${VerifiableCredentialFragment}
+  ${VerifiableCredential}
 `;
 export const GetVerifiableCredentialsByQueryHash = gql`
-  query GetVerifiableCredentialsByQueryHash($last: Int!, $queryHash: String!) {
+  query GetVerifiableCredentialsByQueryHash(
+    $first: Int!
+    $after: String
+    $queryHash: String!
+  ) {
     verifiableCredentialIndex(
-      last: $last
+      first: $first
+      after: $after
       filters: { where: { queryHash: { equalTo: $queryHash } } }
     ) {
-      ...VerifiableCredentialFragment
+      ...VerifiableCredential
     }
   }
-  ${VerifiableCredentialFragment}
+  ${VerifiableCredential}
 `;
 export const GetVerifiableCredentialsByClaimId = gql`
-  query GetVerifiableCredentialsByClaimId($last: Int!, $claimId: String!) {
+  query GetVerifiableCredentialsByClaimId(
+    $first: Int!
+    $after: String
+    $claimId: String!
+  ) {
     verifiableCredentialIndex(
-      last: $last
+      first: $first
+      after: $after
       filters: { where: { claimId: { equalTo: $claimId } } }
     ) {
-      ...VerifiableCredentialFragment
+      ...VerifiableCredential
     }
   }
-  ${VerifiableCredentialFragment}
+  ${VerifiableCredential}
 `;

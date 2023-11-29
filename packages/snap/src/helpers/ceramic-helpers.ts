@@ -42,8 +42,6 @@ export class CeramicProvider {
 
   // TODO: will auth affect on this properly?
   public async client() {
-    await this.auth();
-
     // const link = Object.assign(
     //   {},
     //   new ApolloLink((operation) => {

@@ -1,18 +1,20 @@
 import { Claim } from '@iden3/js-iden3-core';
 import { sha256 } from 'ethers/lib/utils';
+import { DocumentNode } from 'graphql/language';
 import { ProofType, StorageKeys } from '../enums';
 import {
   ClaimOffer,
   CreateVc,
-  // CreateVcMutation,
-  // CreateVcMutationVariables,
   CredentialStatus,
   GetAllVerifiableCredentials,
   GetAllVerifiableCredentialsQuery,
+  GetAllVerifiableCredentialsQueryVariables,
   GetVerifiableCredentialsByClaimId,
   GetVerifiableCredentialsByClaimIdQuery,
+  GetVerifiableCredentialsByClaimIdQueryVariables,
   GetVerifiableCredentialsByQueryHash,
   GetVerifiableCredentialsByQueryHashQuery,
+  GetVerifiableCredentialsByQueryHashQueryVariables,
   ProofQuery,
   RevocationStatus,
   W3CCredential,
@@ -41,39 +43,72 @@ const getClaimIdsFromOffer = (offer: ClaimOffer) => {
   return offer.body.credentials.map((cred) => cred.id);
 };
 
+const loadAllCredentialsListPages = async <
+  V extends Record<string, unknown>,
+  Res extends
+    | GetAllVerifiableCredentialsQuery
+    | GetVerifiableCredentialsByClaimIdQuery
+    | GetVerifiableCredentialsByQueryHashQuery
+>(
+  request: DocumentNode,
+  variables: V,
+  ceramicProvider: CeramicProvider,
+): Promise<Res[]> => {
+  await ceramicProvider.auth();
+
+  const client = await ceramicProvider.client();
+
+  const encryptedVerifiableCredentials: Res[] = [];
+
+  let endCursor: string | undefined | null = '';
+  let hasNextPage: boolean | undefined | null = false;
+
+  do {
+    const _variables: Record<string, unknown> = {
+      ...variables,
+      after: endCursor,
+    };
+
+    const { data } = await client.execute<Res>(request, _variables);
+
+    if (!data) {
+      throw new TypeError('No data returned from Ceramic');
+    }
+
+    encryptedVerifiableCredentials.push(data);
+
+    [endCursor, hasNextPage] = [
+      data?.verifiableCredentialIndex?.pageInfo?.endCursor,
+      data?.verifiableCredentialIndex?.pageInfo?.hasNextPage,
+    ];
+  } while (hasNextPage);
+
+  return encryptedVerifiableCredentials;
+};
+
 export const getDecryptedVCsByQueryHash = async (
   queryHash: string,
 ): Promise<W3CCredential[]> => {
   const ceramicProvider = new CeramicProvider();
 
-  const client = await ceramicProvider.client();
-
-  // const { data } = await client.query<GetVerifiableCredentialsByQueryHashQuery>(
-  //   {
-  //     query: GetVerifiableCredentialsByQueryHash,
-  //     fetchPolicy: 'network-only',
-  //     variables: {
-  //       queryHash,
-  //     },
-  //   },
-  // );
-
-  const {
-    data,
-  } = await client.execute<GetVerifiableCredentialsByQueryHashQuery>(
+  const data = await loadAllCredentialsListPages<
+    GetVerifiableCredentialsByQueryHashQueryVariables,
+    GetVerifiableCredentialsByQueryHashQuery
+  >(
     GetVerifiableCredentialsByQueryHash,
     {
+      first: 10,
       queryHash,
-      last: 1000,
     },
+    ceramicProvider,
   );
 
-  if (!data?.verifiableCredentialIndex?.edges?.length) {
-    return [];
-  }
+  const executionResult = data
+    .map((el) => el.verifiableCredentialIndex?.edges)
+    .flat();
 
   return await Promise.all(
-    data.verifiableCredentialIndex.edges.map(async (el) => {
+    executionResult.map(async (el) => {
       const encryptedVC = el?.node?.data as string;
 
       return await ceramicProvider.decrypt<W3CCredential>(encryptedVC);
@@ -88,21 +123,21 @@ export const getDecryptedVCsByOffer = async (
 
   const ceramicProvider = new CeramicProvider();
 
-  const client = await ceramicProvider.client();
-
   const encryptedVCs = await Promise.all(
     claimIds.map(async (claimId) => {
-      const {
-        data,
-      } = await client.execute<GetVerifiableCredentialsByClaimIdQuery>(
+      const data = await loadAllCredentialsListPages<
+        GetVerifiableCredentialsByClaimIdQueryVariables,
+        GetVerifiableCredentialsByClaimIdQuery
+      >(
         GetVerifiableCredentialsByClaimId,
         {
+          first: 10,
           claimId,
-          last: 1000,
         },
+        ceramicProvider,
       );
 
-      return data;
+      return data.map((el) => el.verifiableCredentialIndex?.edges).flat();
     }),
   );
 
@@ -112,12 +147,7 @@ export const getDecryptedVCsByOffer = async (
 
   return await Promise.all(
     encryptedVCs
-      .filter((el) =>
-        el?.verifiableCredentialIndex?.edges?.every(
-          (encryptedVC) => encryptedVC?.node?.data,
-        ),
-      )
-      .map((el) => el?.verifiableCredentialIndex?.edges)
+      .filter((el) => el?.every((encryptedVC) => encryptedVC?.node?.data))
       .flat()
       .map(async (el) => {
         const encryptedVC = el?.node?.data as string;
@@ -156,47 +186,33 @@ export const encryptAndSaveVC = async (credential: W3CCredential) => {
       },
     },
   });
-
-  // await client.mutate<CreateVcMutation, CreateVcMutationVariables>({
-  //   mutation: CreateVc,
-  //   variables: {
-  //     input: {
-  //       content: {
-  //         data: encryptedVC,
-  //         queryHash,
-  //       },
-  //     },
-  //   },
-  // });
 };
 
 // TODO: add pagination
 export const getAllDecryptedVCs = async (): Promise<W3CCredential[]> => {
   const ceramicProvider = new CeramicProvider();
 
-  const client = await ceramicProvider.client();
-
-  // const { data } = await client.query<GetAllVerifiableCredentialsQuery>({
-  //   query: GetAllVerifiableCredentials,
-  //   fetchPolicy: 'network-only',
-  //   variables: {
-  //     last: 1000,
-  //   },
-  // });
-
-  const { data } = await client.execute<GetAllVerifiableCredentialsQuery>(
+  const data = await loadAllCredentialsListPages<
+    GetAllVerifiableCredentialsQueryVariables,
+    GetAllVerifiableCredentialsQuery
+  >(
     GetAllVerifiableCredentials,
     {
-      last: 1000,
+      first: 10,
     },
+    ceramicProvider,
   );
 
-  if (!data?.verifiableCredentialIndex?.edges?.length) {
+  const executionResult = data
+    .map((el) => el.verifiableCredentialIndex?.edges)
+    .flat();
+
+  if (!executionResult?.length) {
     return [];
   }
 
   return await Promise.all(
-    data.verifiableCredentialIndex.edges.map(async (el) => {
+    executionResult.map(async (el) => {
       const encryptedVC = el?.node?.data as string;
 
       return await ceramicProvider.decrypt<W3CCredential>(encryptedVC);
