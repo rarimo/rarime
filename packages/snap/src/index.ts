@@ -1,15 +1,9 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
-import {
-  OnRpcRequestHandler,
-  copyable,
-  divider,
-  heading,
-  panel,
-  text,
-} from '@metamask/snaps-sdk';
+import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
 import { RPCMethods } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
+import type { JsonRpcRequest } from '@metamask/utils';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -41,9 +35,12 @@ import {
 } from './typia-generated';
 import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
-export const onRpcRequest: OnRpcRequestHandler = async ({
+export const onRpcRequest = async ({
   request,
   origin,
+}: {
+  request: JsonRpcRequest;
+  origin: string;
 }) => {
   if (request.method !== RPCMethods.CreateIdentity) {
     await moveStoreVCtoCeramic();
@@ -104,7 +101,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
-      if (identityStorage) {
+
+      if (identityStorage?.did && identityStorage?.didBigInt) {
         return {
           identityIdString: identityStorage.did,
           identityIdBigIntString: identityStorage.didBigInt,
@@ -134,13 +132,14 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           : entropy;
 
         const identity = await Identity.create(keyHex);
+
         await setItemInStore(StorageKeys.identity, {
           privateKeyHex: identity.privateKeyHex,
           did: identity.didString,
           didBigInt: identity.identityIdBigIntString,
         });
 
-        snap.request({
+        await snap.request({
           method: 'snap_dialog',
           params: {
             type: 'alert',
