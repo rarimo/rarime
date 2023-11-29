@@ -3,7 +3,7 @@ import './polyfill';
 import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
 import { RPCMethods } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
-import { JsonRpcRequest } from '@metamask/utils/dist/types/json';
+import type { JsonRpcRequest } from '@metamask/utils';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
