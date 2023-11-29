@@ -6503,7 +6503,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/rarime-connector@1.0.1-rc.0, @rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
+"@rarimo/rarime-connector@1.0.1, @rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
   version: 0.0.0-use.local
   resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
@@ -6540,7 +6540,7 @@ __metadata:
     "@metamask/snaps-jest": ^4.0.0
     "@metamask/snaps-sdk": ^1.1.0
     "@metamask/snaps-utils": ^4.0.0
-    "@rarimo/rarime-connector": 1.0.1-rc.0
+    "@rarimo/rarime-connector": 1.0.1
     "@typechain/ethers-v5": 11.1.1
     "@types/intl": 1.2.0
     "@types/uuid": 9.0.2

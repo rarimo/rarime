@@ -91,8 +91,6 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      console.log('identityStorage', identityStorage);
-
       if (identityStorage?.did && identityStorage?.didBigInt) {
         return {
           identityIdString: identityStorage.did,
@@ -113,8 +111,6 @@ export const onRpcRequest = async ({
         },
       });
 
-      console.log('res', res);
-
       if (res) {
         const entropy = await snap.request({
           method: 'snap_getEntropy',
@@ -124,11 +120,7 @@ export const onRpcRequest = async ({
           ? entropy.substring(2)
           : entropy;
 
-        console.log('got entropy');
-
         const identity = await Identity.create(keyHex);
-
-        console.log('identity', identity);
 
         await setItemInStore(StorageKeys.identity, {
           privateKeyHex: identity.privateKeyHex,
@@ -147,11 +139,6 @@ export const onRpcRequest = async ({
               copyable(identity.didString),
             ]),
           },
-        });
-
-        console.log({
-          identityIdString: identity.didString,
-          identityIdBigIntString: identity.identityIdBigIntString,
         });
 
         return {
