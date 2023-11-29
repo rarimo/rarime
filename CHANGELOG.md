@@ -11,8 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `@rarimo/rarime` - `identity` creation
 
-## [Unreleased]
-
 ## [1.0.0] - 2023-11-27
 ### Added
 - `@rarimo/rarime` new dev dependencies:
