@@ -16,22 +16,20 @@ import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCrede
 // } from '@apollo/client/core';
 
 export class CeramicProvider {
+  private readonly pkHex: string;
+
   private _compose = new ComposeClient({
     ceramic: CERAMIC_URL,
     definition: VerifiableRuntimeComposite as RuntimeCompositeDefinition,
   });
 
+  constructor(pkHex: string) {
+    this.pkHex = pkHex;
+  }
+
   async auth() {
-    const identityStorage = await getItemFromStore(StorageKeys.identity);
-
-    if (!identityStorage) {
-      throw new Error('Identity not created yet');
-    }
-
     const did = new CeramicDID({
-      provider: new Ed25519Provider(
-        Hex.decodeString(identityStorage.privateKeyHex),
-      ),
+      provider: new Ed25519Provider(Hex.decodeString(this.pkHex)),
       resolver: getResolver(),
     });
 

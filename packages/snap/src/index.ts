@@ -23,10 +23,7 @@ import {
   getRarimoCoreUrl,
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
-  getAllDecryptedVCs,
-  getDecryptedVCsByQuery,
-  encryptAndSaveVC,
-  getDecryptedVCsByOffer,
+  VCManager,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
 import {
@@ -80,7 +77,9 @@ export const onRpcRequest = async ({
       });
 
       if (res) {
-        const existedVC = await getDecryptedVCsByOffer(offer);
+        const vcManager = await VCManager.create(identityStorage.privateKeyHex);
+
+        const existedVC = await vcManager.getDecryptedVCsByOffer(offer);
 
         if (existedVC.length) {
           return existedVC;
@@ -91,7 +90,7 @@ export const onRpcRequest = async ({
         const credentials = await authProof.getVerifiableCredentials();
         await Promise.all(
           credentials.map(async (credential) => {
-            await encryptAndSaveVC(credential);
+            await vcManager.encryptAndSaveVC(credential);
           }),
         );
         return credentials;
@@ -166,6 +165,8 @@ export const onRpcRequest = async ({
         throw new Error('Identity not created');
       }
 
+      const vcManager = await VCManager.create(identityStorage.privateKeyHex);
+
       const params = (request.params as any) as CreateProofRequestParams;
 
       const { issuerDid, ...createProofRequest } = params;
@@ -185,7 +186,10 @@ export const onRpcRequest = async ({
       }
 
       const credentials = (
-        await getDecryptedVCsByQuery(createProofRequest.query, issuerDid)
+        await vcManager.getDecryptedVCsByQuery(
+          createProofRequest.query,
+          issuerDid,
+        )
       ).filter((cred) => cred.credentialSubject.id === identityStorage.did);
 
       if (!credentials.length) {
@@ -290,7 +294,10 @@ export const onRpcRequest = async ({
       if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
         throw new Error('This origin does not have access to credentials');
       }
-      return await getAllDecryptedVCs();
+
+      const vcManager = await VCManager.create();
+
+      return await vcManager.getAllDecryptedVCs();
     }
 
     default:
