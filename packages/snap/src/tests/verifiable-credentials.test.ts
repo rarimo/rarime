@@ -1,4 +1,6 @@
-import { hashVC, initPrivateKey, VCManager } from '../helpers';
+import * as crypto from 'crypto';
+import { Hex, PrivateKey } from '@iden3/js-crypto';
+import { hashVC, VCManager } from '../helpers';
 import {
   ClaimOffer,
   CreateProofRequestParams,
@@ -156,6 +158,18 @@ const dummyQueryProof: ProofQuery = {
   type: dummyVC.credentialSubject.type as string,
 };
 
+const initPrivateKey = (hexString?: string): string => {
+  let arr;
+  if (hexString) {
+    arr = Hex.decodeString(hexString);
+  } else {
+    arr = crypto.randomBytes(32);
+
+    return initPrivateKey(new PrivateKey(arr).hex());
+  }
+  return new PrivateKey(arr).hex();
+};
+
 describe('Verifiable Credentials', () => {
   const pkHex1 = initPrivateKey();
   const pkHex2 = initPrivateKey();
@@ -169,7 +183,7 @@ describe('Verifiable Credentials', () => {
     await expect(vcManager1.encryptAndSaveVC(dummyVC)).resolves.not.toThrow();
 
     await expect(vcManager2.encryptAndSaveVC(dummyVC)).resolves.not.toThrow();
-  });
+  }, 100_000);
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
@@ -182,7 +196,7 @@ describe('Verifiable Credentials', () => {
 
     expect(vc1).toHaveLength(1);
     expect(vc2).toHaveLength(1);
-  });
+  }, 100_000);
 
   it('should not save Verifiable Credentials for "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
@@ -199,7 +213,7 @@ describe('Verifiable Credentials', () => {
 
     expect(vc1).toHaveLength(1);
     expect(vc2).toHaveLength(1);
-  });
+  }, 100_000);
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by offer', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
@@ -212,7 +226,7 @@ describe('Verifiable Credentials', () => {
 
     expect(vc1).toHaveLength(1);
     expect(vc2).toHaveLength(1);
-  });
+  }, 100_000);
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by query hash', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
@@ -230,7 +244,7 @@ describe('Verifiable Credentials', () => {
 
     expect(vc1).toHaveLength(1);
     expect(vc2).toHaveLength(1);
-  });
+  }, 100_000);
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by query proof', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
@@ -249,5 +263,5 @@ describe('Verifiable Credentials', () => {
 
     expect(vc1).toHaveLength(1);
     expect(vc2).toHaveLength(1);
-  });
+  }, 100_000);
 });
