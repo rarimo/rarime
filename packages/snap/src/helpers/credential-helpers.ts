@@ -5,6 +5,7 @@ import { ProofType, StorageKeys } from '../enums';
 import {
   ClaimOffer,
   CreateVc,
+  CreateVcMutationVariables,
   CredentialStatus,
   GetAllVerifiableCredentials,
   GetAllVerifiableCredentialsQuery,
@@ -54,9 +55,11 @@ const loadAllCredentialsListPages = async <
   variables: V,
   ceramicProvider: CeramicProvider,
 ): Promise<Res[]> => {
-  await ceramicProvider.auth();
+  if (!ceramicProvider.client().did?.id) {
+    await ceramicProvider.auth();
+  }
 
-  const client = await ceramicProvider.client();
+  const client = ceramicProvider.client();
 
   const encryptedVerifiableCredentials: Res[] = [];
 
@@ -160,7 +163,9 @@ export const getDecryptedVCsByOffer = async (
 export const encryptAndSaveVC = async (credential: W3CCredential) => {
   const ceramicProvider = new CeramicProvider();
 
-  const client = await ceramicProvider.client();
+  await ceramicProvider.auth();
+
+  const client = ceramicProvider.client();
 
   const encryptedVC = await ceramicProvider.encrypt(credential);
 
@@ -177,20 +182,35 @@ export const encryptAndSaveVC = async (credential: W3CCredential) => {
     return;
   }
 
-  await client.execute(CreateVc, {
+  if (!client.did?.id) {
+    throw new TypeError('Client not authenticated');
+  }
+
+  const createVCVariables: CreateVcMutationVariables = {
     input: {
       content: {
+        ownerDid: client.did.id,
         data: encryptedVC,
         queryHash,
         claimId,
       },
     },
-  });
+  };
+
+  await client.execute(CreateVc, createVCVariables);
 };
 
 // TODO: add pagination
 export const getAllDecryptedVCs = async (): Promise<W3CCredential[]> => {
   const ceramicProvider = new CeramicProvider();
+
+  await ceramicProvider.auth();
+
+  const ceramicDid = ceramicProvider.client().did?.id;
+
+  if (!ceramicDid) {
+    throw new TypeError('Client not authenticated');
+  }
 
   const data = await loadAllCredentialsListPages<
     GetAllVerifiableCredentialsQueryVariables,
@@ -199,6 +219,7 @@ export const getAllDecryptedVCs = async (): Promise<W3CCredential[]> => {
     GetAllVerifiableCredentials,
     {
       first: 10,
+      ownerDid: ceramicDid,
     },
     ceramicProvider,
   );

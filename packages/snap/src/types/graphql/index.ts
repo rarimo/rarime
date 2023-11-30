@@ -1,31 +1,19 @@
 import gql from 'graphql-tag';
-
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T
-> = { [_ in K]?: never };
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
-    };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
-  CeramicCommitID: { input: any; output: any };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  CeramicCommitID: { input: any; output: any; }
 };
 
 export type CeramicAccount = Node & {
@@ -38,6 +26,7 @@ export type CeramicAccount = Node & {
   verifiableCredentialListCount: Scalars['Int']['output'];
 };
 
+
 export type CeramicAccountVerifiableCredentialListArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -46,6 +35,7 @@ export type CeramicAccountVerifiableCredentialListArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   sorting?: InputMaybe<VerifiableCredentialSortingInput>;
 };
+
 
 export type CeramicAccountVerifiableCredentialListCountArgs = {
   filters?: InputMaybe<VerifiableCredentialFiltersInput>;
@@ -66,6 +56,7 @@ export type CreateVerifiableCredentialPayload = {
   viewer?: Maybe<CeramicAccount>;
 };
 
+
 export type CreateVerifiableCredentialPayloadNodeArgs = {
   id: Scalars['ID']['input'];
 };
@@ -76,9 +67,11 @@ export type Mutation = {
   updateVerifiableCredential?: Maybe<UpdateVerifiableCredentialPayload>;
 };
 
+
 export type MutationCreateVerifiableCredentialArgs = {
   input: CreateVerifiableCredentialInput;
 };
+
 
 export type MutationUpdateVerifiableCredentialArgs = {
   input: UpdateVerifiableCredentialInput;
@@ -106,6 +99,7 @@ export type PageInfo = {
 export type PartialVerifiableCredentialInput = {
   claimId?: InputMaybe<Scalars['String']['input']>;
   data?: InputMaybe<Scalars['String']['input']>;
+  ownerDid?: InputMaybe<Scalars['String']['input']>;
   queryHash?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -114,24 +108,28 @@ export type Query = {
   /** Fetches an object given its ID */
   node?: Maybe<Node>;
   /** Fetches objects given their IDs */
-  nodes: Maybe<Node>[];
+  nodes: Array<Maybe<Node>>;
   verifiableCredentialCount: Scalars['Int']['output'];
   verifiableCredentialIndex?: Maybe<VerifiableCredentialConnection>;
   /** Account currently authenticated on the Ceramic instance, if set */
   viewer?: Maybe<CeramicAccount>;
 };
 
+
 export type QueryNodeArgs = {
   id: Scalars['ID']['input'];
 };
 
+
 export type QueryNodesArgs = {
-  ids: Scalars['ID']['input'][];
+  ids: Array<Scalars['ID']['input']>;
 };
+
 
 export type QueryVerifiableCredentialCountArgs = {
   filters?: InputMaybe<VerifiableCredentialFiltersInput>;
 };
+
 
 export type QueryVerifiableCredentialIndexArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -144,19 +142,19 @@ export type QueryVerifiableCredentialIndexArgs = {
 
 export enum SortOrder {
   Asc = 'ASC',
-  Desc = 'DESC',
+  Desc = 'DESC'
 }
 
 export type StringValueFilterInput = {
   equalTo?: InputMaybe<Scalars['String']['input']>;
   greaterThan?: InputMaybe<Scalars['String']['input']>;
   greaterThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
-  in?: InputMaybe<Scalars['String']['input'][]>;
+  in?: InputMaybe<Array<Scalars['String']['input']>>;
   isNull?: InputMaybe<Scalars['Boolean']['input']>;
   lessThan?: InputMaybe<Scalars['String']['input']>;
   lessThanOrEqualTo?: InputMaybe<Scalars['String']['input']>;
   notEqualTo?: InputMaybe<Scalars['String']['input']>;
-  notIn?: InputMaybe<Scalars['String']['input'][]>;
+  notIn?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type UpdateOptionsInput = {
@@ -183,6 +181,7 @@ export type UpdateVerifiableCredentialPayload = {
   viewer?: Maybe<CeramicAccount>;
 };
 
+
 export type UpdateVerifiableCredentialPayloadNodeArgs = {
   id: Scalars['ID']['input'];
 };
@@ -192,6 +191,7 @@ export type VerifiableCredential = Node & {
   claimId: Scalars['String']['output'];
   data: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  ownerDid: Scalars['String']['output'];
   queryHash: Scalars['String']['output'];
 };
 
@@ -199,7 +199,7 @@ export type VerifiableCredential = Node & {
 export type VerifiableCredentialConnection = {
   __typename?: 'VerifiableCredentialConnection';
   /** A list of edges. */
-  edges?: Maybe<Maybe<VerifiableCredentialEdge>[]>;
+  edges?: Maybe<Array<Maybe<VerifiableCredentialEdge>>>;
   /** Information to aid in pagination. */
   pageInfo: PageInfo;
 };
@@ -214,111 +214,50 @@ export type VerifiableCredentialEdge = {
 };
 
 export type VerifiableCredentialFiltersInput = {
-  and?: InputMaybe<VerifiableCredentialFiltersInput[]>;
+  and?: InputMaybe<Array<VerifiableCredentialFiltersInput>>;
   not?: InputMaybe<VerifiableCredentialFiltersInput>;
-  or?: InputMaybe<VerifiableCredentialFiltersInput[]>;
+  or?: InputMaybe<Array<VerifiableCredentialFiltersInput>>;
   where?: InputMaybe<VerifiableCredentialObjectFilterInput>;
 };
 
 export type VerifiableCredentialInput = {
   claimId: Scalars['String']['input'];
   data: Scalars['String']['input'];
+  ownerDid: Scalars['String']['input'];
   queryHash: Scalars['String']['input'];
 };
 
 export type VerifiableCredentialObjectFilterInput = {
   claimId?: InputMaybe<StringValueFilterInput>;
+  ownerDid?: InputMaybe<StringValueFilterInput>;
   queryHash?: InputMaybe<StringValueFilterInput>;
 };
 
 export type VerifiableCredentialSortingInput = {
   claimId?: InputMaybe<SortOrder>;
+  ownerDid?: InputMaybe<SortOrder>;
   queryHash?: InputMaybe<SortOrder>;
 };
 
-export type PageInfoFragment = {
-  __typename?: 'VerifiableCredentialConnection';
-  pageInfo: {
-    __typename?: 'PageInfo';
-    endCursor?: string | null;
-    hasNextPage: boolean;
-    startCursor?: string | null;
-    hasPreviousPage: boolean;
-  };
-};
+export type PageInfoFragment = { __typename?: 'VerifiableCredentialConnection', pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, startCursor?: string | null, hasPreviousPage: boolean } };
 
-export type VerifiableCredentialFragment = {
-  __typename?: 'VerifiableCredentialConnection';
-  edges?:
-    | ({
-        __typename?: 'VerifiableCredentialEdge';
-        node?: {
-          __typename?: 'VerifiableCredential';
-          id: string;
-          data: string;
-          queryHash: string;
-          claimId: string;
-        } | null;
-      } | null)[]
-    | null;
-  pageInfo: {
-    __typename?: 'PageInfo';
-    endCursor?: string | null;
-    hasNextPage: boolean;
-    startCursor?: string | null;
-    hasPreviousPage: boolean;
-  };
-};
+export type VerifiableCredentialFragment = { __typename?: 'VerifiableCredentialConnection', edges?: Array<{ __typename?: 'VerifiableCredentialEdge', node?: { __typename?: 'VerifiableCredential', id: string, data: string, queryHash: string, claimId: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, startCursor?: string | null, hasPreviousPage: boolean } };
 
 export type CreateVcMutationVariables = Exact<{
   input: CreateVerifiableCredentialInput;
 }>;
 
-export type CreateVcMutation = {
-  __typename?: 'Mutation';
-  createVerifiableCredential?: {
-    __typename?: 'CreateVerifiableCredentialPayload';
-    clientMutationId?: string | null;
-    document: {
-      __typename?: 'VerifiableCredential';
-      id: string;
-      data: string;
-      queryHash: string;
-      claimId: string;
-    };
-  } | null;
-};
+
+export type CreateVcMutation = { __typename?: 'Mutation', createVerifiableCredential?: { __typename?: 'CreateVerifiableCredentialPayload', clientMutationId?: string | null, document: { __typename?: 'VerifiableCredential', id: string, data: string, queryHash: string, claimId: string } } | null };
 
 export type GetAllVerifiableCredentialsQueryVariables = Exact<{
   first: Scalars['Int']['input'];
   after?: InputMaybe<Scalars['String']['input']>;
+  ownerDid: Scalars['String']['input'];
 }>;
 
-export type GetAllVerifiableCredentialsQuery = {
-  __typename?: 'Query';
-  verifiableCredentialIndex?: {
-    __typename?: 'VerifiableCredentialConnection';
-    edges?:
-      | ({
-          __typename?: 'VerifiableCredentialEdge';
-          node?: {
-            __typename?: 'VerifiableCredential';
-            id: string;
-            data: string;
-            queryHash: string;
-            claimId: string;
-          } | null;
-        } | null)[]
-      | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      startCursor?: string | null;
-      hasPreviousPage: boolean;
-    };
-  } | null;
-};
+
+export type GetAllVerifiableCredentialsQuery = { __typename?: 'Query', verifiableCredentialIndex?: { __typename?: 'VerifiableCredentialConnection', edges?: Array<{ __typename?: 'VerifiableCredentialEdge', node?: { __typename?: 'VerifiableCredential', id: string, data: string, queryHash: string, claimId: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, startCursor?: string | null, hasPreviousPage: boolean } } | null };
 
 export type GetVerifiableCredentialsByQueryHashQueryVariables = Exact<{
   first: Scalars['Int']['input'];
@@ -326,31 +265,8 @@ export type GetVerifiableCredentialsByQueryHashQueryVariables = Exact<{
   queryHash: Scalars['String']['input'];
 }>;
 
-export type GetVerifiableCredentialsByQueryHashQuery = {
-  __typename?: 'Query';
-  verifiableCredentialIndex?: {
-    __typename?: 'VerifiableCredentialConnection';
-    edges?:
-      | ({
-          __typename?: 'VerifiableCredentialEdge';
-          node?: {
-            __typename?: 'VerifiableCredential';
-            id: string;
-            data: string;
-            queryHash: string;
-            claimId: string;
-          } | null;
-        } | null)[]
-      | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      startCursor?: string | null;
-      hasPreviousPage: boolean;
-    };
-  } | null;
-};
+
+export type GetVerifiableCredentialsByQueryHashQuery = { __typename?: 'Query', verifiableCredentialIndex?: { __typename?: 'VerifiableCredentialConnection', edges?: Array<{ __typename?: 'VerifiableCredentialEdge', node?: { __typename?: 'VerifiableCredential', id: string, data: string, queryHash: string, claimId: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, startCursor?: string | null, hasPreviousPage: boolean } } | null };
 
 export type GetVerifiableCredentialsByClaimIdQueryVariables = Exact<{
   first: Scalars['Int']['input'];
@@ -358,106 +274,75 @@ export type GetVerifiableCredentialsByClaimIdQueryVariables = Exact<{
   claimId: Scalars['String']['input'];
 }>;
 
-export type GetVerifiableCredentialsByClaimIdQuery = {
-  __typename?: 'Query';
-  verifiableCredentialIndex?: {
-    __typename?: 'VerifiableCredentialConnection';
-    edges?:
-      | ({
-          __typename?: 'VerifiableCredentialEdge';
-          node?: {
-            __typename?: 'VerifiableCredential';
-            id: string;
-            data: string;
-            queryHash: string;
-            claimId: string;
-          } | null;
-        } | null)[]
-      | null;
-    pageInfo: {
-      __typename?: 'PageInfo';
-      endCursor?: string | null;
-      hasNextPage: boolean;
-      startCursor?: string | null;
-      hasPreviousPage: boolean;
-    };
-  } | null;
-};
+
+export type GetVerifiableCredentialsByClaimIdQuery = { __typename?: 'Query', verifiableCredentialIndex?: { __typename?: 'VerifiableCredentialConnection', edges?: Array<{ __typename?: 'VerifiableCredentialEdge', node?: { __typename?: 'VerifiableCredential', id: string, data: string, queryHash: string, claimId: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean, startCursor?: string | null, hasPreviousPage: boolean } } | null };
 
 export const PageInfo = gql`
-  fragment PageInfo on VerifiableCredentialConnection {
-    pageInfo {
-      endCursor
-      hasNextPage
-      startCursor
-      hasPreviousPage
-    }
+    fragment PageInfo on VerifiableCredentialConnection {
+  pageInfo {
+    endCursor
+    hasNextPage
+    startCursor
+    hasPreviousPage
   }
-`;
+}
+    `;
 export const VerifiableCredential = gql`
-  fragment VerifiableCredential on VerifiableCredentialConnection {
-    edges {
-      node {
-        id
-        data
-        queryHash
-        claimId
-      }
+    fragment VerifiableCredential on VerifiableCredentialConnection {
+  edges {
+    node {
+      id
+      data
+      queryHash
+      claimId
     }
-    ...PageInfo
   }
-  ${PageInfo}
-`;
+  ...PageInfo
+}
+    ${PageInfo}`;
 export const CreateVc = gql`
-  mutation createVC($input: CreateVerifiableCredentialInput!) {
-    createVerifiableCredential(input: $input) {
-      clientMutationId
-      document {
-        id
-        data
-        queryHash
-        claimId
-      }
+    mutation createVC($input: CreateVerifiableCredentialInput!) {
+  createVerifiableCredential(input: $input) {
+    clientMutationId
+    document {
+      id
+      data
+      queryHash
+      claimId
     }
   }
-`;
+}
+    `;
 export const GetAllVerifiableCredentials = gql`
-  query GetAllVerifiableCredentials($first: Int!, $after: String) {
-    verifiableCredentialIndex(first: $first, after: $after) {
-      ...VerifiableCredential
-    }
+    query GetAllVerifiableCredentials($first: Int!, $after: String, $ownerDid: String!) {
+  verifiableCredentialIndex(
+    first: $first
+    after: $after
+    filters: {where: {ownerDid: {equalTo: $ownerDid}}}
+  ) {
+    ...VerifiableCredential
   }
-  ${VerifiableCredential}
-`;
+}
+    ${VerifiableCredential}`;
 export const GetVerifiableCredentialsByQueryHash = gql`
-  query GetVerifiableCredentialsByQueryHash(
-    $first: Int!
-    $after: String
-    $queryHash: String!
+    query GetVerifiableCredentialsByQueryHash($first: Int!, $after: String, $queryHash: String!) {
+  verifiableCredentialIndex(
+    first: $first
+    after: $after
+    filters: {where: {queryHash: {equalTo: $queryHash}}}
   ) {
-    verifiableCredentialIndex(
-      first: $first
-      after: $after
-      filters: { where: { queryHash: { equalTo: $queryHash } } }
-    ) {
-      ...VerifiableCredential
-    }
+    ...VerifiableCredential
   }
-  ${VerifiableCredential}
-`;
+}
+    ${VerifiableCredential}`;
 export const GetVerifiableCredentialsByClaimId = gql`
-  query GetVerifiableCredentialsByClaimId(
-    $first: Int!
-    $after: String
-    $claimId: String!
+    query GetVerifiableCredentialsByClaimId($first: Int!, $after: String, $claimId: String!) {
+  verifiableCredentialIndex(
+    first: $first
+    after: $after
+    filters: {where: {claimId: {equalTo: $claimId}}}
   ) {
-    verifiableCredentialIndex(
-      first: $first
-      after: $after
-      filters: { where: { claimId: { equalTo: $claimId } } }
-    ) {
-      ...VerifiableCredential
-    }
+    ...VerifiableCredential
   }
-  ${VerifiableCredential}
-`;
+}
+    ${VerifiableCredential}`;
