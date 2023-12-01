@@ -7,11 +7,11 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "4M5km1x36IW7Fg9f6tMogCGknGDKAeMp//4bw9sfiOk=",
+    "shasum": "w0FRSE6GFAKjUwHWWWvhQYm4IYrkFW+9Rc1pKFe82mA=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
-        "iconPath": "./images/icon.svg",
+        "iconPath": "images/icon.svg",
         "packageName": "@rarimo/rarime",
         "registry": "https://registry.npmjs.org/"
       }

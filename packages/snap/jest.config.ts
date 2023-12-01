@@ -1,7 +1,8 @@
 import type { Config } from '@jest/types';
 
 const config: Config.InitialOptions = {
-  preset: 'ts-jest/presets/default-esm',
+  // preset: 'ts-jest/presets/default-esm',
+  preset: '@metamask/snaps-jest',
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
