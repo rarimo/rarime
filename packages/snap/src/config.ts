@@ -91,32 +91,5 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
 
 export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = ['localhost'];
 
-/*
-https://developers.ceramic.network/tools/glaze/deploy-from-cli/
-
-Publish models:
-1) glaze config:set ceramic-url ceramic-url(https://.....)
-2) glaze model:create encrypted-data
-3) glaze did:create
-  Save the private key and did and then use it in --key
-4) glaze model:add encrypted-data schema EncryptedCredentials '{"$schema":"http://json-schema.org/draft-07/schema#","title":"EncryptedCredentials","type":" object","properties":{"data":{"type":"string"}},"required":["data"],"additionalProperties":false}' --key=key
-5) glaze model:inspect encrypted-data
-  We take the schema version from there
-  And insert into schema (point 6) (ceramic:// + version)
-6) glaze model:add encrypted-data definition encryptedCredentials '{"name":"Encrypted credentials","description":"Encrypted verifiable credentials in Ceramic","schema":"ceramic://k3y52l7qbv1fryhxouyfmpmct2tiehvosfgkcqiqc2enafrolcq0i34ocim3p0ge8" }' --key =key
-7) glaze model:deploy encrypted-data ./deployed-model.json
-*/
-export const CERAMIC_ALIASES = {
-  definitions: {
-    encryptedCredentials:
-      'kjzl6cwe1jw148ogdspueenn4m3zbose42od00t7j17su653wql2rp73plm3biq',
-  },
-  schemas: {
-    EncryptedCredentials:
-      'ceramic://k3y52l7qbv1frymy245dkbe095vtpn9vqz4o5fu43gxrsu5c2h227i2ddw95y6a68',
-  },
-  tiles: {},
-};
-
-export const CERAMIC_URL = 'https://ceramic.rarimo.com';
-// export const CERAMIC_URL = 'http://127.0.0.1:7007';
+// export const CERAMIC_URL = 'https://ceramic.rarimo.com';
+export const CERAMIC_URL = 'http://127.0.0.1:7007';

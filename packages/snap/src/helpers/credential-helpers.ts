@@ -127,6 +127,8 @@ export class VCManager {
   public async getDecryptedVCsByQueryHash(
     queryHash: string,
   ): Promise<W3CCredential[]> {
+    const hashedQueryHash = sha256(Buffer.from(queryHash));
+
     const data = await loadAllCredentialsListPages<
       GetVerifiableCredentialsByQueryHashQueryVariables,
       GetVerifiableCredentialsByQueryHashQuery
@@ -134,7 +136,7 @@ export class VCManager {
       GetVerifiableCredentialsByQueryHash,
       {
         first: 1000,
-        queryHash,
+        queryHash: hashedQueryHash,
       },
       this.ceramicProvider,
     );
@@ -159,6 +161,8 @@ export class VCManager {
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
+        const hashedClaimId = sha256(Buffer.from(claimId));
+
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdQueryVariables,
           GetVerifiableCredentialsByClaimIdQuery
@@ -166,7 +170,7 @@ export class VCManager {
           GetVerifiableCredentialsByClaimId,
           {
             first: 1000,
-            claimId,
+            claimId: hashedClaimId,
           },
           this.ceramicProvider,
         );
@@ -213,13 +217,23 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
+    const [
+      hashedClientDid,
+      hashedQueryHash,
+      hashedClaimId,
+    ] = await Promise.all([
+      sha256(Buffer.from(client.did.id)),
+      sha256(Buffer.from(queryHash)),
+      sha256(Buffer.from(claimId)),
+    ]);
+
     const createVCVariables: CreateVcMutationVariables = {
       input: {
         content: {
-          ownerDid: client.did.id,
+          ownerDid: hashedClientDid,
           data: encryptedVC,
-          queryHash,
-          claimId,
+          queryHash: hashedQueryHash,
+          claimId: hashedClaimId,
         },
       },
     };
@@ -238,6 +252,8 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
+    const hashedCeramicDid = sha256(Buffer.from(ceramicDid));
+
     const data = await loadAllCredentialsListPages<
       GetAllVerifiableCredentialsQueryVariables,
       GetAllVerifiableCredentialsQuery
@@ -245,7 +261,7 @@ export class VCManager {
       GetAllVerifiableCredentials,
       {
         first: 1000,
-        ownerDid: ceramicDid,
+        ownerDid: hashedCeramicDid,
       },
       this.ceramicProvider,
     );
