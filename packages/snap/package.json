@@ -34,11 +34,11 @@
     "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts",
     "prepublishOnly": "yarn && yarn build",
     "preversion": "yarn && yarn build && git add snap.manifest.json",
-    "ceramic:create-vc": "composedb composite:create ./ceramic/models/VerifiableCredentials.graphql --ceramic-url=http://0.0.0.0:7007 --output=./ceramic/composites/VerifiableCredentials.json --did-private-key=fbb8731ecc9c36542f9caf9d9e3535c8f661c21e6490bb67d0545d36fc4405ee",
-    "ceramic:deploy-vc": "composedb composite:deploy ./ceramic/composites/VerifiableCredentials.json --ceramic-url=http://0.0.0.0:7007 --did-private-key=fbb8731ecc9c36542f9caf9d9e3535c8f661c21e6490bb67d0545d36fc4405ee",
-    "ceramic:compile-vc": "composedb composite:compile ./ceramic/composites/VerifiableCredentials.json --ceramic-url=http://0.0.0.0:7007 ./ceramic/composites/VerifiableCredentials-runtime.json",
+    "ceramic:create-vc": "composedb composite:create ./ceramic/models/VerifiableCredentials.graphql --ceramic-url=$CERAMIC_URL --output=./ceramic/composites/VerifiableCredentials.json --did-private-key=$DID_PRIVATE_KEY",
+    "ceramic:deploy-vc": "composedb composite:deploy ./ceramic/composites/VerifiableCredentials.json --ceramic-url=$CERAMIC_URL --did-private-key=$DID_PRIVATE_KEY",
+    "ceramic:compile-vc": "composedb composite:compile ./ceramic/composites/VerifiableCredentials.json --ceramic-url=$CERAMIC_URL ./ceramic/composites/VerifiableCredentials-runtime.json",
     "ceramic:prepare-vc": "yarn ceramic:create-vc && yarn ceramic:deploy-vc && yarn ceramic:compile-vc",
-    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=http://0.0.0.0:7007 --graphiql ./ceramic/composites/VerifiableCredentials-runtime.json --did-private-key=fbb8731ecc9c36542f9caf9d9e3535c8f661c21e6490bb67d0545d36fc4405ee --port=5005",
+    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=$CERAMIC_URL --graphiql ./ceramic/composites/VerifiableCredentials-runtime.json --did-private-key=$DID_PRIVATE_KEY --port=5005",
     "generate-graphql-types": "graphql-codegen --config ./codegen.ts"
   },
   "dependencies": {

@@ -133,7 +133,7 @@ export class VCManager {
     >(
       GetVerifiableCredentialsByQueryHash,
       {
-        first: 10,
+        first: 1000,
         queryHash,
       },
       this.ceramicProvider,
@@ -165,7 +165,7 @@ export class VCManager {
         >(
           GetVerifiableCredentialsByClaimId,
           {
-            first: 10,
+            first: 1000,
             claimId,
           },
           this.ceramicProvider,
@@ -244,7 +244,7 @@ export class VCManager {
     >(
       GetAllVerifiableCredentials,
       {
-        first: 10,
+        first: 1000,
         ownerDid: ceramicDid,
       },
       this.ceramicProvider,
