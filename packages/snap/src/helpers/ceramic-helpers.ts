@@ -5,8 +5,6 @@ import { Hex } from '@iden3/js-crypto';
 import { ComposeClient } from '@composedb/client';
 import type { RuntimeCompositeDefinition } from '@composedb/types';
 import { CERAMIC_URL } from '../config';
-import { getItemFromStore } from '../rpc';
-import { StorageKeys } from '../enums';
 import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
 // import {
 // ApolloClient,

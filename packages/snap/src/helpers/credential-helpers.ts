@@ -69,10 +69,14 @@ const loadAllCredentialsListPages = async <
   do {
     const _variables: Record<string, unknown> = {
       ...variables,
-      after: endCursor,
+      ...(endCursor && { after: endCursor }),
     };
 
-    const { data } = await client.execute<Res>(request, _variables);
+    const { data, errors } = await client.execute<Res>(request, _variables);
+
+    if (errors) {
+      throw new TypeError(JSON.stringify(errors));
+    }
 
     if (!data) {
       throw new TypeError('No data returned from Ceramic');
@@ -220,7 +224,11 @@ export class VCManager {
       },
     };
 
-    await client.execute(CreateVc, createVCVariables);
+    const { errors } = await client.execute(CreateVc, createVCVariables);
+
+    if (errors) {
+      throw new TypeError(JSON.stringify(errors));
+    }
   }
 
   public async getAllDecryptedVCs(): Promise<W3CCredential[]> {
