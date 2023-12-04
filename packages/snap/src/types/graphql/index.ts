@@ -330,6 +330,7 @@ export type GetVerifiableCredentialsByQueryHashQueryVariables = Exact<{
   first: Scalars['Int']['input'];
   after?: InputMaybe<Scalars['String']['input']>;
   queryHash: Scalars['String']['input'];
+  ownerDid: Scalars['String']['input'];
 }>;
 
 export type GetVerifiableCredentialsByQueryHashQuery = {
@@ -362,6 +363,7 @@ export type GetVerifiableCredentialsByClaimIdQueryVariables = Exact<{
   first: Scalars['Int']['input'];
   after?: InputMaybe<Scalars['String']['input']>;
   claimId: Scalars['String']['input'];
+  ownerDid: Scalars['String']['input'];
 }>;
 
 export type GetVerifiableCredentialsByClaimIdQuery = {
@@ -448,11 +450,17 @@ export const GetVerifiableCredentialsByQueryHash = gql`
     $first: Int!
     $after: String
     $queryHash: String!
+    $ownerDid: String!
   ) {
     verifiableCredentialIndex(
       first: $first
       after: $after
-      filters: { where: { queryHash: { equalTo: $queryHash } } }
+      filters: {
+        where: {
+          queryHash: { equalTo: $queryHash }
+          ownerDid: { equalTo: $ownerDid }
+        }
+      }
     ) {
       ...VerifiableCredential
     }
@@ -464,11 +472,17 @@ export const GetVerifiableCredentialsByClaimId = gql`
     $first: Int!
     $after: String
     $claimId: String!
+    $ownerDid: String!
   ) {
     verifiableCredentialIndex(
       first: $first
       after: $after
-      filters: { where: { claimId: { equalTo: $claimId } } }
+      filters: {
+        where: {
+          claimId: { equalTo: $claimId }
+          ownerDid: { equalTo: $ownerDid }
+        }
+      }
     ) {
       ...VerifiableCredential
     }

@@ -44,7 +44,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.7",
     "@ceramicnetwork/http-client": "2.27.0",
-    "@composedb/client": "^0.5.2",
+    "@composedb/client": "^0.6.0",
     "@ethersproject/abi": "5.0.0",
     "@ethersproject/bytes": "5.7.0",
     "@ethersproject/keccak256": "5.7.0",

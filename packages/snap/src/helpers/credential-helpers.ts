@@ -93,7 +93,10 @@ const loadAllCredentialsListPages = async <
   return encryptedVerifiableCredentials;
 };
 
-export const getAuthenticatedCeramicProvider = async (pkHex?: string) => {
+export const getAuthenticatedCeramicProvider = async (
+  pkHex?: string,
+  serverURL?: string,
+) => {
   let privateKeyHex = pkHex ?? '';
 
   if (!pkHex) {
@@ -106,7 +109,7 @@ export const getAuthenticatedCeramicProvider = async (pkHex?: string) => {
     privateKeyHex = identityStorage.privateKeyHex;
   }
 
-  const ceramicProvider = new CeramicProvider(privateKeyHex);
+  const ceramicProvider = new CeramicProvider(privateKeyHex, serverURL);
 
   await ceramicProvider.auth();
 
@@ -120,13 +123,23 @@ export class VCManager {
     this.ceramicProvider = ceramicProvider;
   }
 
-  static async create(pkHex?: string) {
-    return new VCManager(await getAuthenticatedCeramicProvider(pkHex));
+  static async create(pkHex?: string, serverURL?: string) {
+    return new VCManager(
+      await getAuthenticatedCeramicProvider(pkHex, serverURL),
+    );
   }
 
   public async getDecryptedVCsByQueryHash(
     queryHash: string,
   ): Promise<W3CCredential[]> {
+    const client = this.ceramicProvider.client();
+
+    if (!client.did?.id) {
+      throw new TypeError('Client not authenticated');
+    }
+
+    const hashedClientDid = sha256(Buffer.from(client.did.id));
+
     const hashedQueryHash = sha256(Buffer.from(queryHash));
 
     const data = await loadAllCredentialsListPages<
@@ -137,6 +150,7 @@ export class VCManager {
       {
         first: 1000,
         queryHash: hashedQueryHash,
+        ownerDid: hashedClientDid,
       },
       this.ceramicProvider,
     );
@@ -162,6 +176,9 @@ export class VCManager {
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
         const hashedClaimId = sha256(Buffer.from(claimId));
+        const hashedClientDid = sha256(
+          Buffer.from(this.ceramicProvider.client().did?.id ?? ''),
+        );
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdQueryVariables,
@@ -171,6 +188,7 @@ export class VCManager {
           {
             first: 1000,
             claimId: hashedClaimId,
+            ownerDid: hashedClientDid,
           },
           this.ceramicProvider,
         );

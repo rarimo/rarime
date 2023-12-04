@@ -16,13 +16,17 @@ import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCrede
 export class CeramicProvider {
   private readonly pkHex: string;
 
+  private readonly serverURL?: string;
+
   private _compose = new ComposeClient({
     ceramic: CERAMIC_URL,
     definition: VerifiableRuntimeComposite as RuntimeCompositeDefinition,
+    ...(this.serverURL && { serverURL: this.serverURL }),
   });
 
-  constructor(pkHex: string) {
+  constructor(pkHex: string, serverURL?: string) {
     this.pkHex = pkHex;
+    this.serverURL = serverURL;
   }
 
   async auth() {

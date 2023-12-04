@@ -158,6 +158,9 @@ const dummyQueryProof: ProofQuery = {
   type: dummyVC.credentialSubject.type as string,
 };
 
+// const serverURL = 'http://localhost:5005/graphql';
+const serverURL = undefined;
+
 const initPrivateKey = (hexString?: string): string => {
   let arr;
   if (hexString) {
@@ -176,8 +179,8 @@ describe('Verifiable Credentials', () => {
 
   it('should encrypt and save Verifiable Credentials for "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1),
-      VCManager.create(pkHex2),
+      VCManager.create(pkHex1, serverURL),
+      VCManager.create(pkHex2, serverURL),
     ]);
 
     await expect(vcManager1.encryptAndSaveVC(dummyVC)).resolves.not.toThrow();
@@ -187,8 +190,8 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1),
-      VCManager.create(pkHex2),
+      VCManager.create(pkHex1, serverURL),
+      VCManager.create(pkHex2, serverURL),
     ]);
 
     const vc1 = await vcManager1.getAllDecryptedVCs();
@@ -200,8 +203,8 @@ describe('Verifiable Credentials', () => {
 
   it('should not save Verifiable Credentials for "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1),
-      VCManager.create(pkHex2),
+      VCManager.create(pkHex1, serverURL),
+      VCManager.create(pkHex2, serverURL),
     ]);
 
     await expect(vcManager1.encryptAndSaveVC(dummyVC)).resolves.not.toThrow();
@@ -217,8 +220,8 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by offer', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1),
-      VCManager.create(pkHex2),
+      VCManager.create(pkHex1, serverURL),
+      VCManager.create(pkHex2, serverURL),
     ]);
 
     const vc1 = await vcManager1.getDecryptedVCsByOffer(dummyOffer);
@@ -230,17 +233,33 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by query hash', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1),
-      VCManager.create(pkHex2),
+      VCManager.create(pkHex1, serverURL),
+      VCManager.create(pkHex2, serverURL),
     ]);
 
-    const queryHash = hashVC(
+    const client1 = vcManager1.ceramicProvider.client();
+    const client2 = vcManager2.ceramicProvider.client();
+
+    if (!client1.did?.id) {
+      throw new TypeError('client1.did.id is undefined');
+    }
+
+    const queryHash1 = hashVC(
       String(dummyVC.credentialSubject.type),
       dummyVC.issuer,
     );
 
-    const vc1 = await vcManager1.getDecryptedVCsByQueryHash(queryHash);
-    const vc2 = await vcManager2.getDecryptedVCsByQueryHash(queryHash);
+    if (!client2.did?.id) {
+      throw new TypeError('client2.did.id is undefined');
+    }
+
+    const queryHash2 = hashVC(
+      String(dummyVC.credentialSubject.type),
+      dummyVC.issuer,
+    );
+
+    const vc1 = await vcManager1.getDecryptedVCsByQueryHash(queryHash1);
+    const vc2 = await vcManager2.getDecryptedVCsByQueryHash(queryHash2);
 
     expect(vc1).toHaveLength(1);
     expect(vc2).toHaveLength(1);
@@ -248,8 +267,8 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by query proof', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1),
-      VCManager.create(pkHex2),
+      VCManager.create(pkHex1, serverURL),
+      VCManager.create(pkHex2, serverURL),
     ]);
 
     const vc1 = await vcManager1.getDecryptedVCsByQuery(
