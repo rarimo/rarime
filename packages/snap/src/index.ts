@@ -190,7 +190,16 @@ export const onRpcRequest = async ({
           createProofRequest.query,
           issuerDid,
         )
-      ).filter((cred) => cred.credentialSubject.id === identityStorage.did);
+      ).filter((cred) => {
+        const splittedCredSubjId = cred.credentialSubject.id.split(':');
+
+        const splittedIdentityStorageDid = identityStorage.did.split(':');
+
+        return (
+          splittedCredSubjId[splittedCredSubjId.length - 1] ===
+          splittedIdentityStorageDid[splittedIdentityStorageDid.length - 1]
+        );
+      });
 
       if (!credentials.length) {
         throw new Error(
@@ -247,8 +256,13 @@ export const onRpcRequest = async ({
 
         const isSynced = await checkIfStateSynced();
 
-        const ID = DID.parse(credentials[0].issuer).id;
-        const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
+        const did = DID.parse(
+          credentials[0].issuer.replace('iden3:', 'iden3:readonly:'),
+        );
+
+        const issuerId = DID.idFromDID(did);
+
+        const issuerHexId = `0x0${issuerId.bigInt().toString(16)}`;
 
         const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
           `/rarimo/rarimo-core/identity/state/${issuerHexId}`,

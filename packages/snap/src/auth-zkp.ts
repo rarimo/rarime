@@ -1,7 +1,7 @@
 import { fromBigEndian } from '@iden3/js-iden3-core';
 import { proving, Token } from '@iden3/js-jwz';
 import * as uuid from 'uuid';
-import { type Identity } from './identity';
+import { Identity } from './identity';
 
 import { config } from './config';
 import { W3CCredential, ClaimOffer } from './types';

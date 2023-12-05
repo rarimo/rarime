@@ -173,7 +173,11 @@ export const newCircuitClaimData = async (
 ): Promise<CircuitClaim> => {
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
-  circuitClaim.issuerId = DID.parse(credential.issuer).id;
+  const issuerDid = DID.parse(
+    credential.issuer.replace('iden3:', 'iden3:readonly:'),
+  );
+
+  circuitClaim.issuerId = DID.idFromDID(issuerDid);
 
   const smtProof = getIden3SparseMerkleTreeProof(credential.proof!);
 
