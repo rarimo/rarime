@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2023-11-29
 ### Added
-- `@rarimo/rarime` - VC storage tests
+- `@rarimo/rarime` - credentials storage tests
 
 ### Changed
-- `@rarimo/rarime` - VC helpers
+- `@rarimo/rarime` - refactored credential-helpers methods to `VCManager` class
 
 ## [1.0.1] - 2023-11-29
 ### Fixed

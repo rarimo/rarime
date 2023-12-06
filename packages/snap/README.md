@@ -144,7 +144,13 @@ to run the tests in `src/index.test.ts`.
 
 ## Development
 
-### Prepare ceramic json files and deploy (example)
+## Prepare ceramic json files and deploy (example)
+
+### Prerequisites
+First things first, follow steps on Ceramic composeDB [guide](https://developers.ceramic.network/docs/composedb/set-up-your-environment#setup) to prepare environment and get `CERAMIC_URL` with `DID_PRIVATE_KEY` variables.
+
+
+### Run script to prepare json files
 ```bash
 CERAMIC_URL=http://... DID_PRIVATE_KEY=fbb8731ecc9c36542f9caf9d9e3535c8... yarn workspace @rarimo/rarime ceramic:prepare-vc
 ```
