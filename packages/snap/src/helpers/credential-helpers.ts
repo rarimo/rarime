@@ -24,8 +24,8 @@ import { getItemFromStore, setItemInStore } from '../rpc';
 import { getCoreClaimFromProof } from './proof-helpers';
 import { CeramicProvider } from './ceramic-helpers';
 
-export const hashVC = (type: string, issuerDid: string) => {
-  return sha256(Buffer.from(issuerDid + type));
+export const hashVC = (type: string, issuerDid: string, ownerDid: string) => {
+  return sha256(Buffer.from(issuerDid + type + ownerDid));
 };
 
 const getClaimIdFromVC = (credential: W3CCredential) => {
@@ -171,14 +171,20 @@ export class VCManager {
   public async getDecryptedVCsByOffer(
     offer: ClaimOffer,
   ): Promise<W3CCredential[]> {
+    const client = this.ceramicProvider.client();
+
+    const ownerDid = client.did?.id;
+
+    if (!ownerDid) {
+      throw new TypeError('Client not authenticated');
+    }
+
     const claimIds = getClaimIdsFromOffer(offer);
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
         const hashedClaimId = sha256(Buffer.from(claimId));
-        const hashedClientDid = sha256(
-          Buffer.from(this.ceramicProvider.client().did?.id ?? ''),
-        );
+        const hashedOwnerDid = sha256(Buffer.from(ownerDid));
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdQueryVariables,
@@ -188,7 +194,7 @@ export class VCManager {
           {
             first: 1000,
             claimId: hashedClaimId,
-            ownerDid: hashedClientDid,
+            ownerDid: hashedOwnerDid,
           },
           this.ceramicProvider,
         );
@@ -218,9 +224,16 @@ export class VCManager {
 
     const encryptedVC = await this.ceramicProvider.encrypt(credential);
 
+    const ownerDid = client.did?.id;
+
+    if (!ownerDid) {
+      throw new TypeError('Client not authenticated');
+    }
+
     const queryHash = hashVC(
       String(credential.credentialSubject.type),
       credential.issuer,
+      ownerDid,
     );
 
     const foundedVCs = await this.getDecryptedVCsByQueryHash(queryHash);
@@ -231,16 +244,12 @@ export class VCManager {
       return;
     }
 
-    if (!client.did?.id) {
-      throw new TypeError('Client not authenticated');
-    }
-
     const [
       hashedClientDid,
       hashedQueryHash,
       hashedClaimId,
     ] = await Promise.all([
-      sha256(Buffer.from(client.did.id)),
+      sha256(Buffer.from(ownerDid)),
       sha256(Buffer.from(queryHash)),
       sha256(Buffer.from(claimId)),
     ]);
@@ -305,7 +314,13 @@ export class VCManager {
     query: ProofQuery,
     issuerDiD: string,
   ): Promise<W3CCredential[]> {
-    const queryHash = hashVC(String(query.type), issuerDiD);
+    const ownerDid = this.ceramicProvider.client().did?.id;
+
+    if (!ownerDid) {
+      throw new TypeError('Client not authenticated');
+    }
+
+    const queryHash = hashVC(String(query.type), issuerDiD, ownerDid);
 
     return this.getDecryptedVCsByQueryHash(queryHash);
   }
