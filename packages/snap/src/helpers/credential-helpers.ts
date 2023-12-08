@@ -121,14 +121,28 @@ export const getAuthenticatedCeramicProvider = async (
 export class VCManager {
   ceramicProvider: CeramicProvider;
 
-  constructor(ceramicProvider: CeramicProvider) {
+  private mmKeyHex: string;
+
+  constructor(ceramicProvider: CeramicProvider, mmKeyHex: string) {
     this.ceramicProvider = ceramicProvider;
+    this.mmKeyHex = mmKeyHex;
   }
 
   static async create(pkHex?: string, serverURL?: string) {
+    const entropy = await snap.request({
+      method: 'snap_getEntropy',
+      params: { version: 1 },
+    });
+    const keyHex = entropy.startsWith('0x') ? entropy.substring(2) : entropy;
+
     return new VCManager(
       await getAuthenticatedCeramicProvider(pkHex, serverURL),
+      keyHex,
     );
+  }
+
+  private personalHashStr(str: string) {
+    return sha256(Buffer.from(str + _SALT + this.mmKeyHex));
   }
 
   public async getDecryptedVCsByQueryHash(
@@ -140,9 +154,9 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedOwnerDid = sha256(Buffer.from(client.did.id + _SALT));
+    const hashedOwnerDid = this.personalHashStr(client.did.id);
 
-    const hashedQueryHash = sha256(Buffer.from(queryHash + _SALT));
+    const hashedQueryHash = this.personalHashStr(queryHash);
 
     const data = await loadAllCredentialsListPages<
       GetVerifiableCredentialsByQueryHashQueryVariables,
@@ -185,8 +199,8 @@ export class VCManager {
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
-        const hashedClaimId = sha256(Buffer.from(claimId + _SALT));
-        const hashedOwnerDid = sha256(Buffer.from(ownerDid + _SALT));
+        const hashedClaimId = this.personalHashStr(claimId);
+        const hashedOwnerDid = this.personalHashStr(ownerDid);
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdQueryVariables,
@@ -251,9 +265,9 @@ export class VCManager {
       hashedQueryHash,
       hashedClaimId,
     ] = await Promise.all([
-      sha256(Buffer.from(ownerDid + _SALT)),
-      sha256(Buffer.from(queryHash + _SALT)),
-      sha256(Buffer.from(claimId + _SALT)),
+      this.personalHashStr(ownerDid),
+      this.personalHashStr(queryHash),
+      this.personalHashStr(claimId),
     ]);
 
     const createVCVariables: CreateVcMutationVariables = {
@@ -281,7 +295,7 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedOwnerDid = sha256(Buffer.from(ownerDid + _SALT));
+    const hashedOwnerDid = this.personalHashStr(ownerDid);
 
     const data = await loadAllCredentialsListPages<
       GetAllVerifiableCredentialsQueryVariables,
