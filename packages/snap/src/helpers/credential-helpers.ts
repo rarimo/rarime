@@ -24,6 +24,8 @@ import { getItemFromStore, setItemInStore } from '../rpc';
 import { getCoreClaimFromProof } from './proof-helpers';
 import { CeramicProvider } from './ceramic-helpers';
 
+const _SALT = 'pu?)Rx829U3ot.iB)D+z9Iyh';
+
 export const hashVC = (type: string, issuerDid: string, ownerDid: string) => {
   return sha256(Buffer.from(issuerDid + type + ownerDid));
 };
@@ -138,9 +140,9 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedClientDid = sha256(Buffer.from(client.did.id));
+    const hashedOwnerDid = sha256(Buffer.from(client.did.id + _SALT));
 
-    const hashedQueryHash = sha256(Buffer.from(queryHash));
+    const hashedQueryHash = sha256(Buffer.from(queryHash + _SALT));
 
     const data = await loadAllCredentialsListPages<
       GetVerifiableCredentialsByQueryHashQueryVariables,
@@ -150,7 +152,7 @@ export class VCManager {
       {
         first: 1000,
         queryHash: hashedQueryHash,
-        ownerDid: hashedClientDid,
+        ownerDid: hashedOwnerDid,
       },
       this.ceramicProvider,
     );
@@ -183,8 +185,8 @@ export class VCManager {
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
-        const hashedClaimId = sha256(Buffer.from(claimId));
-        const hashedOwnerDid = sha256(Buffer.from(ownerDid));
+        const hashedClaimId = sha256(Buffer.from(claimId + _SALT));
+        const hashedOwnerDid = sha256(Buffer.from(ownerDid + _SALT));
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdQueryVariables,
@@ -249,9 +251,9 @@ export class VCManager {
       hashedQueryHash,
       hashedClaimId,
     ] = await Promise.all([
-      sha256(Buffer.from(ownerDid)),
-      sha256(Buffer.from(queryHash)),
-      sha256(Buffer.from(claimId)),
+      sha256(Buffer.from(ownerDid + _SALT)),
+      sha256(Buffer.from(queryHash + _SALT)),
+      sha256(Buffer.from(claimId + _SALT)),
     ]);
 
     const createVCVariables: CreateVcMutationVariables = {
@@ -273,13 +275,13 @@ export class VCManager {
   }
 
   public async getAllDecryptedVCs(): Promise<W3CCredential[]> {
-    const ceramicDid = this.ceramicProvider.client().did?.id;
+    const ownerDid = this.ceramicProvider.client().did?.id;
 
-    if (!ceramicDid) {
+    if (!ownerDid) {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedCeramicDid = sha256(Buffer.from(ceramicDid));
+    const hashedOwnerDid = sha256(Buffer.from(ownerDid + _SALT));
 
     const data = await loadAllCredentialsListPages<
       GetAllVerifiableCredentialsQueryVariables,
@@ -288,7 +290,7 @@ export class VCManager {
       GetAllVerifiableCredentials,
       {
         first: 1000,
-        ownerDid: hashedCeramicDid,
+        ownerDid: hashedOwnerDid,
       },
       this.ceramicProvider,
     );
