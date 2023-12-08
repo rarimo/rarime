@@ -92,7 +92,7 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
 export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = [
   'localhost',
   'dashboard.stage.rarime.com',
-  'dashboard.stage.com',
+  'dashboard.rarime.com',
 ];
 
 export const CERAMIC_URL = 'https://ceramic.rarimo.com';
