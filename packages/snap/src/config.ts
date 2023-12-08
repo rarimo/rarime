@@ -89,7 +89,11 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
   },
 };
 
-export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = ['localhost'];
+export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = [
+  'localhost',
+  'dashboard.stage.rarime.com',
+  'dashboard.rarime.com',
+];
 
 /*
 https://developers.ceramic.network/tools/glaze/deploy-from-cli/

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2023-12-08
+### Changed
+- `@rarimo/rarime` - Update credentials supported hostnames
+
 ## [1.0.1] - 2023-11-29
 ### Fixed
 - `@rarimo/rarime` - `identity` creation
@@ -120,7 +124,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
 
-[Unreleased]: https://github.com/rarimo/rarime/compare/1.0.1...HEAD
+[Unreleased]: https://github.com/rarimo/rarime/compare/1.0.2...HEAD
+[1.0.2]: https://github.com/rarimo/rarime/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/rarimo/rarime/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/rarimo/rarime/compare/0.8.0...1.0.0
 [0.8.0]: https://github.com/rarimo/rarime/compare/0.7.2...0.8.0
