@@ -6,12 +6,6 @@ import { ComposeClient } from '@composedb/client';
 import type { RuntimeCompositeDefinition } from '@composedb/types';
 import { CERAMIC_URL } from '../config';
 import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
-// import {
-// ApolloClient,
-// InMemoryCache,
-// Observable,
-// ApolloLink,
-// } from '@apollo/client/core';
 
 export class CeramicProvider {
   private readonly pkHex: string;
@@ -40,33 +34,7 @@ export class CeramicProvider {
     this._compose.setDID(did);
   }
 
-  // TODO: will auth affect on this properly?
   public client() {
-    // const link = Object.assign(
-    //   {},
-    //   new ApolloLink((operation) => {
-    //     return new Observable((observer) => {
-    //       this._compose.execute(operation.query, operation.variables).then(
-    //         (result) => {
-    //           observer.next(result);
-    //           observer.complete();
-    //         },
-    //         (error) => {
-    //           observer.error(error);
-    //         },
-    //       );
-    //     });
-    //   }),
-    // );
-
-    // Use ApolloLink instance in ApolloClient config
-    // return new ApolloClient({
-    //   cache: new InMemoryCache(),
-    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //   // @ts-ignore
-    //   // link: { ...link },
-    // });
-
     return this._compose;
   }
 

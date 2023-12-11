@@ -89,7 +89,10 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
   },
 };
 
-export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = ['localhost'];
+export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = [
+  'localhost',
+  'dashboard.stage.rarime.com',
+  'dashboard.rarime.com',
+];
 
 export const CERAMIC_URL = 'https://ceramic.rarimo.com';
-// export const CERAMIC_URL = 'http://127.0.0.1:7007';

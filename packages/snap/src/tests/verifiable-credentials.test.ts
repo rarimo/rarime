@@ -158,7 +158,10 @@ const dummyQueryProof: ProofQuery = {
   type: dummyVC.credentialSubject.type as string,
 };
 
-// const serverURL = 'http://localhost:5005/graphql';
+/**
+ * In case, when you have a graphql api,
+ * e. g. 'http://localhost:5005/graphql'
+ */
 const serverURL = undefined;
 
 const initPrivateKey = (hexString?: string): string => {

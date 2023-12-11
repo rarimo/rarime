@@ -79,10 +79,10 @@ export const onRpcRequest = async ({
       if (res) {
         const vcManager = await VCManager.create(identityStorage.privateKeyHex);
 
-        const existedVC = await vcManager.getDecryptedVCsByOffer(offer);
+        const existingVC = await vcManager.getDecryptedVCsByOffer(offer);
 
-        if (existedVC.length) {
-          return existedVC;
+        if (existingVC.length) {
+          return existingVC;
         }
 
         const identity = await Identity.create(identityStorage.privateKeyHex);
