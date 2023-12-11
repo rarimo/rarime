@@ -121,28 +121,33 @@ export const getAuthenticatedCeramicProvider = async (
 export class VCManager {
   ceramicProvider: CeramicProvider;
 
-  private mmKeyHex: string;
+  private saltedEntropy: string;
 
-  constructor(ceramicProvider: CeramicProvider, mmKeyHex: string) {
+  constructor(ceramicProvider: CeramicProvider, saltedEntropy: string) {
     this.ceramicProvider = ceramicProvider;
-    this.mmKeyHex = mmKeyHex;
+    this.saltedEntropy = saltedEntropy;
   }
 
   static async create(pkHex?: string, serverURL?: string) {
     const entropy = await snap.request({
       method: 'snap_getEntropy',
-      params: { version: 1 },
+      params: {
+        version: 1,
+        salt: _SALT,
+      },
     });
-    const keyHex = entropy.startsWith('0x') ? entropy.substring(2) : entropy;
+    const saltedEntropy = entropy.startsWith('0x')
+      ? entropy.substring(2)
+      : entropy;
 
     return new VCManager(
       await getAuthenticatedCeramicProvider(pkHex, serverURL),
-      keyHex,
+      saltedEntropy,
     );
   }
 
   private personalHashStr(str: string) {
-    return sha256(Buffer.from(str + _SALT + this.mmKeyHex));
+    return sha256(Buffer.from(str + this.saltedEntropy));
   }
 
   public async getDecryptedVCsByQueryHash(
