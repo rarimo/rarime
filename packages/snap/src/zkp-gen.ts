@@ -151,7 +151,7 @@ export class ZkpGen {
     }
 
     const circuiInfo = this.getCircuitInfo();
-    console.time('Prepare inputs')
+    console.timeEnd('Prepare inputs')
 
     console.time('Getting files')
     const [wasm, provingKey] = await Promise.all([
