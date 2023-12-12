@@ -84,6 +84,7 @@ export class ZkpGen {
   }
 
   async generateProof(coreStateHash: string, operationGistHash: string) {
+    console.time('Prepare inputs')
     const preparedCredential = await getPreparedCredential(
       this.verifiableCredential,
     );
@@ -150,16 +151,22 @@ export class ZkpGen {
     }
 
     const circuiInfo = this.getCircuitInfo();
+    console.time('Prepare inputs')
 
+    console.time('Getting files')
     const [wasm, provingKey] = await Promise.all([
       getFileBytes(circuiInfo.wasm),
       getFileBytes(circuiInfo.finalKey),
     ]);
+    console.timeEnd('Getting files')
+
+    console.time('Generating proof')
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
       new TextEncoder().encode(circuiInfo.generateInputFn()),
       provingKey,
       wasm,
     );
+    console.timeEnd('Generating proof')
 
     return this.subjectProof;
   }
