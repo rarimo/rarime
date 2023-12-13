@@ -129,6 +129,11 @@ export class VCManager {
   }
 
   static async create(pkHex?: string, serverURL?: string) {
+    /**
+     * Add some account-specific entropy to the input,
+     * additional entropy will prevent someone from counting
+     * the total number of credentials issued by some particular issuer
+     */
     const entropy = await snap.request({
       method: 'snap_getEntropy',
       params: {
