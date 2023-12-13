@@ -191,7 +191,7 @@ export const onRpcRequest = async ({
           issuerDid,
         )
       ).filter((cred) => {
-        const splittedCredSubjId = cred.credentialSubject.id.split(':');
+        const splittedCredSubjId = String(cred.credentialSubject.id).split(':');
 
         const splittedIdentityStorageDid = identityStorage.did.split(':');
 

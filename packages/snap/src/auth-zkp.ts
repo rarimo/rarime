@@ -80,7 +80,7 @@ export class AuthZkp {
   async #prepareInputs(messageHash: Uint8Array): Promise<Uint8Array> {
     const messageHashBigInt = fromBigEndian(messageHash);
 
-    const providerChainInfo = await getProviderChainInfo()
+    const providerChainInfo = await getProviderChainInfo();
 
     const signature = this.identity.privateKey.signPoseidon(messageHashBigInt);
     const gistInfo = await getGISTProof({
