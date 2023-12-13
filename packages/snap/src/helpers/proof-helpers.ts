@@ -9,18 +9,17 @@ import {
 } from '@iden3/js-iden3-core';
 import {
   Hash,
+  newHashFromBigInt,
+  newHashFromHex,
   NodeAux,
   Proof,
   ZERO_HASH,
-  newHashFromBigInt,
-  newHashFromHex,
-  setBitBigEndian,
 } from '@iden3/js-merkletree';
 import {
+  getDocumentLoader,
   Merklizer,
   MtValue,
   Path,
-  getDocumentLoader,
 } from '@iden3/js-jsonld-merklization';
 import {
   GISTProof,
@@ -173,6 +172,7 @@ export const newCircuitClaimData = async (
 ): Promise<CircuitClaim> => {
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
+  // FIXME
   const issuerDid = DID.parse(
     credential.issuer.replace('iden3:', 'iden3:readonly:'),
   );
@@ -247,8 +247,12 @@ export const newCircuitClaimData = async (
   return circuitClaim;
 };
 
-export const prepareSiblingsStr = (proof: Proof, levels: number): string[] => {
-  const siblings = proof.allSiblings ? proof.allSiblings() : proof.siblings;
+export const prepareSiblingsStr = (
+  proof: Proof | { siblings: Hash[] },
+  levels: number,
+): string[] => {
+  const siblings =
+    proof instanceof Proof ? proof.allSiblings() : proof.siblings;
 
   // Add the rest of empty levels to the siblings
   for (let i = siblings.length; i < levels; i++) {
@@ -556,20 +560,11 @@ const newProofFromData = (
   allSiblings: Hash[],
   nodeAux?: NodeAux,
 ): Proof => {
-  const p = new Proof();
-  p.existence = existence;
-  p.nodeAux = nodeAux;
-  p.depth = allSiblings.length;
-  const siblings: Hash[] = [];
-  for (let lvl = 0; lvl < allSiblings.length; lvl++) {
-    const sibling = allSiblings[lvl];
-    if (!sibling.bytes.every((b) => b === 0)) {
-      setBitBigEndian(p.notEmpties, lvl);
-      siblings.push(sibling);
-    }
-  }
-  p.siblings = siblings;
-  return p;
+  return new Proof({
+    existence,
+    nodeAux,
+    siblings: allSiblings,
+  });
 };
 
 export const toGISTProof = (smtProof: StateProof): GISTProof => {
