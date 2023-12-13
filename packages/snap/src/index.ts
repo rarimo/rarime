@@ -101,7 +101,12 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      if (identityStorage?.did && identityStorage?.didBigInt) {
+      if (
+        identityStorage?.did ??
+        // FIXME: temp
+        (identityStorage?.did.includes('readonly') &&
+          identityStorage?.didBigInt)
+      ) {
         return {
           identityIdString: identityStorage.did,
           identityIdBigIntString: identityStorage.didBigInt,
