@@ -52,8 +52,6 @@ export const onRpcRequest = async ({
 
       const offer = (request.params as any) as ClaimOffer;
 
-      console.log('offer', offer);
-
       isValidSaveCredentialsOfferRequest(offer);
 
       const dialogContent = [
@@ -62,8 +60,6 @@ export const onRpcRequest = async ({
         text(`From: ${offer.from}`),
         text(`Url: ${offer.body.url}`),
       ];
-
-      console.log('dialogContent', dialogContent);
 
       const dialogCredentials = offer.body.Credentials.reduce(
         (acc: any, cred: any) => {
@@ -90,11 +86,11 @@ export const onRpcRequest = async ({
         }
 
         const identity = await Identity.create(identityStorage.privateKeyHex);
-        console.log('identity', identity);
+
         const authProof = new AuthZkp(identity, offer);
-        console.log('authProof', authProof);
+
         const credentials = await authProof.getVerifiableCredentials();
-        console.log('credentials', credentials);
+
         await Promise.all(
           credentials.map(async (credential) => {
             await vcManager.encryptAndSaveVC(credential);
@@ -268,8 +264,12 @@ export const onRpcRequest = async ({
 
         const isSynced = await checkIfStateSynced();
 
+        const splittedIssuerDid = issuerDid.split(':');
+
         const did = DID.parse(
-          credentials[0].issuer.replace('iden3:', 'iden3:readonly:'),
+          `did:iden3:readonly:${
+            splittedIssuerDid[splittedIssuerDid.length - 1]
+          }`,
         );
 
         const issuerId = DID.idFromDID(did);

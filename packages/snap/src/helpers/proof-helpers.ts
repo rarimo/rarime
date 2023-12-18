@@ -172,11 +172,11 @@ export const newCircuitClaimData = async (
 ): Promise<CircuitClaim> => {
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
+
+  const splittedIssuerDid = credential.issuer.split(':');
+
   const issuerDid = DID.parse(
-    // FIXME: temp
-    credential.issuer.includes('readonly')
-      ? credential.issuer
-      : credential.issuer.replace('iden3:', 'iden3:readonly:'),
+    `did:iden3:readonly:${splittedIssuerDid[splittedIssuerDid.length - 1]}`,
   );
 
   circuitClaim.issuerId = DID.idFromDID(issuerDid);
