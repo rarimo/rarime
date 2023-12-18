@@ -104,16 +104,17 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      if (
-        identityStorage?.did ??
-        // FIXME: temp
-        (identityStorage?.did.includes('readonly') &&
-          identityStorage?.didBigInt)
-      ) {
-        return {
-          identityIdString: identityStorage.did,
-          identityIdBigIntString: identityStorage.didBigInt,
-        };
+      if (identityStorage?.did && identityStorage?.didBigInt) {
+        try {
+          if (DID.parse(identityStorage?.did)) {
+            return {
+              identityIdString: identityStorage.did,
+              identityIdBigIntString: identityStorage.didBigInt,
+            };
+          }
+        } catch (error) {
+          /* empty */
+        }
       }
 
       const res = await snap.request({
