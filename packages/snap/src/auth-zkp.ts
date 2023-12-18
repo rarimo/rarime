@@ -32,20 +32,22 @@ export class AuthZkp {
   async getVerifiableCredentials(): Promise<W3CCredential[]> {
     const credentials: W3CCredential[] = [];
 
-    for (let index = 0; index < this.offer.body.credentials.length; index++) {
+    for (let index = 0; index < this.offer.body.Credentials.length; index++) {
       const guid = uuid.v4();
 
       const claimDetails = {
         id: this.offer?.id ?? guid,
         typ: this.offer?.typ || 'application/iden3-zkp-json',
         type: 'https://iden3-communication.io/credentials/1.0/fetch-request',
-        thid: this.offer?.thid ?? guid,
+        threadID: this.offer?.threadID ?? guid,
         body: {
-          id: this.offer?.body.credentials[index].id,
+          id: this.offer?.body.Credentials[index].id,
         },
         from: this.offer.to,
         to: this.offer.from,
       };
+
+      console.log('claimDetails', claimDetails);
 
       const token2 = new Token(
         proving.provingMethodGroth16AuthV2Instance,
@@ -53,23 +55,33 @@ export class AuthZkp {
         this.#prepareInputs.bind(this),
       );
 
+      console.log('token2', token2);
+
       const [wasm, provingKey] = await Promise.all([
         getFileBytes(config.CIRCUIT_AUTH_WASM_URL),
         getFileBytes(config.CIRCUIT_AUTH_FINAL_KEY_URL),
       ]);
 
       const jwzTokenRaw = await token2.prove(provingKey, wasm);
+
+      console.log('jwzTokenRaw', jwzTokenRaw);
+
       const resp = await fetch(this.offer.body.url, {
         method: 'post',
         body: jwzTokenRaw,
       });
 
+      console.log('resp', resp);
+
       if (resp.status !== 200) {
         throw new Error(
-          `could not fetch W3C credential, ${this.offer?.body.credentials[index].id}`,
+          `could not fetch W3C credential, ${this.offer?.body.Credentials[index].id}`,
         );
       }
       const data = await resp.json();
+
+      console.log('data', data);
+
       credentials.push(data.body.credential);
     }
     this.verifiableCredentials = credentials;

@@ -11,7 +11,7 @@ import { CircuitId } from '../enums';
 
 const dummyOffer: ClaimOffer = {
   body: {
-    credentials: [
+    Credentials: [
       {
         description: 'urn:uuid:6dff4518-5177-4f39-af58-9c156d9b6309',
         id: 'cb43c431-8ddc-11ee-8b6e-06feca5194ee',
@@ -21,7 +21,7 @@ const dummyOffer: ClaimOffer = {
   },
   from: 'did:iden3:tLd8sbb1xTSvi2wtRF4TUVcfDUr8ppYMohLqjhGQT',
   id: 'ba99e52a-bd9a-40cf-bc01-e736c37713f8',
-  thid: 'ba99e52a-bd9a-40cf-bc01-e736c37713f8',
+  threadID: 'ba99e52a-bd9a-40cf-bc01-e736c37713f8',
   to: 'did:iden3:tQnU2hhZSkUMvA7PGqy8X3f39f4ywgvUM3kiv48XW',
   typ: 'application/iden3comm-plain-json',
   type: 'https://iden3-communication.io/credentials/1.0/offer',
@@ -243,22 +243,28 @@ describe('Verifiable Credentials', () => {
     const client1 = vcManager1.ceramicProvider.client();
     const client2 = vcManager2.ceramicProvider.client();
 
-    if (!client1.did?.id) {
-      throw new TypeError('client1.did.id is undefined');
+    const client1OwnerDid = client1.did?.id;
+
+    if (!client1OwnerDid) {
+      throw new TypeError('client1 not authenticated');
+    }
+
+    const client2OwnerDid = client2.did?.id;
+
+    if (!client2OwnerDid) {
+      throw new TypeError('client2 not authenticated');
     }
 
     const queryHash1 = hashVC(
       String(dummyVC.credentialSubject.type),
       dummyVC.issuer,
+      client1OwnerDid,
     );
-
-    if (!client2.did?.id) {
-      throw new TypeError('client2.did.id is undefined');
-    }
 
     const queryHash2 = hashVC(
       String(dummyVC.credentialSubject.type),
       dummyVC.issuer,
+      client2OwnerDid,
     );
 
     const vc1 = await vcManager1.getDecryptedVCsByQueryHash(queryHash1);

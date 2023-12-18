@@ -52,6 +52,8 @@ export const onRpcRequest = async ({
 
       const offer = (request.params as any) as ClaimOffer;
 
+      console.log('offer', offer);
+
       isValidSaveCredentialsOfferRequest(offer);
 
       const dialogContent = [
@@ -61,7 +63,9 @@ export const onRpcRequest = async ({
         text(`Url: ${offer.body.url}`),
       ];
 
-      const dialogCredentials = offer.body.credentials.reduce(
+      console.log('dialogContent', dialogContent);
+
+      const dialogCredentials = offer.body.Credentials.reduce(
         (acc: any, cred: any) => {
           return acc.concat([divider(), text(cred.description), text(cred.id)]);
         },
@@ -86,8 +90,11 @@ export const onRpcRequest = async ({
         }
 
         const identity = await Identity.create(identityStorage.privateKeyHex);
+        console.log('identity', identity);
         const authProof = new AuthZkp(identity, offer);
+        console.log('authProof', authProof);
         const credentials = await authProof.getVerifiableCredentials();
+        console.log('credentials', credentials);
         await Promise.all(
           credentials.map(async (credential) => {
             await vcManager.encryptAndSaveVC(credential);

@@ -28,7 +28,7 @@ export type W3CCredential = {
 
 export type ClaimOffer = {
   body: {
-    credentials: [
+    Credentials: [
       {
         description: string;
         id: string;
@@ -43,7 +43,7 @@ export type ClaimOffer = {
   };
   from: string;
   id: string;
-  thid?: string;
+  threadID?: string;
   to: string;
   typ?: string;
   type: string;

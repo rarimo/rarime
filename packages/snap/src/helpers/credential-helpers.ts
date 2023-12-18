@@ -43,7 +43,7 @@ const getClaimIdFromVC = (credential: W3CCredential) => {
 };
 
 const getClaimIdsFromOffer = (offer: ClaimOffer) => {
-  return offer.body.credentials.map((cred) => cred.id);
+  return offer.body.Credentials.map((cred) => cred.id);
 };
 
 const loadAllCredentialsListPages = async <
