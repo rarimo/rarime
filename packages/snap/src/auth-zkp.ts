@@ -47,15 +47,11 @@ export class AuthZkp {
         to: this.offer.from,
       };
 
-      console.log('claimDetails', claimDetails);
-
       const token2 = new Token(
         proving.provingMethodGroth16AuthV2Instance,
         JSON.stringify(claimDetails),
         this.#prepareInputs.bind(this),
       );
-
-      console.log('token2', token2);
 
       const [wasm, provingKey] = await Promise.all([
         getFileBytes(config.CIRCUIT_AUTH_WASM_URL),
@@ -64,14 +60,10 @@ export class AuthZkp {
 
       const jwzTokenRaw = await token2.prove(provingKey, wasm);
 
-      console.log('jwzTokenRaw', jwzTokenRaw);
-
       const resp = await fetch(this.offer.body.url, {
         method: 'post',
         body: jwzTokenRaw,
       });
-
-      console.log('resp', resp);
 
       if (resp.status !== 200) {
         throw new Error(
@@ -79,8 +71,6 @@ export class AuthZkp {
         );
       }
       const data = await resp.json();
-
-      console.log('data', data);
 
       credentials.push(data.body.credential);
     }
