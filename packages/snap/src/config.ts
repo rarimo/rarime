@@ -90,9 +90,14 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
 };
 
 export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = [
+  // Local
   'localhost',
+  // Staging
   'dashboard.stage.rarime.com',
+  'app.staging.rarime.com',
+  // Production
   'dashboard.rarime.com',
+  'app.rarime.com',
 ];
 
 /*
