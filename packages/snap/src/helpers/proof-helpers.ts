@@ -43,6 +43,7 @@ import {
   Query,
   ValueProof,
 } from './model-helpers';
+import { parseDidV2 } from './identity-helpers';
 
 export const extractProof = (proof: {
   [key: string]: any;
@@ -173,11 +174,7 @@ export const newCircuitClaimData = async (
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
 
-  const splittedIssuerDid = credential.issuer.split(':');
-
-  const issuerDid = DID.parse(
-    `did:iden3:readonly:${splittedIssuerDid[splittedIssuerDid.length - 1]}`,
-  );
+  const issuerDid = parseDidV2(credential.issuer);
 
   circuitClaim.issuerId = DID.idFromDID(issuerDid);
 

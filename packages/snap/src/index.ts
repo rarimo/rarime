@@ -23,6 +23,7 @@ import {
   getRarimoCoreUrl,
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
+  parseDidV2,
   VCManager,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
@@ -200,14 +201,11 @@ export const onRpcRequest = async ({
           issuerDid,
         )
       ).filter((cred) => {
-        const splittedCredSubjId = String(cred.credentialSubject.id).split(':');
+        const CredSubjId = parseDidV2(cred.credentialSubject.id as string);
 
-        const splittedIdentityStorageDid = identityStorage.did.split(':');
+        const IdentityStorageDid = parseDidV2(identityStorage.did);
 
-        return (
-          splittedCredSubjId[splittedCredSubjId.length - 1] ===
-          splittedIdentityStorageDid[splittedIdentityStorageDid.length - 1]
-        );
+        return CredSubjId.string() === IdentityStorageDid.string();
       });
 
       if (!credentials.length) {
@@ -265,13 +263,7 @@ export const onRpcRequest = async ({
 
         const isSynced = await checkIfStateSynced();
 
-        const splittedIssuerDid = issuerDid.split(':');
-
-        const did = DID.parse(
-          `did:iden3:readonly:${
-            splittedIssuerDid[splittedIssuerDid.length - 1]
-          }`,
-        );
+        const did = parseDidV2(issuerDid);
 
         const issuerId = DID.idFromDID(did);
 
