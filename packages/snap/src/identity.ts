@@ -50,19 +50,13 @@ export class Identity {
   }
 
   public get didString() {
-    return this.did.toString();
-  }
-
-  public get identityId() {
-    return this.did.id;
-  }
-
-  public get identityIdString() {
-    return this.identityId.string();
+    return this.did.string();
   }
 
   public get identityIdBigIntString() {
-    return this.identityId.bigInt().toString();
+    const id = DID.idFromDID(this.did);
+
+    return String(id.bigInt());
   }
 
   async createIdentity() {
@@ -94,7 +88,7 @@ export class Identity {
       rootsTreeRoot.bigInt(),
     );
 
-    this.did = DID.fromGenesisFromIdenState(config.ID_TYPE, identity);
+    this.did = DID.newFromIdenState(config.ID_TYPE, identity);
 
     const authClaimIncProof = await claimsTree.generateProof(
       this.coreAuthClaim.hIndex(),

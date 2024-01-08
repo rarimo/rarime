@@ -1,7 +1,7 @@
 import { fromBigEndian } from '@iden3/js-iden3-core';
 import { proving, Token } from '@iden3/js-jwz';
 import * as uuid from 'uuid';
-import { type Identity } from './identity';
+import { Identity } from './identity';
 
 import { config } from './config';
 import { W3CCredential, ClaimOffer } from './types';
@@ -32,16 +32,16 @@ export class AuthZkp {
   async getVerifiableCredentials(): Promise<W3CCredential[]> {
     const credentials: W3CCredential[] = [];
 
-    for (let index = 0; index < this.offer.body.credentials.length; index++) {
+    for (let index = 0; index < this.offer.body.Credentials.length; index++) {
       const guid = uuid.v4();
 
       const claimDetails = {
         id: this.offer?.id ?? guid,
         typ: this.offer?.typ || 'application/iden3-zkp-json',
         type: 'https://iden3-communication.io/credentials/1.0/fetch-request',
-        thid: this.offer?.thid ?? guid,
+        threadID: this.offer?.threadID ?? guid,
         body: {
-          id: this.offer?.body.credentials[index].id,
+          id: this.offer?.body.Credentials[index].id,
         },
         from: this.offer.to,
         to: this.offer.from,
@@ -59,6 +59,7 @@ export class AuthZkp {
       ]);
 
       const jwzTokenRaw = await token2.prove(provingKey, wasm);
+
       const resp = await fetch(this.offer.body.url, {
         method: 'post',
         body: jwzTokenRaw,
@@ -66,10 +67,11 @@ export class AuthZkp {
 
       if (resp.status !== 200) {
         throw new Error(
-          `could not fetch W3C credential, ${this.offer?.body.credentials[index].id}`,
+          `could not fetch W3C credential, ${this.offer?.body.Credentials[index].id}`,
         );
       }
       const data = await resp.json();
+
       credentials.push(data.body.credential);
     }
     this.verifiableCredentials = credentials;
@@ -80,7 +82,7 @@ export class AuthZkp {
   async #prepareInputs(messageHash: Uint8Array): Promise<Uint8Array> {
     const messageHashBigInt = fromBigEndian(messageHash);
 
-    const providerChainInfo = await getProviderChainInfo()
+    const providerChainInfo = await getProviderChainInfo();
 
     const signature = this.identity.privateKey.signPoseidon(messageHashBigInt);
     const gistInfo = await getGISTProof({

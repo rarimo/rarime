@@ -5,9 +5,10 @@ const path = require('path');
 
 stdLibBrowser = {
   ...stdLibBrowser,
-  "@iden3/js-iden3-core": path.join(__dirname, '../../node_modules/@iden3/js-iden3-core/dist/esm_esbuild/index.js'),
-  "@iden3/js-jwz": path.join(__dirname, '../../node_modules/@iden3/js-jwz/dist/esm_esbuild/index.js'),
-  "@iden3/js-crypto": path.join(__dirname, '../../node_modules/@iden3/js-crypto/dist/esm_esbuild/index.js'),
+  "@iden3/js-iden3-core": path.join(__dirname, '../../node_modules/@iden3/js-iden3-core/dist/browser/esm/index.js'),
+  "@iden3/js-jwz": path.join(__dirname, '../../node_modules/@iden3/js-jwz/dist/browser/esm/index.js'),
+  "@iden3/js-crypto": path.join(__dirname, '../../node_modules/@iden3/js-crypto/dist/browser/esm/index.js'),
+  "@iden3/js-jsonld-merklization": path.join(__dirname, '../../node_modules/@iden3/js-jsonld-merklization/dist/node/esm/index.js'),
 };
 
 console.log('START building ESM bundle...');

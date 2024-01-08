@@ -23,6 +23,7 @@ import {
   getRarimoCoreUrl,
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
+  parseDidV2,
   VCManager,
 } from './helpers';
 import { ZkpGen } from './zkp-gen';
@@ -61,7 +62,7 @@ export const onRpcRequest = async ({
         text(`Url: ${offer.body.url}`),
       ];
 
-      const dialogCredentials = offer.body.credentials.reduce(
+      const dialogCredentials = offer.body.Credentials.reduce(
         (acc: any, cred: any) => {
           return acc.concat([divider(), text(cred.description), text(cred.id)]);
         },
@@ -86,8 +87,11 @@ export const onRpcRequest = async ({
         }
 
         const identity = await Identity.create(identityStorage.privateKeyHex);
+
         const authProof = new AuthZkp(identity, offer);
+
         const credentials = await authProof.getVerifiableCredentials();
+
         await Promise.all(
           credentials.map(async (credential) => {
             await vcManager.encryptAndSaveVC(credential);
@@ -102,10 +106,16 @@ export const onRpcRequest = async ({
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
       if (identityStorage?.did && identityStorage?.didBigInt) {
-        return {
-          identityIdString: identityStorage.did,
-          identityIdBigIntString: identityStorage.didBigInt,
-        };
+        try {
+          if (DID.parse(identityStorage?.did)) {
+            return {
+              identityIdString: identityStorage.did,
+              identityIdBigIntString: identityStorage.didBigInt,
+            };
+          }
+        } catch (error) {
+          /* empty */
+        }
       }
 
       const res = await snap.request({
@@ -190,7 +200,13 @@ export const onRpcRequest = async ({
           createProofRequest.query,
           issuerDid,
         )
-      ).filter((cred) => cred.credentialSubject.id === identityStorage.did);
+      ).filter((cred) => {
+        const CredSubjId = parseDidV2(cred.credentialSubject.id as string);
+
+        const IdentityStorageDid = parseDidV2(identityStorage.did);
+
+        return CredSubjId.string() === IdentityStorageDid.string();
+      });
 
       if (!credentials.length) {
         throw new Error(
@@ -247,8 +263,11 @@ export const onRpcRequest = async ({
 
         const isSynced = await checkIfStateSynced();
 
-        const ID = DID.parse(credentials[0].issuer).id;
-        const issuerHexId = `0x0${ID.bigInt().toString(16)}`;
+        const did = parseDidV2(issuerDid);
+
+        const issuerId = DID.idFromDID(did);
+
+        const issuerHexId = `0x0${issuerId.bigInt().toString(16)}`;
 
         const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
           `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
