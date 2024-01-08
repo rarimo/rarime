@@ -8,11 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `@rarimo/rarime` - credentials storage tests
 - `@rarimo/rarime` - add RariMe App hostnames to the get credentials whitelist
+
+### Changed
+- `@rarimo/rarime`
+  - refactored credential-helpers methods to `VCManager` class
+    - ceramic account injection
+    - unified ceramic client
+    - hash and encrypt data
+  - Moved credentials to ComposeDB
 
 ### Fixed
 - Patch snap dependencies after every `yarn isntall`
-
 
 ## [1.0.2] - 2023-12-08
 ### Changed

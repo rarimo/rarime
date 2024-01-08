@@ -142,6 +142,24 @@ snaps. To test the snap, run `yarn test` in this directory. This will use
 [`@metamask/snaps-jest`](https://github.com/MetaMask/snaps/tree/main/packages/snaps-jest)
 to run the tests in `src/index.test.ts`.
 
+## Development
+
+## Prepare ceramic json files and deploy (example)
+
+### Prerequisites
+First things first, follow steps on Ceramic composeDB [guide](https://developers.ceramic.network/docs/composedb/set-up-your-environment#setup) to prepare environment and get `CERAMIC_URL` with `DID_PRIVATE_KEY` variables.
+
+
+### Run script to prepare json files
+```bash
+CERAMIC_URL=http://... DID_PRIVATE_KEY=fbb8731ecc9c36542f9caf9d9e3535c8... yarn workspace @rarimo/rarime ceramic:prepare-vc
+```
+
+### Run Graphql server locally
+```bash
+CERAMIC_URL=http://... DID_PRIVATE_KEY=fbb8731ecc9c36542f9caf9d9e3535c8... yarn workspace @rarimo/rarime ceramic:graphql-server
+```
+
 ## Notes
 
 - Babel is used for transpiling TypeScript to JavaScript, so when building with

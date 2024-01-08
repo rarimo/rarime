@@ -1,4 +1,13 @@
 {
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": [
+      "@types/lodash",
+      "node",
+      "jest"
+    ]
+  },
   "extends": "../../tsconfig.json",
   "include": ["src"]
 }
