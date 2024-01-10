@@ -457,6 +457,10 @@ export const loadDataByUrl = async (
 
 export const isVCsV2 = (vcs: W3CCredential[]) => {
   return vcs.every((vc) => {
-    return vc.issuer.includes('readonly');
+    return (
+      vc.issuer.includes('readonly') &&
+      // FIXME: temp hotfix
+      new Date(vc.issuanceDate!).getFullYear() > 2023
+    );
   });
 };
