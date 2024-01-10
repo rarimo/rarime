@@ -21,6 +21,7 @@ import {
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
+  isVCsV2,
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
   parseDidV2,
@@ -82,7 +83,7 @@ export const onRpcRequest = async ({
 
         const existingVC = await vcManager.getDecryptedVCsByOffer(offer);
 
-        if (existingVC.length) {
+        if (existingVC.length && isVCsV2(existingVC)) {
           return existingVC;
         }
 

@@ -454,3 +454,9 @@ export const loadDataByUrl = async (
 
   return await response.json();
 };
+
+export const isVCsV2 = (vcs: W3CCredential[]) => {
+  return vcs.every((vc) => {
+    return vc.issuer.includes('readonly');
+  });
+};
