@@ -4,6 +4,9 @@ import { DocumentNode } from 'graphql/language';
 import { ProofType, StorageKeys } from '../enums';
 import {
   ClaimOffer,
+  ClearVc,
+  ClearVcMutation,
+  ClearVcMutationVariables,
   CreateVc,
   CreateVcMutationVariables,
   CredentialStatus,
@@ -242,6 +245,57 @@ export class VCManager {
 
           return await this.ceramicProvider.decrypt<W3CCredential>(encryptedVC);
         }),
+    );
+  }
+
+  public async clearDuplicates(credential: W3CCredential) {
+    const client = this.ceramicProvider.client();
+
+    const ownerDid = client.did?.id;
+
+    if (!ownerDid) {
+      throw new TypeError('Client not authenticated');
+    }
+
+    const queryHash = hashVC(
+      String(credential.credentialSubject.type),
+      credential.issuer,
+      ownerDid,
+    );
+
+    const hashedOwnerDid = this.personalHashStr(client.did.id);
+
+    const hashedQueryHash = this.personalHashStr(queryHash);
+
+    const data = await loadAllCredentialsListPages<
+      GetVerifiableCredentialsByQueryHashQueryVariables,
+      GetVerifiableCredentialsByQueryHashQuery
+    >(
+      GetVerifiableCredentialsByQueryHash,
+      {
+        first: 1000,
+        queryHash: hashedQueryHash,
+        ownerDid: hashedOwnerDid,
+      },
+      this.ceramicProvider,
+    );
+
+    const ids = data
+      .map((el) => el.verifiableCredentialIndex?.edges)
+      .flat()
+      .map((el) => el?.node?.id ?? '')
+      .filter((el) => Boolean(el));
+
+    await Promise.all(
+      ids.map(async (id) => {
+        const { errors } = await client.execute<ClearVcMutation>(ClearVc, {
+          id,
+        } as ClearVcMutationVariables);
+
+        if (errors) {
+          throw new TypeError(JSON.stringify(errors));
+        }
+      }),
     );
   }
 

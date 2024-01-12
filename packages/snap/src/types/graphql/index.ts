@@ -392,6 +392,30 @@ export type GetVerifiableCredentialsByClaimIdQuery = {
   } | null;
 };
 
+export type ClearVcMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  claimId?: InputMaybe<Scalars['String']['input']>;
+  data?: InputMaybe<Scalars['String']['input']>;
+  ownerDid?: InputMaybe<Scalars['String']['input']>;
+  queryHash?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type ClearVcMutation = {
+  __typename?: 'Mutation';
+  updateVerifiableCredential?: {
+    __typename?: 'UpdateVerifiableCredentialPayload';
+    clientMutationId?: string | null;
+    document: {
+      __typename?: 'VerifiableCredential';
+      claimId: string;
+      data: string;
+      id: string;
+      ownerDid: string;
+      queryHash: string;
+    };
+  } | null;
+};
+
 export const PageInfo = gql`
   fragment PageInfo on VerifiableCredentialConnection {
     pageInfo {
@@ -488,4 +512,34 @@ export const GetVerifiableCredentialsByClaimId = gql`
     }
   }
   ${VerifiableCredential}
+`;
+export const ClearVc = gql`
+  mutation ClearVC(
+    $id: ID!
+    $claimId: String = ""
+    $data: String = ""
+    $ownerDid: String = ""
+    $queryHash: String = ""
+  ) {
+    updateVerifiableCredential(
+      input: {
+        id: $id
+        content: {
+          data: $data
+          claimId: $claimId
+          ownerDid: $ownerDid
+          queryHash: $queryHash
+        }
+      }
+    ) {
+      clientMutationId
+      document {
+        claimId
+        data
+        id
+        ownerDid
+        queryHash
+      }
+    }
+  }
 `;
