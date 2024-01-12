@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime",
-  "version": "2.0.0-rc.3",
+  "version": "2.0.0-rc.4",
   "description": "RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "repository": {
     "type": "git",
@@ -58,7 +58,7 @@
     "@metamask/snaps-jest": "^4.0.0",
     "@metamask/snaps-sdk": "^1.1.0",
     "@metamask/snaps-utils": "^4.0.0",
-    "@rarimo/rarime-connector": "2.0.0-rc.3",
+    "@rarimo/rarime-connector": "2.0.0-rc.4",
     "buffer": "6.0.3",
     "dids": "4.0.4",
     "ethers": "5.7.2",
