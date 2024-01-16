@@ -1,1 +1,2 @@
 export const CORE_POLLING_INTERVAL = 5_000;
+export const METAMASK_SNAPS_MAJOR_VERSION = 11;

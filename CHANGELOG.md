@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `@rarimo/rarime` - credentials storage tests
 - `@rarimo/rarime` - add RariMe App hostnames to the get credentials whitelist
+- `@rarimo/rarime` - Checking MetaMask version support
 
 ### Changed
 - `@rarimo/rarime`

@@ -1,4 +1,5 @@
 import { GetSnapsResponse } from './types';
+import { METAMASK_SNAPS_MAJOR_VERSION } from './consts';
 import { defaultSnapOrigin } from '.';
 
 export const getProvider = async () => {
@@ -75,4 +76,14 @@ export const isSnapInstalled = async (
     console.log('Failed to obtain installed snaps', e);
     return false;
   }
+};
+
+export const checkSnapSupport = async () => {
+  const version = await window?.ethereum?.request?.({
+    method: 'web3_clientVersion',
+  });
+
+  const majorVersion = Number(version.match(/.+v([0-9]+).+/u)?.[1] ?? 0);
+  const isMobile = version.endsWith('Mobile');
+  return majorVersion >= METAMASK_SNAPS_MAJOR_VERSION && !isMobile;
 };
