@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - ceramic account injection
     - unified ceramic client
     - hash and encrypt data
+    - Clear matched VCs
   - Moved credentials to ComposeDB
 
 ### Fixed
