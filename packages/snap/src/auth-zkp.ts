@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 import { Identity } from './identity';
 
 import { config } from './config';
-import { W3CCredential, ClaimOffer } from './types';
+import { W3CCredential, SaveCredentialsRequestParams } from './types';
 import {
   getGISTProof,
   getNodeAuxValue,
@@ -20,11 +20,11 @@ import { defaultMTLevels, defaultMTLevelsOnChain } from './const';
 export class AuthZkp {
   identity: Identity = {} as Identity;
 
-  offer: ClaimOffer = {} as ClaimOffer;
+  offer: SaveCredentialsRequestParams = {} as SaveCredentialsRequestParams;
 
   verifiableCredentials: W3CCredential[] = [];
 
-  constructor(identity: Identity, offer: ClaimOffer) {
+  constructor(identity: Identity, offer: SaveCredentialsRequestParams) {
     this.identity = identity;
     this.offer = offer;
   }

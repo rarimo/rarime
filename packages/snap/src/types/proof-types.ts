@@ -3,6 +3,7 @@ import { Claim } from '@iden3/js-iden3-core';
 import { Hash, Proof } from '@iden3/js-merkletree';
 import { Query } from '../helpers';
 import { CircuitId } from '../enums';
+import { SaveCredentialsRequestParams } from './credential-types';
 
 export type ProofQuery = {
   allowedIssuers?: string[];
@@ -22,9 +23,10 @@ export type CreateProofRequest = {
   query: ProofQuery;
 };
 
-export type CreateProofRequestParams = {
+export type CreateProofRequestParams = Omit<CreateProofRequest, 'query'> & {
+  query: ProofQuery | SaveCredentialsRequestParams;
   issuerDid: string;
-} & CreateProofRequest;
+};
 
 export type State = {
   txId?: string;

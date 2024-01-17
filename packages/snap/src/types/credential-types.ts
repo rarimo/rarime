@@ -1,6 +1,8 @@
 /* eslint-disable jsdoc/check-tag-names */
 import { Proof } from '@iden3/js-merkletree';
 
+export type { SaveCredentialsRequestParams } from '@rarimo/rarime-connector';
+
 export type CredentialStatus = {
   id: string;
   type: string;

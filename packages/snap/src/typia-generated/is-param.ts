@@ -1,6 +1,5 @@
 import typia from 'typia';
-import { ClaimOffer, CreateProofRequest } from '../types';
-
+import { CreateProofRequest, SaveCredentialsRequestParams } from '../types';
 const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
   let errorMessage = 'invalid_argument: ';
   for (let i = 0; i < errors.length; i += 1) {
@@ -17,14 +16,17 @@ const handleIValidation = (result: typia.IValidation<unknown>) => {
   }
   return formatErrorMessages(result.errors);
 };
-export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
-  const validate = (input: any): typia.IValidation<ClaimOffer> => {
+export const isValidSaveCredentialsOfferRequest = (
+  offer: SaveCredentialsRequestParams,
+) => {
+  const validate = (
+    input: any,
+  ): typia.IValidation<SaveCredentialsRequestParams> => {
     const errors = [] as any[];
     const __is = (
       input: any,
       _exceptionable: boolean = true,
-    ): input is ClaimOffer => {
-      const $is_url = (typia.createValidateEquals as any).is_url;
+    ): input is SaveCredentialsRequestParams => {
       const $io0 = (input: any, _exceptionable: boolean = true): boolean =>
         'object' === typeof input.body &&
         null !== input.body &&
@@ -54,7 +56,6 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
         null !== input.Credentials[0] &&
         $io2(input.Credentials[0], true && _exceptionable) &&
         'string' === typeof input.url &&
-        $is_url(input.url) &&
         (2 === Object.keys(input).length ||
           Object.keys(input).every((key) => {
             if (['Credentials', 'url'].some((prop) => key === prop))
@@ -81,9 +82,8 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
         input: any,
         _path: string,
         _exceptionable: boolean = true,
-      ): input is ClaimOffer => {
+      ): input is SaveCredentialsRequestParams => {
         const $join = (typia.createValidateEquals as any).join;
-        const $is_url = (typia.createValidateEquals as any).is_url;
         const $vo0 = (
           input: any,
           _path: string,
@@ -208,13 +208,7 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
                 expected: '[{ description: string; id: string; }]',
                 value: input.Credentials,
               }),
-            ('string' === typeof input.url &&
-              ($is_url(input.url) ||
-                $report(_exceptionable, {
-                  path: _path + '.url',
-                  expected: 'string (@format url)',
-                  value: input.url,
-                }))) ||
+            'string' === typeof input.url ||
               $report(_exceptionable, {
                 path: _path + '.url',
                 expected: 'string',
@@ -274,13 +268,13 @@ export const isValidSaveCredentialsOfferRequest = (offer: ClaimOffer) => {
           ((('object' === typeof input && null !== input) ||
             $report(true, {
               path: _path + '',
-              expected: 'ClaimOffer',
+              expected: 'SaveCredentialsRequestParams',
               value: input,
             })) &&
             $vo0(input, _path + '', true)) ||
           $report(true, {
             path: _path + '',
-            expected: 'ClaimOffer',
+            expected: 'SaveCredentialsRequestParams',
             value: input,
           })
         );

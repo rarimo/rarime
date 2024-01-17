@@ -39,7 +39,7 @@ export type GetSnapsResponse = {
 
 export type SaveCredentialsRequestParams = {
   body: {
-    credentials: [
+    Credentials: [
       {
         description: string;
         id: string;
@@ -49,7 +49,7 @@ export type SaveCredentialsRequestParams = {
   };
   from: string;
   id: string;
-  thid?: string;
+  threadID?: string;
   to: string;
   typ?: string;
   type: string;
@@ -100,7 +100,7 @@ export type CreateProofRequestParams = {
     | 'credentialAtomicQuerySigV2'
     | 'credentialAtomicQuerySigV2OnChain';
   challenge?: string; // bigint string
-  query: ProofQuery;
+  query: ProofQuery | SaveCredentialsRequestParams;
 };
 
 export type ZKProof = {
