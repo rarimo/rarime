@@ -95,7 +95,7 @@ export const onRpcRequest = async ({
 
         await Promise.all(
           credentials.map(async (credential) => {
-            await vcManager.clearVcs(credential);
+            await vcManager.clearMatchedVcs(credential);
             await vcManager.encryptAndSaveVC(credential);
           }),
         );

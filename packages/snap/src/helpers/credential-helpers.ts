@@ -278,7 +278,7 @@ export class VCManager {
     };
   }
 
-  public async clearVcs(credential: W3CCredential) {
+  public async clearMatchedVcs(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
     const { hashedOwnerDid, hashedQueryHash } = await this.getPreparedVCFields(
