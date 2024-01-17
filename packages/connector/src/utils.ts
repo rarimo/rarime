@@ -1,4 +1,6 @@
+import { compare } from 'compare-versions';
 import { GetSnapsResponse } from './types';
+import { SUPPORTED_METAMASK_VERSION } from './consts';
 import { defaultSnapOrigin } from '.';
 
 export const getProvider = async () => {
@@ -75,4 +77,14 @@ export const isSnapInstalled = async (
     console.log('Failed to obtain installed snaps', e);
     return false;
   }
+};
+
+export const checkSnapSupport = async () => {
+  const version = await window?.ethereum?.request?.({
+    method: 'web3_clientVersion',
+  });
+
+  const currentVersion = version.match(/\/v?(\d+\.\d+\.\d+)/u)?.[1] ?? null;
+  const isMobile = version.endsWith('Mobile');
+  return compare(currentVersion, SUPPORTED_METAMASK_VERSION, '>=') && !isMobile;
 };

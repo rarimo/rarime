@@ -1,1 +1,2 @@
 export const CORE_POLLING_INTERVAL = 5_000;
+export const SUPPORTED_METAMASK_VERSION = '11.5.0';
