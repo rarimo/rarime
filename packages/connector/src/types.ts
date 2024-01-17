@@ -87,7 +87,7 @@ export type ProofQuery = {
   claimId?: string;
   credentialSubjectId?: string;
   context?: string;
-  type?: string;
+  type?: string[];
 };
 
 export type CreateProofRequestParams = {

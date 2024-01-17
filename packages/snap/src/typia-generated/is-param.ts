@@ -342,7 +342,11 @@ export const isValidCreateProofRequest = (request: CreateProofRequest) => {
         (undefined === input.credentialSubjectId ||
           'string' === typeof input.credentialSubjectId) &&
         (undefined === input.context || 'string' === typeof input.context) &&
-        (undefined === input.type || 'string' === typeof input.type) &&
+        (undefined === input.type ||
+          (Array.isArray(input.type) &&
+            input.type.every(
+              (elem: any, _index2: number) => 'string' === typeof elem,
+            ))) &&
         (0 === Object.keys(input).length ||
           Object.keys(input).every((key) => {
             if (
@@ -530,10 +534,26 @@ export const isValidCreateProofRequest = (request: CreateProofRequest) => {
                 value: input.context,
               }),
             undefined === input.type ||
-              'string' === typeof input.type ||
+              ((Array.isArray(input.type) ||
+                $report(_exceptionable, {
+                  path: _path + '.type',
+                  expected: '(Array<string> | undefined)',
+                  value: input.type,
+                })) &&
+                input.type
+                  .map(
+                    (elem: any, _index2: number) =>
+                      'string' === typeof elem ||
+                      $report(_exceptionable, {
+                        path: _path + '.type[' + _index2 + ']',
+                        expected: 'string',
+                        value: elem,
+                      }),
+                  )
+                  .every((flag: boolean) => flag)) ||
               $report(_exceptionable, {
                 path: _path + '.type',
-                expected: '(string | undefined)',
+                expected: '(Array<string> | undefined)',
                 value: input.type,
               }),
             0 === Object.keys(input).length ||

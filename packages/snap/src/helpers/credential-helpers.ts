@@ -394,7 +394,7 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const queryHash = hashVC(String(query.type), issuerDiD, ownerDid);
+    const queryHash = hashVC(JSON.stringify(query.type), issuerDiD, ownerDid);
 
     return this.getDecryptedVCsByQueryHash(queryHash);
   }
