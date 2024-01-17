@@ -1,5 +1,5 @@
 import { MetamaskSnap } from './snap';
-import { isMetamaskInstalled } from './utils';
+import { checkSnapSupport, isMetamaskInstalled } from './utils';
 import versionJson from './version.json';
 
 export { MetamaskSnap } from './snap';
@@ -16,6 +16,10 @@ export const enableSnap = async (
 
   if (!(await isMetamaskInstalled())) {
     throw new Error('Metamask is not installed');
+  }
+
+  if (!(await checkSnapSupport())) {
+    throw new Error('Current version of MetaMask is not supported');
   }
 
   await window.ethereum.request({

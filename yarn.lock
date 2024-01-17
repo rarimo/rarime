@@ -7465,6 +7465,7 @@ __metadata:
   resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
     "@ethersproject/providers": 5.7.2
+    compare-versions: ^6.1.0
     eslint: 8.21.0
     ethers: 5.7.2
     typescript: 4.7.4
@@ -12353,6 +12354,13 @@ __metadata:
   version: 1.0.1
   resolution: "commondir@npm:1.0.1"
   checksum: 59715f2fc456a73f68826285718503340b9f0dd89bfffc42749906c5cf3d4277ef11ef1cca0350d0e79204f00f1f6d83851ececc9095dc88512a697ac0b9bdcb
+  languageName: node
+  linkType: hard
+
+"compare-versions@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "compare-versions@npm:6.1.0"
+  checksum: d4e2a45706a023d8d0b6680338b66b79e20bd02d1947f0ac6531dab634cbed89fa373b3f03d503c5e489761194258d6e1bae67a07f88b1efc61648454f2d47e7
   languageName: node
   linkType: hard
 
