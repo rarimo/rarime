@@ -278,6 +278,16 @@ export class VCManager {
     };
   }
 
+  /*
+  save vc & clear vc methods have similar ways to build query hash for ceramic compose db.
+  If VCs with specific queryHash had been found - we return them instead of generating new ones.
+
+  But in cases, when the issuer has migrations,
+  or some other `VC's changing situations - it could still return the same query hash,
+  but other necessary data could be outdated.
+
+  To deal with that, specific checks had been added to remove all matched VC's from ceramic, and save new ones
+  * */
   public async clearMatchedVcs(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
