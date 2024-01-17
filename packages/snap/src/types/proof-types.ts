@@ -23,10 +23,9 @@ export type CreateProofRequest = {
   query: ProofQuery;
 };
 
-export type CreateProofRequestParams = Omit<CreateProofRequest, 'query'> & {
-  query: ProofQuery | SaveCredentialsRequestParams;
+export type CreateProofRequestParams = {
   issuerDid: string;
-};
+} & CreateProofRequest;
 
 export type State = {
   txId?: string;

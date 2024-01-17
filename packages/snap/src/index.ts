@@ -183,7 +183,7 @@ export const onRpcRequest = async ({
 
       isValidCreateProofRequest(createProofRequest);
 
-      const queryOrClaimOffer = createProofRequest.query;
+      const { query } = createProofRequest;
       const { circuitId, accountAddress } = createProofRequest;
 
       const isOnChainProof =
@@ -196,12 +196,8 @@ export const onRpcRequest = async ({
 
       const vcManager = await VCManager.create(identityStorage.privateKeyHex);
 
-      const credentials = ('body' in queryOrClaimOffer
-        ? await vcManager.getDecryptedVCsByOffer(queryOrClaimOffer)
-        : await vcManager.getDecryptedVCsByQuery(
-            createProofRequest.query,
-            issuerDid,
-          )
+      const credentials = (
+        await vcManager.getDecryptedVCsByQuery(query, issuerDid)
       ).filter((cred) => {
         const CredSubjId = parseDidV2(cred.credentialSubject.id as string);
 

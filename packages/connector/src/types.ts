@@ -100,7 +100,7 @@ export type CreateProofRequestParams = {
     | 'credentialAtomicQuerySigV2'
     | 'credentialAtomicQuerySigV2OnChain';
   challenge?: string; // bigint string
-  query: ProofQuery | SaveCredentialsRequestParams;
+  query: ProofQuery;
 };
 
 export type ZKProof = {
