@@ -3,7 +3,10 @@ import { sha256 } from 'ethers/lib/utils';
 import { DocumentNode } from 'graphql/language';
 import { ProofType, StorageKeys } from '../enums';
 import {
-  ClaimOffer,
+  SaveCredentialsRequestParams,
+  ClearVc,
+  ClearVcMutation,
+  ClearVcMutationVariables,
   CreateVc,
   CreateVcMutationVariables,
   CredentialStatus,
@@ -42,7 +45,7 @@ const getClaimIdFromVC = (credential: W3CCredential) => {
   }
 };
 
-const getClaimIdsFromOffer = (offer: ClaimOffer) => {
+const getClaimIdsFromOffer = (offer: SaveCredentialsRequestParams) => {
   return offer.body.Credentials.map((cred) => cred.id);
 };
 
@@ -195,7 +198,7 @@ export class VCManager {
   }
 
   public async getDecryptedVCsByOffer(
-    offer: ClaimOffer,
+    offer: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]> {
     const client = this.ceramicProvider.client();
 
@@ -245,10 +248,8 @@ export class VCManager {
     );
   }
 
-  public async encryptAndSaveVC(credential: W3CCredential) {
+  private async getPreparedVCFields(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
-
-    const encryptedVC = await this.ceramicProvider.encrypt(credential);
 
     const ownerDid = client.did?.id;
 
@@ -257,33 +258,90 @@ export class VCManager {
     }
 
     const queryHash = hashVC(
-      String(credential.credentialSubject.type),
+      JSON.stringify(credential.type),
       credential.issuer,
       ownerDid,
     );
 
-    const foundedVCs = await this.getDecryptedVCsByQueryHash(queryHash);
-
     const claimId = getClaimIdFromVC(credential);
 
-    if (foundedVCs.length) {
-      return;
-    }
-
-    const [
-      hashedClientDid,
-      hashedQueryHash,
-      hashedClaimId,
-    ] = await Promise.all([
+    const [hashedOwnerDid, hashedQueryHash, hashedClaimId] = await Promise.all([
       this.personalHashStr(ownerDid),
       this.personalHashStr(queryHash),
       this.personalHashStr(claimId),
     ]);
 
+    return {
+      hashedOwnerDid,
+      hashedQueryHash,
+      hashedClaimId,
+    };
+  }
+
+  /*
+  save vc & clear vc methods have similar ways to build query hash for ceramic compose db.
+  If VCs with specific queryHash had been found - we return them instead of generating new ones.
+
+  But in cases, when the issuer has migrations,
+  or some other `VC's changing situations - it could still return the same query hash,
+  but other necessary data could be outdated.
+
+  To deal with that, specific checks had been added to remove all matched VC's from ceramic, and save new ones
+  * */
+  public async clearMatchedVcs(credential: W3CCredential) {
+    const client = this.ceramicProvider.client();
+
+    const { hashedOwnerDid, hashedQueryHash } = await this.getPreparedVCFields(
+      credential,
+    );
+
+    const data = await loadAllCredentialsListPages<
+      GetVerifiableCredentialsByQueryHashQueryVariables,
+      GetVerifiableCredentialsByQueryHashQuery
+    >(
+      GetVerifiableCredentialsByQueryHash,
+      {
+        first: 1000,
+        queryHash: hashedQueryHash,
+        ownerDid: hashedOwnerDid,
+      },
+      this.ceramicProvider,
+    );
+
+    const ids = data
+      .map((el) => el.verifiableCredentialIndex?.edges)
+      .flat()
+      .map((el) => el?.node?.id ?? '')
+      .filter((el) => Boolean(el));
+
+    await Promise.all(
+      ids.map(async (id) => {
+        const { errors } = await client.execute<ClearVcMutation>(ClearVc, {
+          id,
+        } as ClearVcMutationVariables);
+
+        if (errors) {
+          throw new TypeError(JSON.stringify(errors));
+        }
+      }),
+    );
+  }
+
+  public async encryptAndSaveVC(credential: W3CCredential) {
+    const client = this.ceramicProvider.client();
+
+    const {
+      hashedOwnerDid,
+      hashedQueryHash,
+      hashedClaimId,
+    } = await this.getPreparedVCFields(credential);
+
+    const encryptedVC = await this.ceramicProvider.encrypt(credential);
+
     const createVCVariables: CreateVcMutationVariables = {
       input: {
         content: {
-          ownerDid: hashedClientDid,
+          ownerDid: hashedOwnerDid,
           data: encryptedVC,
           queryHash: hashedQueryHash,
           claimId: hashedClaimId,
@@ -346,7 +404,7 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const queryHash = hashVC(String(query.type), issuerDiD, ownerDid);
+    const queryHash = hashVC(JSON.stringify(query.type), issuerDiD, ownerDid);
 
     return this.getDecryptedVCsByQueryHash(queryHash);
   }
@@ -453,4 +511,10 @@ export const loadDataByUrl = async (
   }
 
   return await response.json();
+};
+
+export const isVCsV2 = (vcs: W3CCredential[]) => {
+  return vcs.every((vc) => {
+    return vc.issuer.includes('readonly');
+  });
 };

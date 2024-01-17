@@ -11,7 +11,8 @@ export type ProofQuery = {
   claimId?: string;
   credentialSubjectId?: string;
   context?: string;
-  type?: string;
+  // should match vc.type
+  type?: string[];
 };
 
 export type CreateProofRequest = {

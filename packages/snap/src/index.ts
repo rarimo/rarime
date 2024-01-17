@@ -8,7 +8,7 @@ import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
 import {
-  ClaimOffer,
+  SaveCredentialsRequestParams,
   CreateProofRequestParams,
   GetStateInfoResponse,
   MerkleProof,
@@ -21,6 +21,7 @@ import {
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
+  isVCsV2,
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
   parseDidV2,
@@ -51,7 +52,7 @@ export const onRpcRequest = async ({
         throw new Error('Identity not created');
       }
 
-      const offer = (request.params as any) as ClaimOffer;
+      const offer = (request.params as any) as SaveCredentialsRequestParams;
 
       isValidSaveCredentialsOfferRequest(offer);
 
@@ -82,7 +83,7 @@ export const onRpcRequest = async ({
 
         const existingVC = await vcManager.getDecryptedVCsByOffer(offer);
 
-        if (existingVC.length) {
+        if (existingVC.length && isVCsV2(existingVC)) {
           return existingVC;
         }
 
@@ -94,6 +95,7 @@ export const onRpcRequest = async ({
 
         await Promise.all(
           credentials.map(async (credential) => {
+            await vcManager.clearMatchedVcs(credential);
             await vcManager.encryptAndSaveVC(credential);
           }),
         );
@@ -175,16 +177,13 @@ export const onRpcRequest = async ({
         throw new Error('Identity not created');
       }
 
-      const vcManager = await VCManager.create(identityStorage.privateKeyHex);
-
-      const params = (request.params as any) as CreateProofRequestParams;
+      const params = request.params as CreateProofRequestParams;
 
       const { issuerDid, ...createProofRequest } = params;
 
       isValidCreateProofRequest(createProofRequest);
 
-      const credentialType = createProofRequest.query.type;
-      const { credentialSubject } = createProofRequest.query;
+      const { query } = createProofRequest;
       const { circuitId, accountAddress } = createProofRequest;
 
       const isOnChainProof =
@@ -195,11 +194,10 @@ export const onRpcRequest = async ({
         throw new Error('Account address is required');
       }
 
+      const vcManager = await VCManager.create(identityStorage.privateKeyHex);
+
       const credentials = (
-        await vcManager.getDecryptedVCsByQuery(
-          createProofRequest.query,
-          issuerDid,
-        )
+        await vcManager.getDecryptedVCsByQuery(query, issuerDid)
       ).filter((cred) => {
         const CredSubjId = parseDidV2(cred.credentialSubject.id as string);
 
@@ -220,29 +218,61 @@ export const onRpcRequest = async ({
           type: 'confirmation',
           content: panel([
             heading('Create proof'),
-            ...(credentialType
-              ? [divider(), text('Credential type'), text(credentialType)]
-              : []),
-            ...(credentialSubject
-              ? [
-                  divider(),
-                  text('Requirements'),
-                  ...Object.keys(credentialSubject).reduce(
-                    (acc: TextField[], fieldName) => {
-                      const fieldOperators = credentialSubject?.[fieldName];
-                      const textField = Object.keys(fieldOperators).map(
-                        (operator) => {
-                          return text(
-                            `${fieldName} - ${operator} ${fieldOperators[operator]}\n`,
-                          );
-                        },
+
+            divider(),
+
+            text('Credential types'),
+            divider(),
+
+            ...credentials.reduce((acc: TextField[], cred) => {
+              return [
+                ...acc,
+
+                ...cred.type.reduce((credAcc: TextField[], type) => {
+                  return credAcc.concat([text(`${type}\n`)]);
+                }, []),
+              ];
+            }, []),
+
+            divider(),
+            text('Requirements'),
+
+            ...credentials.reduce((acc: TextField[], cred) => {
+              return [
+                ...acc,
+
+                ...Object.keys(cred.credentialSubject).reduce(
+                  (accSubj: TextField[], fieldName) => {
+                    const fieldOperators = cred.credentialSubject?.[fieldName];
+
+                    const isString = typeof fieldOperators === 'string';
+                    const isNumber = typeof fieldOperators === 'number';
+
+                    if (isString || isNumber) {
+                      return accSubj.concat(
+                        text(`${fieldName} - ${fieldOperators}\n`),
                       );
-                      return acc.concat(textField);
-                    },
-                    [],
-                  ),
-                ]
-              : []),
+                    }
+
+                    const textField = Object.keys(fieldOperators).map(
+                      (operator) => {
+                        return text(
+                          `${fieldName} - ${operator} ${
+                            (fieldOperators as any)?.[operator]
+                          }\n`,
+                        );
+                      },
+                    );
+
+                    return accSubj.concat(textField);
+                  },
+                  [],
+                ),
+              ];
+            }, []),
+
+            divider(),
+
             ...(circuitId
               ? [divider(), text('Proof type'), text(circuitId)]
               : []),

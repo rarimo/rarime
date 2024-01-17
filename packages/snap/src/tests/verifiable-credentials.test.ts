@@ -2,14 +2,14 @@ import * as crypto from 'crypto';
 import { Hex, PrivateKey } from '@iden3/js-crypto';
 import { hashVC, VCManager } from '../helpers';
 import {
-  ClaimOffer,
+  SaveCredentialsRequestParams,
   CreateProofRequestParams,
   ProofQuery,
   W3CCredential,
 } from '../types';
 import { CircuitId } from '../enums';
 
-const dummyOffer: ClaimOffer = {
+const dummyOffer: SaveCredentialsRequestParams = {
   body: {
     Credentials: [
       {

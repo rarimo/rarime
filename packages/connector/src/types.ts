@@ -39,7 +39,7 @@ export type GetSnapsResponse = {
 
 export type SaveCredentialsRequestParams = {
   body: {
-    credentials: [
+    Credentials: [
       {
         description: string;
         id: string;
@@ -49,7 +49,7 @@ export type SaveCredentialsRequestParams = {
   };
   from: string;
   id: string;
-  thid?: string;
+  threadID?: string;
   to: string;
   typ?: string;
   type: string;
@@ -87,7 +87,7 @@ export type ProofQuery = {
   claimId?: string;
   credentialSubjectId?: string;
   context?: string;
-  type?: string;
+  type?: string[];
 };
 
 export type CreateProofRequestParams = {

@@ -1,6 +1,5 @@
 import { proving, type ZKProof } from '@iden3/js-jwz';
 
-
 import { Hex, Signature } from '@iden3/js-crypto';
 import { fromLittleEndian } from '@iden3/js-iden3-core';
 import { type Identity } from './identity';
