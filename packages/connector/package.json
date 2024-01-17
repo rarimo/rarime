@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@ethersproject/providers": "5.7.2",
+    "compare-versions": "^6.1.0",
     "ethers": "5.7.2"
   },
   "devDependencies": {

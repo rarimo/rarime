@@ -1,5 +1,6 @@
+import { compare } from 'compare-versions';
 import { GetSnapsResponse } from './types';
-import { METAMASK_SNAPS_MAJOR_VERSION } from './consts';
+import { METAMASK_SUPPORTS_SNAPS_VERSION } from './consts';
 import { defaultSnapOrigin } from '.';
 
 export const getProvider = async () => {
@@ -83,7 +84,9 @@ export const checkSnapSupport = async () => {
     method: 'web3_clientVersion',
   });
 
-  const majorVersion = Number(version.match(/.+v([0-9]+).+/u)?.[1] ?? 0);
+  const currentVersion = version.match(/\/v?(\d+\.\d+\.\d+)/u)?.[1] ?? null;
   const isMobile = version.endsWith('Mobile');
-  return majorVersion >= METAMASK_SNAPS_MAJOR_VERSION && !isMobile;
+  return (
+    compare(METAMASK_SUPPORTS_SNAPS_VERSION, currentVersion, '<=') && !isMobile
+  );
 };
