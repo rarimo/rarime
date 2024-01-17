@@ -1,6 +1,6 @@
 import { compare } from 'compare-versions';
 import { GetSnapsResponse } from './types';
-import { METAMASK_SUPPORTS_SNAPS_VERSION } from './consts';
+import { SUPPORTED_METAMASK_VERSION } from './consts';
 import { defaultSnapOrigin } from '.';
 
 export const getProvider = async () => {
@@ -86,7 +86,5 @@ export const checkSnapSupport = async () => {
 
   const currentVersion = version.match(/\/v?(\d+\.\d+\.\d+)/u)?.[1] ?? null;
   const isMobile = version.endsWith('Mobile');
-  return (
-    compare(METAMASK_SUPPORTS_SNAPS_VERSION, currentVersion, '<=') && !isMobile
-  );
+  return compare(currentVersion, SUPPORTED_METAMASK_VERSION, '>=') && !isMobile;
 };
