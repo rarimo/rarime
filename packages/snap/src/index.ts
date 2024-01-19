@@ -1,7 +1,10 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
 import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
-import { RPCMethods } from '@rarimo/rarime-connector';
+import {
+  CheckCredentialExistenceRequestParams,
+  RPCMethods,
+} from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
 import { Identity } from './identity';
@@ -21,7 +24,6 @@ import {
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
-  isVCsV2,
   loadDataFromRarimoCore,
   moveStoreVCtoCeramic,
   parseDidV2,
@@ -46,6 +48,36 @@ export const onRpcRequest = async ({
   }
 
   switch (request.method) {
+    case RPCMethods.CheckCredentialExistence: {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
+      const {
+        claimOffer,
+        proofRequest,
+      } = request.params as CheckCredentialExistenceRequestParams;
+
+      const vcManager = await VCManager.create(identityStorage.privateKeyHex);
+
+      if (claimOffer && proofRequest) {
+      } else if (claimOffer) {
+        const vcs = await vcManager.getDecryptedVCsByOffer(claimOffer);
+
+        return Boolean(vcs.length);
+      } else if (proofRequest) {
+        const vcs = await vcManager.getDecryptedVCsByQuery(
+          proofRequest,
+          proofRequest.issuerDid,
+        );
+
+        return Boolean(vcs.length);
+      }
+
+      return false;
+    }
+
     case RPCMethods.SaveCredentials: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {
@@ -81,12 +113,6 @@ export const onRpcRequest = async ({
       if (res) {
         const vcManager = await VCManager.create(identityStorage.privateKeyHex);
 
-        const existingVC = await vcManager.getDecryptedVCsByOffer(offer);
-
-        if (existingVC.length && isVCsV2(existingVC)) {
-          return existingVC;
-        }
-
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
         const authProof = new AuthZkp(identity, offer);
@@ -99,7 +125,11 @@ export const onRpcRequest = async ({
             await vcManager.encryptAndSaveVC(credential);
           }),
         );
-        return credentials;
+
+        return credentials.map((cred) => ({
+          type: cred.type,
+          issuer: cred.issuer,
+        }));
       }
       throw new Error('User rejected request');
     }

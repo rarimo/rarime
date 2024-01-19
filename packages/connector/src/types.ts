@@ -10,10 +10,14 @@ declare global {
 export enum RPCMethods {
   CreateIdentity = 'create_identity',
   SaveCredentials = 'save_credentials',
+  CheckCredentialExistence = 'check_credential_existence',
   CreateProof = 'create_proof',
   CheckStateContractSync = 'check_state_contract_sync',
   GetCredentials = 'get_credentials',
 }
+
+export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
+  Pick<W3CCredential, 'issuer'>;
 
 export type SnapConnector = {
   createIdentity(): Promise<{
@@ -22,7 +26,7 @@ export type SnapConnector = {
   }>;
   saveCredentials(
     params: SaveCredentialsRequestParams,
-  ): Promise<W3CCredential[]>;
+  ): Promise<SaveCredentialsResponse[]>;
   createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>;
   checkStateContractSync(): Promise<boolean>;
   getCredentials(): Promise<W3CCredential[]>;
@@ -35,6 +39,11 @@ export type GetSnapsResponse = {
     version?: string;
     initialPermissions?: { [k: string]: unknown };
   };
+};
+
+export type CheckCredentialExistenceRequestParams = {
+  claimOffer?: SaveCredentialsRequestParams;
+  proofRequest?: CreateProofRequestParams;
 };
 
 export type SaveCredentialsRequestParams = {

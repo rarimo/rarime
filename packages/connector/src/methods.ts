@@ -5,6 +5,7 @@ import {
   CreateProofRequestParams,
   RPCMethods,
   SaveCredentialsRequestParams,
+  SaveCredentialsResponse,
   W3CCredential,
   ZKPProofResponse,
   ZKPProofSnapResponse,
@@ -38,7 +39,7 @@ export const createIdentity = async function (
 export const saveCredentials = async function (
   this: MetamaskSnap,
   params: SaveCredentialsRequestParams,
-): Promise<W3CCredential[]> {
+): Promise<SaveCredentialsResponse[]> {
   return await sendSnapMethod(
     { method: RPCMethods.SaveCredentials, params },
     this.snapId,

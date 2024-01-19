@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { Hex, Signature } from '@iden3/js-crypto';
+import type { ProofQuery } from '@rarimo/rarime-connector';
 import {
   Claim,
   DID,
@@ -26,7 +27,6 @@ import {
   JSONSchema,
   MTProof,
   NodeAuxValue,
-  ProofQuery,
   QueryWithFieldName,
   RevocationStatus,
   StateProof,
