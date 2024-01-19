@@ -30,6 +30,9 @@ export type SnapConnector = {
   createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>;
   checkStateContractSync(): Promise<boolean>;
   getCredentials(): Promise<W3CCredential[]>;
+  checkCredentialExistence(
+    params: CheckCredentialExistenceRequestParams,
+  ): Promise<SaveCredentialsResponse[]>;
 };
 
 export type GetSnapsResponse = {

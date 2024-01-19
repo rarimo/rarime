@@ -5,6 +5,7 @@ import {
   saveCredentials,
   checkStateContractSync,
   getCredentials,
+  checkCredentialExistence,
 } from './methods';
 
 export class MetamaskSnap {
@@ -21,6 +22,7 @@ export class MetamaskSnap {
       createProof: createProof.bind(this),
       checkStateContractSync: checkStateContractSync.bind(this),
       getCredentials: getCredentials.bind(this),
+      checkCredentialExistence: checkCredentialExistence.bind(this),
     };
   };
 }
