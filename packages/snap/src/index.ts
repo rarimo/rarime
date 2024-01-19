@@ -4,6 +4,7 @@ import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
 import {
   CheckCredentialExistenceRequestParams,
   RPCMethods,
+  SaveCredentialsResponse,
 } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
@@ -61,27 +62,38 @@ export const onRpcRequest = async ({
 
       const vcManager = await VCManager.create(identityStorage.privateKeyHex);
 
+      let result: SaveCredentialsResponse[] = [];
+
       if (claimOffer && proofRequest) {
         const vcs = await vcManager.getDecryptedVCsByOfferAndQuery(
           claimOffer,
           proofRequest,
         );
 
-        return Boolean(vcs.length);
+        result = vcs?.map((vc) => ({
+          type: vc.type,
+          issuer: vc.issuer,
+        }));
       } else if (claimOffer) {
         const vcs = await vcManager.getDecryptedVCsByOffer(claimOffer);
 
-        return Boolean(vcs.length);
+        result = vcs?.map((vc) => ({
+          type: vc.type,
+          issuer: vc.issuer,
+        }));
       } else if (proofRequest) {
         const vcs = await vcManager.getDecryptedVCsByQuery(
           proofRequest.query,
           proofRequest.issuerDid,
         );
 
-        return Boolean(vcs.length);
+        result = vcs?.map((vc) => ({
+          type: vc.type,
+          issuer: vc.issuer,
+        }));
       }
 
-      return false;
+      return result;
     }
 
     case RPCMethods.SaveCredentials: {
