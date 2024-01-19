@@ -62,13 +62,19 @@ export const onRpcRequest = async ({
       const vcManager = await VCManager.create(identityStorage.privateKeyHex);
 
       if (claimOffer && proofRequest) {
+        const vcs = await vcManager.getDecryptedVCsByOfferAndQuery(
+          claimOffer,
+          proofRequest,
+        );
+
+        return Boolean(vcs.length);
       } else if (claimOffer) {
         const vcs = await vcManager.getDecryptedVCsByOffer(claimOffer);
 
         return Boolean(vcs.length);
       } else if (proofRequest) {
         const vcs = await vcManager.getDecryptedVCsByQuery(
-          proofRequest,
+          proofRequest.query,
           proofRequest.issuerDid,
         );
 
