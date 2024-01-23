@@ -6,13 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Added
 - `@rarimo/rarime` - credentials storage tests
 - `@rarimo/rarime` - add RariMe App hostnames to the get credentials whitelist
 - `@rarimo/rarime` - Checking MetaMask version compatibility
+- `@rarimo/rarime` - `CheckCredentialExistence` request handler
 - `@rarimo/rarime-connector` new dependencies:
   - `compare-versions`
+  - `CheckCredentialExistence` request method
 
 ### Changed
 - `@rarimo/rarime`
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - unified ceramic client
     - hash and encrypt data
   - Moved credentials to ComposeDB
+  - `SaveCredentials` method will no return `type` and `issuer` did instead of whole W3CCredential
 
 ### Fixed
 - Patch snap dependencies after every `yarn isntall`
