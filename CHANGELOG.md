@@ -5,14 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
+## [2.0.0] - 2024-01-23
 ### Added
 - `@rarimo/rarime` - credentials storage tests
 - `@rarimo/rarime` - add RariMe App hostnames to the get credentials whitelist
 - `@rarimo/rarime` - Checking MetaMask version compatibility
+- `@rarimo/rarime` - `CheckCredentialExistence` request handler
 - `@rarimo/rarime-connector` new dependencies:
   - `compare-versions`
+  - `CheckCredentialExistence` request method
 
 ### Changed
 - `@rarimo/rarime`
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - unified ceramic client
     - hash and encrypt data
   - Moved credentials to ComposeDB
+  - `SaveCredentials` method will no return `type` and `issuer` did instead of whole W3CCredential
 
 ### Fixed
 - Patch snap dependencies after every `yarn isntall`
@@ -143,7 +145,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
 
-[Unreleased]: https://github.com/rarimo/rarime/compare/1.0.2...HEAD
+[Unreleased]: https://github.com/rarimo/rarime/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/rarimo/rarime/compare/1.0.2...2.0.0
 [1.0.2]: https://github.com/rarimo/rarime/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/rarimo/rarime/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/rarimo/rarime/compare/0.8.0...1.0.0

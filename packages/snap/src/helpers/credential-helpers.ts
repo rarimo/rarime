@@ -1,6 +1,10 @@
 import { Claim } from '@iden3/js-iden3-core';
 import { sha256 } from 'ethers/lib/utils';
 import { DocumentNode } from 'graphql/language';
+import type {
+  CreateProofRequestParams,
+  ProofQuery,
+} from '@rarimo/rarime-connector';
 import { ProofType, StorageKeys } from '../enums';
 import {
   SaveCredentialsRequestParams,
@@ -19,9 +23,11 @@ import {
   GetVerifiableCredentialsByQueryHash,
   GetVerifiableCredentialsByQueryHashQuery,
   GetVerifiableCredentialsByQueryHashQueryVariables,
-  ProofQuery,
   RevocationStatus,
   W3CCredential,
+  GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables,
+  GetVerifiableCredentialsByClaimIdAndQueryHashQuery,
+  GetVerifiableCredentialsByClaimIdAndQueryHash,
 } from '../types';
 import { getItemFromStore, setItemInStore } from '../rpc';
 import { getCoreClaimFromProof } from './proof-helpers';
@@ -194,6 +200,62 @@ export class VCManager {
 
         return await this.ceramicProvider.decrypt<W3CCredential>(encryptedVC);
       }),
+    );
+  }
+
+  public async getDecryptedVCsByOfferAndQuery(
+    claimOffer: SaveCredentialsRequestParams,
+    { query, issuerDid }: CreateProofRequestParams,
+  ) {
+    const client = this.ceramicProvider.client();
+
+    const ownerDid = client.did?.id;
+
+    if (!ownerDid) {
+      throw new TypeError('Client not authenticated');
+    }
+
+    const claimIds = getClaimIdsFromOffer(claimOffer);
+    const queryHash = hashVC(JSON.stringify(query.type), issuerDid, ownerDid);
+
+    const hashedQueryHash = this.personalHashStr(queryHash);
+
+    const encryptedVCs = await Promise.all(
+      claimIds.map(async (claimId) => {
+        const hashedClaimId = this.personalHashStr(claimId);
+        const hashedOwnerDid = this.personalHashStr(ownerDid);
+
+        const data = await loadAllCredentialsListPages<
+          GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables,
+          GetVerifiableCredentialsByClaimIdAndQueryHashQuery
+        >(
+          GetVerifiableCredentialsByClaimIdAndQueryHash,
+          {
+            first: 1000,
+            claimId: hashedClaimId,
+            ownerDid: hashedOwnerDid,
+            queryHash: hashedQueryHash,
+          },
+          this.ceramicProvider,
+        );
+
+        return data.map((el) => el.verifiableCredentialIndex?.edges).flat();
+      }),
+    );
+
+    if (!encryptedVCs?.length) {
+      return [];
+    }
+
+    return await Promise.all(
+      encryptedVCs
+        .filter((el) => el?.every((encryptedVC) => encryptedVC?.node?.data))
+        .flat()
+        .map(async (el) => {
+          const encryptedVC = el?.node?.data as string;
+
+          return await this.ceramicProvider.decrypt<W3CCredential>(encryptedVC);
+        }),
     );
   }
 

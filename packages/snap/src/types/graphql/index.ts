@@ -392,6 +392,40 @@ export type GetVerifiableCredentialsByClaimIdQuery = {
   } | null;
 };
 
+export type GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables = Exact<{
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+  claimId: Scalars['String']['input'];
+  ownerDid: Scalars['String']['input'];
+  queryHash: Scalars['String']['input'];
+}>;
+
+export type GetVerifiableCredentialsByClaimIdAndQueryHashQuery = {
+  __typename?: 'Query';
+  verifiableCredentialIndex?: {
+    __typename?: 'VerifiableCredentialConnection';
+    edges?:
+      | ({
+          __typename?: 'VerifiableCredentialEdge';
+          node?: {
+            __typename?: 'VerifiableCredential';
+            id: string;
+            data: string;
+            queryHash: string;
+            claimId: string;
+          } | null;
+        } | null)[]
+      | null;
+    pageInfo: {
+      __typename?: 'PageInfo';
+      endCursor?: string | null;
+      hasNextPage: boolean;
+      startCursor?: string | null;
+      hasPreviousPage: boolean;
+    };
+  } | null;
+};
+
 export type ClearVcMutationVariables = Exact<{
   id: Scalars['ID']['input'];
   claimId?: InputMaybe<Scalars['String']['input']>;
@@ -504,6 +538,30 @@ export const GetVerifiableCredentialsByClaimId = gql`
       filters: {
         where: {
           claimId: { equalTo: $claimId }
+          ownerDid: { equalTo: $ownerDid }
+        }
+      }
+    ) {
+      ...VerifiableCredential
+    }
+  }
+  ${VerifiableCredential}
+`;
+export const GetVerifiableCredentialsByClaimIdAndQueryHash = gql`
+  query GetVerifiableCredentialsByClaimIdAndQueryHash(
+    $first: Int!
+    $after: String
+    $claimId: String!
+    $ownerDid: String!
+    $queryHash: String!
+  ) {
+    verifiableCredentialIndex(
+      first: $first
+      after: $after
+      filters: {
+        where: {
+          claimId: { equalTo: $claimId }
+          queryHash: { equalTo: $queryHash }
           ownerDid: { equalTo: $ownerDid }
         }
       }

@@ -1,19 +1,9 @@
 import { Signature } from '@iden3/js-crypto';
 import { Claim } from '@iden3/js-iden3-core';
 import { Hash, Proof } from '@iden3/js-merkletree';
+import type { ProofQuery } from '@rarimo/rarime-connector';
 import { Query } from '../helpers';
 import { CircuitId } from '../enums';
-
-export type ProofQuery = {
-  allowedIssuers?: string[];
-  credentialSubject?: { [key: string]: any };
-  schema?: string; // string url
-  claimId?: string;
-  credentialSubjectId?: string;
-  context?: string;
-  // should match vc.type
-  type?: string[];
-};
 
 export type CreateProofRequest = {
   id?: number;
