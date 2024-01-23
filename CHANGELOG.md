@@ -6,21 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2.0.0] - 2024-01-23
+
 ### Added
-- `@rarimo/rarime` - credentials storage tests
-- `@rarimo/rarime` - add RariMe App hostnames to the get credentials whitelist
-- `@rarimo/rarime` - Checking MetaMask version compatibility
-- `@rarimo/rarime` - `CheckCredentialExistence` request handler
-- `@rarimo/rarime-connector` new dependencies:
-  - `compare-versions`
-  - `CheckCredentialExistence` request method
+- `@rarimo/rarime`:
+  - Credentials storage tests
+  - Add RariMe App hostnames to the whitelist
+  - `CheckCredentialExistence`  request
+- `@rarimo/rarime-connector`:
+  - MetaMask version compatibility check
+  - `CheckCredentialExistence` request
 
 ### Changed
 - `@rarimo/rarime`
-  - refactored credential-helpers methods to `VCManager` class
-    - ceramic account injection
-    - unified ceramic client
-    - hash and encrypt data
+  - Moved credential-helpers methods to `VCManager` class:
+    - Ceramic account injection;
+    - Unified ceramic client;
+    - Hashing and encrypting data;
   - Moved credentials to ComposeDB
   - `SaveCredentials` method will no return `type` and `issuer` did instead of whole W3CCredential
 
