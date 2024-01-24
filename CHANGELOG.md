@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.1] - 2024-01-24
 ### Changed
-- `@rarimo/rarime-connector` - set snap version to `2.0.1`
+- `@rarimo/rarime-connector` - set strict snap version requirement
 
 ## [2.0.0] - 2024-01-23
 
