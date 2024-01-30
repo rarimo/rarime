@@ -7,8 +7,9 @@ import npm from 'npm-commands';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const ceramicUrl = 'http://0.0.0.0:7007';
-const didPK = '';
+// http://0.0.0.0:7007 || https://ceramic.rarimo.com
+const ceramicUrl = process.env.CERAMIC_URL;
+const didPK = process.env.DID_PRIVATE_KEY
 
 // Directory path
 const modelsDirPath = './ceramic/models';
