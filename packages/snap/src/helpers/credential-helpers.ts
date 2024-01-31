@@ -507,6 +507,12 @@ export const moveStoreVCtoCeramic = async () => {
 export const migrateVCs = async () => {
   const targetVcManager = await VCManager.create();
 
+  const targetVcs = await targetVcManager.getAllDecryptedVCs();
+
+  if (targetVcs.length) {
+    return;
+  }
+
   await Promise.all(
     [VerifiableRuntimeComposite].map(async (definition) => {
       const vcManager2 = await VCManager.create({
