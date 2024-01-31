@@ -47,7 +47,7 @@ export const onRpcRequest = async ({
 }) => {
   if (request.method !== RPCMethods.CreateIdentity) {
     await moveStoreVCtoCeramic();
-    await migrateVCs(); // FIXME: duplicates?
+    await migrateVCs();
   }
 
   switch (request.method) {

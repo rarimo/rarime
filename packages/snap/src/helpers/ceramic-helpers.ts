@@ -9,8 +9,6 @@ import { CERAMIC_URL } from '../config';
 export class CeramicProvider {
   private readonly pkHex: string;
 
-  private readonly serverURL?: string;
-
   private _compose: ComposeClient;
 
   constructor(pkHex: string, composeClient: ComposeClient) {
