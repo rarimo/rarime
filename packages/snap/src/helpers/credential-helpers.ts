@@ -30,6 +30,8 @@ import {
   GetVerifiableCredentialsByClaimIdAndQueryHash,
 } from '../types';
 import { getItemFromStore, setItemInStore } from '../rpc';
+import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
+import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
 import { getCoreClaimFromProof } from './proof-helpers';
 import { CeramicProvider } from './ceramic-helpers';
 
@@ -105,8 +107,8 @@ const loadAllCredentialsListPages = async <
 };
 
 export const getAuthenticatedCeramicProvider = async (
+  opts: { definition: object; serverURL?: string },
   pkHex?: string,
-  serverURL?: string,
 ) => {
   let privateKeyHex = pkHex ?? '';
 
@@ -120,7 +122,10 @@ export const getAuthenticatedCeramicProvider = async (
     privateKeyHex = identityStorage.privateKeyHex;
   }
 
-  const ceramicProvider = new CeramicProvider(privateKeyHex, serverURL);
+  const ceramicProvider = CeramicProvider.create(privateKeyHex, {
+    ...(opts.serverURL && { serverURL: opts.serverURL }),
+    definition: VerifiableRuntimeCompositeV2,
+  });
 
   await ceramicProvider.auth();
 
@@ -137,7 +142,11 @@ export class VCManager {
     this.saltedEntropy = saltedEntropy;
   }
 
-  static async create(pkHex?: string, serverURL?: string) {
+  static async create(opts?: {
+    pkHex?: string;
+    definition?: object;
+    serverURL?: string;
+  }) {
     /**
      * Add some account-specific entropy to the input,
      * additional entropy will prevent someone from counting
@@ -154,8 +163,16 @@ export class VCManager {
       ? entropy.substring(2)
       : entropy;
 
+    const definition = opts?.definition ?? VerifiableRuntimeCompositeV2;
+
     return new VCManager(
-      await getAuthenticatedCeramicProvider(pkHex, serverURL),
+      await getAuthenticatedCeramicProvider(
+        {
+          ...(opts?.serverURL && { serverURL: opts.serverURL }),
+          definition,
+        },
+        opts?.pkHex,
+      ),
       saltedEntropy,
     );
   }
@@ -485,6 +502,26 @@ export const moveStoreVCtoCeramic = async () => {
     );
     await setItemInStore(StorageKeys.credentials, []);
   }
+};
+
+export const migrateVCs = async () => {
+  const targetVcManager = await VCManager.create();
+
+  await Promise.all(
+    [VerifiableRuntimeComposite].map(async (definition) => {
+      const vcManager2 = await VCManager.create({
+        definition,
+      });
+
+      const vcs = await vcManager2.getAllDecryptedVCs();
+
+      await Promise.all(
+        vcs.map(async (vc) => {
+          await targetVcManager.encryptAndSaveVC(vc);
+        }),
+      );
+    }),
+  );
 };
 
 export const getRevocationStatus = async (
