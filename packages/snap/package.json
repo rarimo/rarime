@@ -36,7 +36,7 @@
     "preversion": "yarn && yarn build && git add snap.manifest.json",
     "composedb": "composedb",
     "ceramic:prepare-vc": "node ceramic-prepare-vc.mjs",
-    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=$CERAMIC_URL --graphiql ./ceramic/composites/VerifiableCredentials-runtime.json --did-private-key=$DID_PRIVATE_KEY --port=5005",
+    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=$CERAMIC_URL --graphiql ./ceramic/composites/VerifiableCredentialsV2-runtime.json --did-private-key=$DID_PRIVATE_KEY --port=5005",
     "generate-graphql-types": "graphql-codegen --config ./codegen.ts"
   },
   "dependencies": {

@@ -124,7 +124,7 @@ export const getAuthenticatedCeramicProvider = async (
 
   const ceramicProvider = CeramicProvider.create(privateKeyHex, {
     ...(opts.serverURL && { serverURL: opts.serverURL }),
-    definition: VerifiableRuntimeCompositeV2,
+    definition: opts.definition,
   });
 
   await ceramicProvider.auth();
@@ -490,9 +490,15 @@ export class VCManager {
 }
 
 export const moveStoreVCtoCeramic = async () => {
-  const credentials = (await getItemFromStore(StorageKeys.credentials)) || [];
-
   const vcManager = await VCManager.create();
+
+  const targetVcs = await vcManager.getAllDecryptedVCs();
+
+  if (targetVcs.length) {
+    return;
+  }
+
+  const credentials = (await getItemFromStore(StorageKeys.credentials)) || [];
 
   if (credentials.length) {
     await Promise.all(
@@ -515,11 +521,11 @@ export const migrateVCs = async () => {
 
   await Promise.all(
     [VerifiableRuntimeComposite].map(async (definition) => {
-      const vcManager2 = await VCManager.create({
+      const vcManager = await VCManager.create({
         definition,
       });
 
-      const vcs = await vcManager2.getAllDecryptedVCs();
+      const vcs = await vcManager.getAllDecryptedVCs();
 
       await Promise.all(
         vcs.map(async (vc) => {
