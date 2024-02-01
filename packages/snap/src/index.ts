@@ -3,6 +3,7 @@ import './polyfill';
 import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
 import {
   CheckCredentialExistenceRequestParams,
+  RemoveCredentialsRequestParams,
   RPCMethods,
   SaveCredentialsResponse,
 } from '@rarimo/rarime-connector';
@@ -98,12 +99,52 @@ export const onRpcRequest = async ({
       return result;
     }
 
+    case RPCMethods.RemoveCredentials: {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
+      const {
+        claimIds,
+      } = (request.params as any) as RemoveCredentialsRequestParams;
+
+      const vcManager = await VCManager.create();
+
+      const vcs = await vcManager.getDecryptedVCsByClaimIds(claimIds);
+
+      const dialogContent = [
+        heading('Remove Credentials'),
+        divider(),
+        ...vcs.map((el) => text(`${el.type[1]}`)), // FIXME
+      ];
+
+      const res = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([...dialogContent]),
+        },
+      });
+
+      if (res) {
+        await Promise.all(
+          vcs.map(async (vc) => {
+            await vcManager.clearMatchedVcs(vc);
+          }),
+        );
+      }
+
+      throw new Error('User rejected request');
+    }
+
     case RPCMethods.SaveCredentials: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {
         throw new Error('Identity not created');
       }
 
+      // FIXME: mb multiple offers?
       const offer = (request.params as any) as SaveCredentialsRequestParams;
 
       isValidSaveCredentialsOfferRequest(offer);

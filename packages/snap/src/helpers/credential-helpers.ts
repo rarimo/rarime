@@ -279,6 +279,14 @@ export class VCManager {
   public async getDecryptedVCsByOffer(
     offer: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]> {
+    const claimIds = getClaimIdsFromOffer(offer);
+
+    return this.getDecryptedVCsByClaimIds(claimIds);
+  }
+
+  public async getDecryptedVCsByClaimIds(
+    claimIds: string[],
+  ): Promise<W3CCredential[]> {
     const client = this.ceramicProvider.client();
 
     const ownerDid = client.did?.id;
@@ -286,8 +294,6 @@ export class VCManager {
     if (!ownerDid) {
       throw new TypeError('Client not authenticated');
     }
-
-    const claimIds = getClaimIdsFromOffer(offer);
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
