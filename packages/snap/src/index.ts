@@ -27,7 +27,6 @@ import {
   getRarimoCoreUrl,
   loadDataFromRarimoCore,
   migrateVCs,
-  moveStoreVCtoCeramic,
   parseDidV2,
   VCManager,
 } from './helpers';
@@ -46,7 +45,6 @@ export const onRpcRequest = async ({
   origin: string;
 }) => {
   if (request.method !== RPCMethods.CreateIdentity) {
-    await moveStoreVCtoCeramic();
     await migrateVCs();
   }
 
