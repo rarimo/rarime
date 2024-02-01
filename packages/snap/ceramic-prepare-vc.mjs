@@ -1,3 +1,11 @@
+/**
+ * @name ceramic-prepare-vc
+ * @description Create composite from graphql model,
+ * deploy and compile json files
+ *
+ * https://developers.ceramic.network/docs/composedb/create-your-composite
+ */
+
 import path from 'path';
 import fs from 'fs';
 
@@ -13,9 +21,6 @@ const didPK = process.env.DID_PRIVATE_KEY
 
 // Directory path
 const modelsDirPath = './ceramic/models';
-
-const sleep = (ms) =>
-  new Promise(resolve => setTimeout(resolve, ms));
 
 // Reading directory contents
 fs.readdir(modelsDirPath, async (err, files) => {
