@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.2] - 2024-02-01
 ### Added
-- `@rarimo/rarime` - Ceramic migrations and preparing models script
+- `@rarimo/rarime`:
+  - Migration to a Ceramic model with increased Verifiable Credential size;
+  - Ceramic model preparation script;
 
 ## [2.0.1] - 2024-01-24
 ### Changed
