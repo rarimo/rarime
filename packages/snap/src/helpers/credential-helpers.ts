@@ -489,7 +489,7 @@ export class VCManager {
   }
 }
 
-export const migrateVCs = async () => {
+export const migrateVCsToLastCeramicModel = async () => {
   const targetVcManager = await VCManager.create();
 
   const targetVcs = await targetVcManager.getAllDecryptedVCs();
