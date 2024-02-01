@@ -1,10 +1,10 @@
 import * as crypto from 'crypto';
 import { Hex, PrivateKey } from '@iden3/js-crypto';
+import { ProofQuery } from '@rarimo/rarime-connector';
 import { hashVC, VCManager } from '../helpers';
 import {
   SaveCredentialsRequestParams,
   CreateProofRequestParams,
-  ProofQuery,
   W3CCredential,
 } from '../types';
 import { CircuitId } from '../enums';
@@ -144,7 +144,7 @@ const dummyQueryProofRequest: CreateProofRequestParams = {
         $eq: 1,
       },
     },
-    type: dummyVC.credentialSubject.type as string,
+    type: dummyVC.type,
   },
 };
 
@@ -155,7 +155,7 @@ const dummyQueryProof: ProofQuery = {
       $eq: 1,
     },
   },
-  type: dummyVC.credentialSubject.type as string,
+  type: dummyVC.type,
 };
 
 /**
@@ -182,8 +182,8 @@ describe('Verifiable Credentials', () => {
 
   it('should encrypt and save Verifiable Credentials for "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1, serverURL),
-      VCManager.create(pkHex2, serverURL),
+      VCManager.create({ pkHex: pkHex1, serverURL }),
+      VCManager.create({ pkHex: pkHex2, serverURL }),
     ]);
 
     await expect(vcManager1.encryptAndSaveVC(dummyVC)).resolves.not.toThrow();
@@ -193,8 +193,8 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1, serverURL),
-      VCManager.create(pkHex2, serverURL),
+      VCManager.create({ pkHex: pkHex1, serverURL }),
+      VCManager.create({ pkHex: pkHex2, serverURL }),
     ]);
 
     const vc1 = await vcManager1.getAllDecryptedVCs();
@@ -206,8 +206,8 @@ describe('Verifiable Credentials', () => {
 
   it('should not save Verifiable Credentials for "user 1" and "user 2"', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1, serverURL),
-      VCManager.create(pkHex2, serverURL),
+      VCManager.create({ pkHex: pkHex1, serverURL }),
+      VCManager.create({ pkHex: pkHex2, serverURL }),
     ]);
 
     await expect(vcManager1.encryptAndSaveVC(dummyVC)).resolves.not.toThrow();
@@ -223,8 +223,8 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by offer', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1, serverURL),
-      VCManager.create(pkHex2, serverURL),
+      VCManager.create({ pkHex: pkHex1, serverURL }),
+      VCManager.create({ pkHex: pkHex2, serverURL }),
     ]);
 
     const vc1 = await vcManager1.getDecryptedVCsByOffer(dummyOffer);
@@ -236,8 +236,8 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by query hash', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1, serverURL),
-      VCManager.create(pkHex2, serverURL),
+      VCManager.create({ pkHex: pkHex1, serverURL }),
+      VCManager.create({ pkHex: pkHex2, serverURL }),
     ]);
 
     const client1 = vcManager1.ceramicProvider.client();
@@ -276,8 +276,8 @@ describe('Verifiable Credentials', () => {
 
   it('should fetch and decrypt Verifiable Credentials of "user 1" and "user 2" by query proof', async () => {
     const [vcManager1, vcManager2] = await Promise.all([
-      VCManager.create(pkHex1, serverURL),
-      VCManager.create(pkHex2, serverURL),
+      VCManager.create({ pkHex: pkHex1, serverURL }),
+      VCManager.create({ pkHex: pkHex2, serverURL }),
     ]);
 
     const vc1 = await vcManager1.getDecryptedVCsByQuery(

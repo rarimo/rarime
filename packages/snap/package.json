@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "repository": {
     "type": "git",
@@ -34,11 +34,9 @@
     "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts",
     "prepublishOnly": "yarn && yarn build",
     "preversion": "yarn && yarn build && git add snap.manifest.json",
-    "ceramic:create-vc": "composedb composite:create ./ceramic/models/VerifiableCredentials.graphql --ceramic-url=$CERAMIC_URL --output=./ceramic/composites/VerifiableCredentials.json --did-private-key=$DID_PRIVATE_KEY",
-    "ceramic:deploy-vc": "composedb composite:deploy ./ceramic/composites/VerifiableCredentials.json --ceramic-url=$CERAMIC_URL --did-private-key=$DID_PRIVATE_KEY",
-    "ceramic:compile-vc": "composedb composite:compile ./ceramic/composites/VerifiableCredentials.json --ceramic-url=$CERAMIC_URL ./ceramic/composites/VerifiableCredentials-runtime.json",
-    "ceramic:prepare-vc": "yarn ceramic:create-vc && yarn ceramic:deploy-vc && yarn ceramic:compile-vc",
-    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=$CERAMIC_URL --graphiql ./ceramic/composites/VerifiableCredentials-runtime.json --did-private-key=$DID_PRIVATE_KEY --port=5005",
+    "composedb": "composedb",
+    "ceramic:prepare-vc": "node ceramic-prepare-vc.mjs",
+    "ceramic:graphql-server": "composedb graphql:server --ceramic-url=$CERAMIC_URL --graphiql ./ceramic/composites/VerifiableCredentialsV2-runtime.json --did-private-key=$DID_PRIVATE_KEY --port=5005",
     "generate-graphql-types": "graphql-codegen --config ./codegen.ts"
   },
   "dependencies": {
@@ -58,7 +56,7 @@
     "@metamask/snaps-jest": "^4.0.0",
     "@metamask/snaps-sdk": "^1.1.0",
     "@metamask/snaps-utils": "^4.0.0",
-    "@rarimo/rarime-connector": "2.0.1",
+    "@rarimo/rarime-connector": "2.0.2",
     "buffer": "6.0.3",
     "dids": "4.0.4",
     "ethers": "5.7.2",
@@ -101,6 +99,7 @@
     "eslint-plugin-prettier": "4.2.1",
     "node-stdlib-browser": "1.2.0",
     "nodemon": "2.0.20",
+    "npm-commands": "^1.2.1",
     "prettier": "2.2.1",
     "rimraf": "3.0.2",
     "typechain": "8.3.1",

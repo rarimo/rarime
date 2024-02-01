@@ -26,7 +26,7 @@ import {
   getProviderChainInfo,
   getRarimoCoreUrl,
   loadDataFromRarimoCore,
-  moveStoreVCtoCeramic,
+  migrateVCsToLastCeramicModel,
   parseDidV2,
   VCManager,
 } from './helpers';
@@ -45,7 +45,7 @@ export const onRpcRequest = async ({
   origin: string;
 }) => {
   if (request.method !== RPCMethods.CreateIdentity) {
-    await moveStoreVCtoCeramic();
+    await migrateVCsToLastCeramicModel();
   }
 
   switch (request.method) {
@@ -60,7 +60,7 @@ export const onRpcRequest = async ({
         proofRequest,
       } = request.params as CheckCredentialExistenceRequestParams;
 
-      const vcManager = await VCManager.create(identityStorage.privateKeyHex);
+      const vcManager = await VCManager.create();
 
       let result: SaveCredentialsResponse[] = [];
 
@@ -129,7 +129,7 @@ export const onRpcRequest = async ({
       });
 
       if (res) {
-        const vcManager = await VCManager.create(identityStorage.privateKeyHex);
+        const vcManager = await VCManager.create();
 
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
@@ -242,7 +242,7 @@ export const onRpcRequest = async ({
         throw new Error('Account address is required');
       }
 
-      const vcManager = await VCManager.create(identityStorage.privateKeyHex);
+      const vcManager = await VCManager.create();
 
       const credentials = (
         await vcManager.getDecryptedVCsByQuery(query, issuerDid)

@@ -5,22 +5,28 @@ import { Hex } from '@iden3/js-crypto';
 import { ComposeClient } from '@composedb/client';
 import type { RuntimeCompositeDefinition } from '@composedb/types';
 import { CERAMIC_URL } from '../config';
-import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
 
 export class CeramicProvider {
   private readonly pkHex: string;
 
-  private readonly serverURL?: string;
+  private _compose: ComposeClient;
 
-  private _compose = new ComposeClient({
-    ceramic: CERAMIC_URL,
-    definition: VerifiableRuntimeComposite as RuntimeCompositeDefinition,
-    ...(this.serverURL && { serverURL: this.serverURL }),
-  });
-
-  constructor(pkHex: string, serverURL?: string) {
+  constructor(pkHex: string, composeClient: ComposeClient) {
     this.pkHex = pkHex;
-    this.serverURL = serverURL;
+    this._compose = composeClient;
+  }
+
+  public static create(
+    pkHex: string,
+    opts: { definition: object; serverURL?: string },
+  ) {
+    const composeClient = new ComposeClient({
+      ceramic: CERAMIC_URL,
+      definition: opts.definition as RuntimeCompositeDefinition,
+      ...(opts.serverURL && { serverURL: opts.serverURL }),
+    });
+
+    return new CeramicProvider(pkHex, composeClient);
   }
 
   async auth() {
