@@ -25,6 +25,7 @@ import {
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
+  isDidSupported,
   loadDataFromRarimoCore,
   migrateVCsToLastCeramicModel,
   parseDidV2,
@@ -155,17 +156,15 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      if (identityStorage?.did && identityStorage?.didBigInt) {
-        try {
-          if (DID.parse(identityStorage?.did)) {
-            return {
-              identityIdString: identityStorage.did,
-              identityIdBigIntString: identityStorage.didBigInt,
-            };
-          }
-        } catch (error) {
-          /* empty */
-        }
+      if (
+        identityStorage?.did &&
+        identityStorage?.didBigInt &&
+        isDidSupported(identityStorage.did)
+      ) {
+        return {
+          identityIdString: identityStorage.did,
+          identityIdBigIntString: identityStorage.didBigInt,
+        };
       }
 
       const res = await snap.request({
