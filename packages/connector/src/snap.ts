@@ -6,6 +6,7 @@ import {
   checkStateContractSync,
   getCredentials,
   checkCredentialExistence,
+  exportPK,
 } from './methods';
 
 export class MetamaskSnap {
@@ -23,6 +24,7 @@ export class MetamaskSnap {
       checkStateContractSync: checkStateContractSync.bind(this),
       getCredentials: getCredentials.bind(this),
       checkCredentialExistence: checkCredentialExistence.bind(this),
+      exportPK: exportPK.bind(this),
     };
   };
 }
