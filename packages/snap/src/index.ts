@@ -267,7 +267,7 @@ export const onRpcRequest = async ({
         params: {
           type: 'confirmation',
           content: panel([
-            heading('Generate a Zero-knowledge proof?'),
+            heading('Generate a zero-knowledge proof?'),
 
             divider(),
 
