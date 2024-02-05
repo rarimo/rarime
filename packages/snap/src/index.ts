@@ -311,9 +311,7 @@ export const onRpcRequest = async ({
 
             divider(),
 
-            ...(circuitId
-              ? [divider(), text('Proof type'), text(circuitId)]
-              : []),
+            ...(circuitId ? [text('Proof type'), text(circuitId)] : []),
           ]),
         },
       });
