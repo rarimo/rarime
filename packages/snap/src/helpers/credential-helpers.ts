@@ -136,13 +136,21 @@ export class VCManager {
     definition?: object;
     serverURL?: string;
   }) {
-    const identityStorage = await getItemFromStore(StorageKeys.identity);
+    let privateKeyHex = opts?.pkHex;
 
-    if (!identityStorage) {
-      throw new Error('Identity not created yet');
+    if (!privateKeyHex) {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+      if (!identityStorage) {
+        throw new Error('Identity not created yet');
+      }
+
+      privateKeyHex = identityStorage.privateKeyHex;
     }
 
-    const { privateKeyHex } = identityStorage;
+    if (!privateKeyHex) {
+      throw new Error('Private key is not defined');
+    }
 
     /**
      * Add some account-specific entropy to the input,
@@ -490,15 +498,26 @@ export const migrateVCsToLastCeramicModel = async () => {
     method: 'snap_getEntropy',
     params: {
       version: 1,
-      salt: _SALT,
     },
   });
-  const saltedEntropy = entropy.startsWith('0x')
+  const entropyKeyHex = entropy.startsWith('0x')
     ? entropy.substring(2)
     : entropy;
 
+  const saltedEntropy = await snap.request({
+    method: 'snap_getEntropy',
+    params: {
+      version: 1,
+      salt: _SALT,
+    },
+  });
+  const saltedEntropyHex = saltedEntropy.startsWith('0x')
+    ? saltedEntropy.substring(2)
+    : saltedEntropy;
+
   const oldKeyHexManager = await VCManager.create({
-    saltedEntropy,
+    saltedEntropy: saltedEntropyHex,
+    pkHex: entropyKeyHex,
   });
 
   const oldKeyHexVCs = await oldKeyHexManager.getAllDecryptedVCs();
@@ -516,7 +535,14 @@ export const migrateVCsToLastCeramicModel = async () => {
 
       const vcs = [...storeCredentials, ...ceramicVCs, ...oldKeyHexVCs].reduce(
         (acc, vc) => {
-          const isVcExist = Boolean(acc.find((el) => el.id === vc.id));
+          const isVcExist = Boolean(
+            acc.find((el) => {
+              const elId = getClaimIdFromVC(el);
+              const vcId = getClaimIdFromVC(vc);
+
+              return elId === vcId;
+            }),
+          );
 
           return [...acc, ...(isVcExist ? [] : [vc])];
         },
