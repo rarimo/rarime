@@ -177,7 +177,7 @@ export const onRpcRequest = async ({
               heading('Identity creation'),
               divider(),
               text(`You don't have an identity yet`),
-              text('Would you like to create?'),
+              text('Would you like to create one?'),
             ]),
           },
         }));
