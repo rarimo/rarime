@@ -32,6 +32,7 @@ import {
 import { getItemFromStore, setItemInStore } from '../rpc';
 import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
 import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
+import { Identity } from '../identity';
 import { getCoreClaimFromProof } from './proof-helpers';
 import { CeramicProvider } from './ceramic-helpers';
 
@@ -503,6 +504,17 @@ export const migrateVCsToLastCeramicModel = async () => {
   const entropyKeyHex = entropy.startsWith('0x')
     ? entropy.substring(2)
     : entropy;
+
+  const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+  const entropyIdentity = await Identity.create(entropyKeyHex);
+
+  const isPKImported =
+    identityStorage.privateKeyHex === entropyIdentity.privateKeyHex;
+
+  if (isPKImported) {
+    return;
+  }
 
   const saltedEntropy = await snap.request({
     method: 'snap_getEntropy',
