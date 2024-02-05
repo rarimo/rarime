@@ -7,7 +7,7 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "aH006QfsE9qE68y+zgeP60N3Gc3HB/XJ0AItPeG22cU=",
+    "shasum": "Q+P/Xz1MX+h3G+U4XLxOBuVgZmfUzHGpbTlfhFThX4Y=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -15,7 +15,13 @@
         "packageName": "@rarimo/rarime",
         "registry": "https://registry.npmjs.org/"
       }
-    }
+    },
+    "files": [
+      "./assets/circuits/auth/circuit.wasm",
+      "./assets/circuits/auth/circuit_final.zkey",
+      "./assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit.wasm",
+      "./assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey"
+    ]
   },
   "initialPermissions": {
     "snap_dialog": {},
