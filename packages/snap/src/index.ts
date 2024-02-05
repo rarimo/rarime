@@ -267,17 +267,15 @@ export const onRpcRequest = async ({
         params: {
           type: 'confirmation',
           content: panel([
-            heading('Create proof'),
+            heading('Generate a Zero-knowledge proof?'),
 
             divider(),
 
-            text('Credential types'),
-            divider(),
-
-            text(`${vc.type.join('\n')}\n`),
+            text('**Credential**'),
+            text(`${vc.type?.[1]}\n`),
 
             divider(),
-            text('Requirements'),
+            text('**Query**'),
 
             ...(query.credentialSubject
               ? Object.keys(query.credentialSubject).reduce(
@@ -311,7 +309,7 @@ export const onRpcRequest = async ({
 
             divider(),
 
-            ...(circuitId ? [text('Proof type'), text(circuitId)] : []),
+            ...(circuitId ? [text('**ZK Circuit**'), text(circuitId)] : []),
           ]),
         },
       });
