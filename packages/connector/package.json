@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime-connector",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Facilitates interaction between a DApp and RariMe MetaMask snap",
   "repository": {
     "type": "git",
