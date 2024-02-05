@@ -25,6 +25,7 @@ import {
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
+  isDidSupported,
   loadDataFromRarimoCore,
   migrateVCsToLastCeramicModel,
   parseDidV2,
@@ -155,31 +156,31 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      if (identityStorage?.did && identityStorage?.didBigInt) {
-        try {
-          if (DID.parse(identityStorage?.did)) {
-            return {
-              identityIdString: identityStorage.did,
-              identityIdBigIntString: identityStorage.didBigInt,
-            };
-          }
-        } catch (error) {
-          /* empty */
-        }
+      if (
+        identityStorage?.did &&
+        identityStorage?.didBigInt &&
+        isDidSupported(identityStorage.did)
+      ) {
+        return {
+          identityIdString: identityStorage.did,
+          identityIdBigIntString: identityStorage.didBigInt,
+        };
       }
 
-      const res = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: panel([
-            heading('Identity creation'),
-            divider(),
-            text(`You don't have an identity yet`),
-            text('Would you like to create?'),
-          ]),
-        },
-      });
+      const res =
+        Boolean(identityStorage?.did && identityStorage?.didBigInt) ||
+        (await snap.request({
+          method: 'snap_dialog',
+          params: {
+            type: 'confirmation',
+            content: panel([
+              heading('Identity creation'),
+              divider(),
+              text(`You don't have an identity yet`),
+              text('Would you like to create one?'),
+            ]),
+          },
+        }));
 
       if (res) {
         const entropy = await snap.request({
