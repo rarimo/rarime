@@ -108,21 +108,9 @@ const loadAllCredentialsListPages = async <
 
 export const getAuthenticatedCeramicProvider = async (
   opts: { definition: object; serverURL?: string },
-  pkHex?: string,
+  pkHex: string,
 ) => {
-  let privateKeyHex = pkHex ?? '';
-
-  if (!pkHex) {
-    const identityStorage = await getItemFromStore(StorageKeys.identity);
-
-    if (!identityStorage) {
-      throw new Error('Identity not created yet');
-    }
-
-    privateKeyHex = identityStorage.privateKeyHex;
-  }
-
-  const ceramicProvider = CeramicProvider.create(privateKeyHex, {
+  const ceramicProvider = CeramicProvider.create(pkHex, {
     ...(opts.serverURL && { serverURL: opts.serverURL }),
     definition: opts.definition,
   });
@@ -143,25 +131,25 @@ export class VCManager {
   }
 
   static async create(opts?: {
+    saltedEntropy?: string;
     pkHex?: string;
     definition?: object;
     serverURL?: string;
   }) {
+    const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+    if (!identityStorage) {
+      throw new Error('Identity not created yet');
+    }
+
+    const { privateKeyHex } = identityStorage;
+
     /**
      * Add some account-specific entropy to the input,
      * additional entropy will prevent someone from counting
      * the total number of credentials issued by some particular issuer
      */
-    const entropy = await snap.request({
-      method: 'snap_getEntropy',
-      params: {
-        version: 1,
-        salt: _SALT,
-      },
-    });
-    const saltedEntropy = entropy.startsWith('0x')
-      ? entropy.substring(2)
-      : entropy;
+    const saltedEntropy = opts?.saltedEntropy ?? privateKeyHex;
 
     const definition = opts?.definition ?? VerifiableRuntimeCompositeV2;
 
@@ -171,7 +159,7 @@ export class VCManager {
           ...(opts?.serverURL && { serverURL: opts.serverURL }),
           definition,
         },
-        opts?.pkHex,
+        privateKeyHex,
       ),
       saltedEntropy,
     );
@@ -498,6 +486,23 @@ export const migrateVCsToLastCeramicModel = async () => {
     return;
   }
 
+  const entropy = await snap.request({
+    method: 'snap_getEntropy',
+    params: {
+      version: 1,
+      salt: _SALT,
+    },
+  });
+  const saltedEntropy = entropy.startsWith('0x')
+    ? entropy.substring(2)
+    : entropy;
+
+  const oldKeyHexManager = await VCManager.create({
+    saltedEntropy,
+  });
+
+  const oldKeyHexVCs = await oldKeyHexManager.getAllDecryptedVCs();
+
   const storeCredentials: W3CCredential[] =
     (await getItemFromStore(StorageKeys.credentials)) || [];
 
@@ -509,11 +514,14 @@ export const migrateVCsToLastCeramicModel = async () => {
 
       const ceramicVCs = await vcManager.getAllDecryptedVCs();
 
-      const vcs = [...storeCredentials, ...ceramicVCs].reduce((acc, vc) => {
-        const isVcExist = Boolean(acc.find((el) => el.id === vc.id));
+      const vcs = [...storeCredentials, ...ceramicVCs, ...oldKeyHexVCs].reduce(
+        (acc, vc) => {
+          const isVcExist = Boolean(acc.find((el) => el.id === vc.id));
 
-        return [...acc, ...(isVcExist ? [] : [vc])];
-      }, [] as W3CCredential[]);
+          return [...acc, ...(isVcExist ? [] : [vc])];
+        },
+        [] as W3CCredential[],
+      );
 
       await Promise.all(
         vcs.map(async (vc) => {

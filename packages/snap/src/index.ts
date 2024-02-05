@@ -10,12 +10,14 @@ import {
 } from '@metamask/snaps-sdk';
 import {
   CheckCredentialExistenceRequestParams,
+  CreateIdentityRequestParams,
   RPCMethods,
   SaveCredentialsResponse,
 } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
 import { renderSVG } from 'uqr';
+import { utils } from 'ethers';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -163,6 +165,12 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
+      const params = (request.params as any) as CreateIdentityRequestParams;
+
+      if (params?.privateKeyHex || !utils.isHexString(params?.privateKeyHex)) {
+        throw new Error('Invalid private key');
+      }
+
       if (identityStorage?.did && identityStorage?.didBigInt) {
         try {
           if (DID.parse(identityStorage?.did)) {
@@ -190,15 +198,7 @@ export const onRpcRequest = async ({
       });
 
       if (res) {
-        const entropy = await snap.request({
-          method: 'snap_getEntropy',
-          params: { version: 1 },
-        });
-        const keyHex = entropy.startsWith('0x')
-          ? entropy.substring(2)
-          : entropy;
-
-        const identity = await Identity.create(keyHex);
+        const identity = await Identity.create(params?.privateKeyHex);
 
         await setItemInStore(StorageKeys.identity, {
           privateKeyHex: identity.privateKeyHex,
