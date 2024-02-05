@@ -167,18 +167,20 @@ export const onRpcRequest = async ({
         };
       }
 
-      const res = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: panel([
-            heading('Identity creation'),
-            divider(),
-            text(`You don't have an identity yet`),
-            text('Would you like to create?'),
-          ]),
-        },
-      });
+      const res =
+        Boolean(identityStorage?.did && identityStorage?.didBigInt) ||
+        (await snap.request({
+          method: 'snap_dialog',
+          params: {
+            type: 'confirmation',
+            content: panel([
+              heading('Identity creation'),
+              divider(),
+              text(`You don't have an identity yet`),
+              text('Would you like to create?'),
+            ]),
+          },
+        }));
 
       if (res) {
         const entropy = await snap.request({
