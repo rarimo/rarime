@@ -260,6 +260,8 @@ export const onRpcRequest = async ({
         );
       }
 
+      const vc = credentials[0];
+
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
@@ -272,26 +274,15 @@ export const onRpcRequest = async ({
             text('Credential types'),
             divider(),
 
-            ...credentials.reduce((acc: TextField[], cred) => {
-              return [
-                ...acc,
-
-                ...cred.type.reduce((credAcc: TextField[], type) => {
-                  return credAcc.concat([text(`${type}\n`)]);
-                }, []),
-              ];
-            }, []),
+            text(`${vc.type.join('\n')}\n`),
 
             divider(),
             text('Requirements'),
 
-            ...credentials.reduce((acc: TextField[], cred) => {
-              return [
-                ...acc,
-
-                ...Object.keys(cred.credentialSubject).reduce(
+            ...(query.credentialSubject
+              ? Object.keys(query.credentialSubject).reduce(
                   (accSubj: TextField[], fieldName) => {
-                    const fieldOperators = cred.credentialSubject?.[fieldName];
+                    const fieldOperators = query.credentialSubject?.[fieldName];
 
                     const isString = typeof fieldOperators === 'string';
                     const isNumber = typeof fieldOperators === 'number';
@@ -315,9 +306,8 @@ export const onRpcRequest = async ({
                     return accSubj.concat(textField);
                   },
                   [],
-                ),
-              ];
-            }, []),
+                )
+              : []),
 
             divider(),
 
@@ -331,7 +321,7 @@ export const onRpcRequest = async ({
       if (res) {
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
-        const zkpGen = new ZkpGen(identity, createProofRequest, credentials[0]);
+        const zkpGen = new ZkpGen(identity, createProofRequest, vc);
 
         // ================ LOAD STATE DETAILS  =====================
 
