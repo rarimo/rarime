@@ -14,7 +14,13 @@
         "iconPath": "images/icon.svg",
         "packageName": "@rarimo/rarime",
         "registry": "https://registry.npmjs.org/"
-      }
+      },
+      "files": [
+        "./assets/circuits/auth/circuit.wasm",
+        "./assets/circuits/auth/circuit_final.zkey",
+        "./assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit.wasm",
+        "./assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey"
+      ]
     }
   },
   "initialPermissions": {
