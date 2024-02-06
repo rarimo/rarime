@@ -532,32 +532,6 @@ export const migrateVCsToLastCeramicModel = async () => {
   );
 };
 
-export const migrateVCs = async () => {
-  const targetVcManager = await VCManager.create();
-
-  const targetVcs = await targetVcManager.getAllDecryptedVCs();
-
-  if (targetVcs.length) {
-    return;
-  }
-
-  await Promise.all(
-    [VerifiableRuntimeComposite].map(async (definition) => {
-      const vcManager = await VCManager.create({
-        definition,
-      });
-
-      const vcs = await vcManager.getAllDecryptedVCs();
-
-      await Promise.all(
-        vcs.map(async (vc) => {
-          await targetVcManager.encryptAndSaveVC(vc);
-        }),
-      );
-    }),
-  );
-};
-
 export const getRevocationStatus = async (
   credStatus: CredentialStatus,
 ): Promise<RevocationStatus> => {
