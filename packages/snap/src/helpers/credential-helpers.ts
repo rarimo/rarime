@@ -41,15 +41,15 @@ export const hashVC = (type: string, issuerDid: string, ownerDid: string) => {
   return sha256(Buffer.from(issuerDid + type + ownerDid));
 };
 
-const getClaimIdFromVC = (credential: W3CCredential) => {
+export const getClaimIdFromVCId = (vcId: string) => {
   try {
-    const claimIdUrl = new URL(credential.id);
+    const claimIdUrl = new URL(vcId);
 
     const pathNameParts = claimIdUrl.pathname.split('/');
 
     return pathNameParts[pathNameParts.length - 1];
   } catch (error) {
-    return credential.id;
+    return vcId;
   }
 };
 
@@ -348,7 +348,7 @@ export class VCManager {
       ownerDid,
     );
 
-    const claimId = getClaimIdFromVC(credential);
+    const claimId = getClaimIdFromVCId(credential.id);
 
     const [hashedOwnerDid, hashedQueryHash, hashedClaimId] = await Promise.all([
       this.personalHashStr(ownerDid),

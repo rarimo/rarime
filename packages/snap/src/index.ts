@@ -22,6 +22,7 @@ import {
 import { AuthZkp } from './auth-zkp';
 import {
   checkIfStateSynced,
+  getClaimIdFromVCId,
   getCoreOperationByIndex,
   getHostname,
   getProviderChainInfo,
@@ -104,9 +105,10 @@ export const onRpcRequest = async ({
         throw new Error('Identity not created');
       }
 
-      const {
-        claimIds,
-      } = (request.params as any) as RemoveCredentialsRequestParams;
+      const params = request.params as RemoveCredentialsRequestParams;
+
+      const claimIds =
+        params?.claimIds || params?.ids.map((id) => getClaimIdFromVCId(id));
 
       const vcManager = await VCManager.create();
 
@@ -127,11 +129,7 @@ export const onRpcRequest = async ({
       });
 
       if (res) {
-        await Promise.all(
-          vcs.map(async (vc) => {
-            await vcManager.clearMatchedVcs(vc);
-          }),
-        );
+        await Promise.all(vcs.map((vc) => vcManager.clearMatchedVcs(vc)));
       }
 
       throw new Error('User rejected request');
