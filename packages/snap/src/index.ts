@@ -26,9 +26,9 @@ import {
   getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
+  isDidSupported,
   loadDataFromRarimoCore,
-  migrateVCs,
-  moveStoreVCtoCeramic,
+  migrateVCsToLastCeramicModel,
   parseDidV2,
   VCManager,
 } from './helpers';
@@ -47,8 +47,7 @@ export const onRpcRequest = async ({
   origin: string;
 }) => {
   if (request.method !== RPCMethods.CreateIdentity) {
-    await moveStoreVCtoCeramic();
-    await migrateVCs();
+    await migrateVCsToLastCeramicModel();
   }
 
   switch (request.method) {
@@ -198,31 +197,31 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      if (identityStorage?.did && identityStorage?.didBigInt) {
-        try {
-          if (DID.parse(identityStorage?.did)) {
-            return {
-              identityIdString: identityStorage.did,
-              identityIdBigIntString: identityStorage.didBigInt,
-            };
-          }
-        } catch (error) {
-          /* empty */
-        }
+      if (
+        identityStorage?.did &&
+        identityStorage?.didBigInt &&
+        isDidSupported(identityStorage.did)
+      ) {
+        return {
+          identityIdString: identityStorage.did,
+          identityIdBigIntString: identityStorage.didBigInt,
+        };
       }
 
-      const res = await snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: panel([
-            heading('Identity creation'),
-            divider(),
-            text(`You don't have an identity yet`),
-            text('Would you like to create?'),
-          ]),
-        },
-      });
+      const res =
+        Boolean(identityStorage?.did && identityStorage?.didBigInt) ||
+        (await snap.request({
+          method: 'snap_dialog',
+          params: {
+            type: 'confirmation',
+            content: panel([
+              heading('Identity creation'),
+              divider(),
+              text(`You don't have an identity yet`),
+              text('Would you like to create one?'),
+            ]),
+          },
+        }));
 
       if (res) {
         const entropy = await snap.request({
@@ -303,38 +302,27 @@ export const onRpcRequest = async ({
         );
       }
 
+      const vc = credentials[0];
+
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
           type: 'confirmation',
           content: panel([
-            heading('Create proof'),
+            heading('Generate a zero-knowledge proof?'),
 
             divider(),
 
-            text('Credential types'),
-            divider(),
-
-            ...credentials.reduce((acc: TextField[], cred) => {
-              return [
-                ...acc,
-
-                ...cred.type.reduce((credAcc: TextField[], type) => {
-                  return credAcc.concat([text(`${type}\n`)]);
-                }, []),
-              ];
-            }, []),
+            text('**Credential**'),
+            text(`${vc.type?.[1]}\n`),
 
             divider(),
-            text('Requirements'),
+            text('**Query**'),
 
-            ...credentials.reduce((acc: TextField[], cred) => {
-              return [
-                ...acc,
-
-                ...Object.keys(cred.credentialSubject).reduce(
+            ...(query.credentialSubject
+              ? Object.keys(query.credentialSubject).reduce(
                   (accSubj: TextField[], fieldName) => {
-                    const fieldOperators = cred.credentialSubject?.[fieldName];
+                    const fieldOperators = query.credentialSubject?.[fieldName];
 
                     const isString = typeof fieldOperators === 'string';
                     const isNumber = typeof fieldOperators === 'number';
@@ -358,15 +346,12 @@ export const onRpcRequest = async ({
                     return accSubj.concat(textField);
                   },
                   [],
-                ),
-              ];
-            }, []),
+                )
+              : []),
 
             divider(),
 
-            ...(circuitId
-              ? [divider(), text('Proof type'), text(circuitId)]
-              : []),
+            ...(circuitId ? [text('**ZK Circuit**'), text(circuitId)] : []),
           ]),
         },
       });
@@ -374,7 +359,7 @@ export const onRpcRequest = async ({
       if (res) {
         const identity = await Identity.create(identityStorage.privateKeyHex);
 
-        const zkpGen = new ZkpGen(identity, createProofRequest, credentials[0]);
+        const zkpGen = new ZkpGen(identity, createProofRequest, vc);
 
         // ================ LOAD STATE DETAILS  =====================
 

@@ -495,25 +495,41 @@ export class VCManager {
   }
 }
 
-export const moveStoreVCtoCeramic = async () => {
-  const vcManager = await VCManager.create();
+export const migrateVCsToLastCeramicModel = async () => {
+  const targetVcManager = await VCManager.create();
 
-  const targetVcs = await vcManager.getAllDecryptedVCs();
+  const targetVcs = await targetVcManager.getAllDecryptedVCs();
 
   if (targetVcs.length) {
     return;
   }
 
-  const credentials = (await getItemFromStore(StorageKeys.credentials)) || [];
+  const storeCredentials: W3CCredential[] =
+    (await getItemFromStore(StorageKeys.credentials)) || [];
 
-  if (credentials.length) {
-    await Promise.all(
-      credentials.map(async (credential: W3CCredential) => {
-        await vcManager.encryptAndSaveVC(credential);
-      }),
-    );
-    await setItemInStore(StorageKeys.credentials, []);
-  }
+  await Promise.all(
+    [VerifiableRuntimeComposite].map(async (definition) => {
+      const vcManager = await VCManager.create({
+        definition,
+      });
+
+      const ceramicVCs = await vcManager.getAllDecryptedVCs();
+
+      const vcs = [...storeCredentials, ...ceramicVCs].reduce((acc, vc) => {
+        const isVcExist = Boolean(acc.find((el) => el.id === vc.id));
+
+        return [...acc, ...(isVcExist ? [] : [vc])];
+      }, [] as W3CCredential[]);
+
+      await Promise.all(
+        vcs.map(async (vc) => {
+          await targetVcManager.encryptAndSaveVC(vc);
+        }),
+      );
+
+      await setItemInStore(StorageKeys.credentials, []);
+    }),
+  );
 };
 
 export const migrateVCs = async () => {
