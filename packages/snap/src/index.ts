@@ -387,7 +387,7 @@ export const onRpcRequest = async ({
     case RPCMethods.ExportIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      if (identityStorage.privateKeyHex) {
+      if (!identityStorage.privateKeyHex) {
         throw new Error('Identity not created');
       }
 
