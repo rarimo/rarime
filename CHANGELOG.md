@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `@rarimo/rarime`:
-  - `CreateIdentity` - added more checks within DID.parse to handle legacy DIDs
+  - `CreateIdentity` - added more checks within DID.parse to handle legacy DIDs;
 
 ## [2.0.2] - 2024-02-01
 ### Added
