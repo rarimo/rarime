@@ -117,5 +117,8 @@ export const getCredentials = async function (
 };
 
 export const exportPK = async function (this: MetamaskSnap): Promise<void> {
-  return await sendSnapMethod({ method: RPCMethods.ExportPK }, this.snapId);
+  return await sendSnapMethod(
+    { method: RPCMethods.ExportIdentity },
+    this.snapId,
+  );
 };

@@ -1,13 +1,6 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
-import {
-  copyable,
-  divider,
-  heading,
-  image,
-  panel,
-  text,
-} from '@metamask/snaps-sdk';
+import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
 import {
   CheckCredentialExistenceRequestParams,
   RPCMethods,
@@ -15,7 +8,6 @@ import {
 } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
-import { renderSVG } from 'uqr';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -392,32 +384,25 @@ export const onRpcRequest = async ({
       return await vcManager.getAllDecryptedVCs();
     }
 
-    case RPCMethods.ExportPK: {
+    case RPCMethods.ExportIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
       if (identityStorage.privateKeyHex) {
-        const qr = renderSVG(identityStorage.privateKeyHex, {
-          pixelSize: 5,
-        });
-
-        return snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'alert',
-            content: panel([
-              heading('Your identity private key'),
-              divider(),
-              text('Scan with RariMe App'),
-              image(qr),
-              divider(),
-              text('Or copy key:'),
-              copyable(identityStorage.privateKeyHex),
-            ]),
-          },
-        });
+        throw new Error('Identity not created');
       }
 
-      throw new Error('Identity not created');
+      return snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'alert',
+          content: panel([
+            heading('Your identity private key'),
+            divider(),
+            text('Сopy:'),
+            copyable(identityStorage.privateKeyHex),
+          ]),
+        },
+      });
     }
 
     default:
