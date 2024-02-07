@@ -14,7 +14,7 @@ export enum RPCMethods {
   CreateProof = 'create_proof',
   CheckStateContractSync = 'check_state_contract_sync',
   GetCredentials = 'get_credentials',
-  ExportPK = 'export_pk',
+  ExportIdentity = 'export_identity',
 }
 
 export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
