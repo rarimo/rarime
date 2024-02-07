@@ -71,11 +71,11 @@ export type SaveCredentialsRequestParams = {
 
 export type RemoveCredentialsRequestParams =
   | {
-      ids: string[];
+      credentialIds: string[];
       claimIds: never;
     }
   | {
-      ids: never;
+      credentialIds: never;
       claimIds: string[];
     };
 

@@ -58,6 +58,28 @@ where:
 		- **id**: credential id
 	- **url**: URL to which requested information is sent and response is received
 
+### Remove Verifiable Credentials
+```javascript
+return await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+    request: {
+      method: 'remove_credentials',
+      params: {
+        claimIds: ['86531650-023c-4c6c-a437-a82e137ead68'],
+        // or
+        // credentialIds: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
+      }
+    },
+    snapId: 'local:http://localhost:8081',
+  },
+})
+```
+
+where:
+- **claimIds**: list of claim ids to remove, e. g. `ClaimOffer.body.credentials[...].id`
+- **credentialIds**: list of claim ids to remove, e. g. `W3CCredential.id`
+
 ### Create a proof
 Make sure you are on the correct network before creating a proof!
 Returns ZKProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
