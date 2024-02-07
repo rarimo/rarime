@@ -5,14 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.3] - 2024-02-05
+[Unreleased]
+
+## [2.0.3] - 2024-02-06
+
 ### Changed
 - `@rarimo/rarime`:
-  - Creating proof "approve message"
+  - Tweaked wording in the ZK proof generation prompt;
 
 ### Fixed
 - `@rarimo/rarime`:
-  - `Creating Identity` - added more checks within DID.parse to handle legacy DIDs
+  - `CreateIdentity` - added more checks within DID.parse to handle legacy DIDs;
 
 ## [2.0.2] - 2024-02-01
 ### Added
