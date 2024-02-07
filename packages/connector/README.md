@@ -277,8 +277,8 @@ await connector.removeCredentials({
 ```
 
 where:
-- **claimIds**: list of claim ids to remove, e. g. `ClaimOffer.body.credentials[...].id`
-- **credentialIds**: list of claim ids to remove, e. g. `W3CCredential.id`
+- **claimIds**: list of claim IDs to remove, e.g. `ClaimOffer.body.credentials[...].id`
+- **credentialIds**: list of credential IDs to remove, e.g. `W3CCredential.id`
 
 ### Send proof to custom verifier contract
 ```javascript
