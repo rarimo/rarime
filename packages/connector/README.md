@@ -42,6 +42,17 @@ createIdentity(): Promise<string>
 ```
 Returns DID.
 
+### get identity
+Returns did and did in big int string format if they are exists, otherwise method throws error.
+
+```typescript
+const {
+  identityIdString,
+  identityIdBigIntString,
+} = await connector.getIdentity()
+```
+Returns DID.
+
 ### Save Verifiable Credentials
 To save Verifiable Credentials you need to call this method with params:
 ```typescript

@@ -220,6 +220,19 @@ export const onRpcRequest = async ({
       throw new Error('User rejected request');
     }
 
+    case RPCMethods.GetIdentity: {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
+      return {
+        identityIdString: identityStorage.did,
+        identityIdBigIntString: identityStorage.didBigInt,
+      };
+    }
+
     case RPCMethods.CreateProof: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {

@@ -7,6 +7,7 @@ import {
   getCredentials,
   checkCredentialExistence,
   exportPK,
+  getIdentity,
 } from './methods';
 
 export class MetamaskSnap {
@@ -25,6 +26,7 @@ export class MetamaskSnap {
       getCredentials: getCredentials.bind(this),
       checkCredentialExistence: checkCredentialExistence.bind(this),
       exportPK: exportPK.bind(this),
+      getIdentity: getIdentity.bind(this),
     };
   };
 }

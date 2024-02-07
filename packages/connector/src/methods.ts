@@ -5,6 +5,7 @@ import {
   CheckCredentialExistenceRequestParams,
   CreateIdentityRequestParams,
   CreateProofRequestParams,
+  IdentityDidPair,
   RPCMethods,
   SaveCredentialsRequestParams,
   SaveCredentialsResponse,
@@ -39,12 +40,20 @@ export const checkCredentialExistence = async function (
 export const createIdentity = async function (
   this: MetamaskSnap,
   params: CreateIdentityRequestParams,
-): Promise<{
-  identityIdString: string;
-  identityIdBigIntString: string;
-}> {
+): Promise<IdentityDidPair> {
   return await sendSnapMethod(
     { method: RPCMethods.CreateIdentity, params },
+    this.snapId,
+  );
+};
+
+export const getIdentity = async function (
+  this: MetamaskSnap,
+): Promise<IdentityDidPair> {
+  return await sendSnapMethod(
+    {
+      method: RPCMethods.GetIdentity,
+    },
     this.snapId,
   );
 };

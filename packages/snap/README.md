@@ -15,6 +15,19 @@ await window.ethereum.request({
 });
 ```
 
+### Create an identity
+Returns did and did in big int string format if they are exists, otherwise method throws error.
+
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: { method: 'get_identity' },
+  },
+});
+```
+
 ### Save Verifiable Credentials
 To save Verifiable Credentials you need to call this method with params:
 ```javascript
