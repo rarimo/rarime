@@ -115,17 +115,19 @@ export const onRpcRequest = async ({
 
       const vcs = await vcManager.getDecryptedVCsByClaimIds(claimIds);
 
-      const dialogContent = [
-        heading('Remove Credentials'),
-        divider(),
-        ...vcs.map((el) => text(`${el.type[1]}`)), // FIXME
-      ];
-
       const res = await snap.request({
         method: 'snap_dialog',
         params: {
           type: 'confirmation',
-          content: panel([...dialogContent]),
+          content: panel([
+            heading('Remove Credentials'),
+            divider(),
+            ...vcs.map((el) => {
+              const vcTargetType = el.type[1];
+
+              return text(`${vcTargetType}\n`);
+            }),
+          ]),
         },
       });
 
