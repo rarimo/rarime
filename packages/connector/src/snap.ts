@@ -6,6 +6,7 @@ import {
   checkStateContractSync,
   getCredentials,
   checkCredentialExistence,
+  removeCredentials,
   exportPK,
 } from './methods';
 
@@ -20,6 +21,7 @@ export class MetamaskSnap {
     return {
       createIdentity: createIdentity.bind(this),
       saveCredentials: saveCredentials.bind(this),
+      removeCredentials: removeCredentials.bind(this),
       createProof: createProof.bind(this),
       checkStateContractSync: checkStateContractSync.bind(this),
       getCredentials: getCredentials.bind(this),
