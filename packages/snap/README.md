@@ -66,9 +66,7 @@ return await window.ethereum.request({
     request: {
       method: 'remove_credentials',
       params: {
-        claimIds: ['86531650-023c-4c6c-a437-a82e137ead68'],
-        // or
-        // credentialIds: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
+        ids: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
       }
     },
     snapId: 'local:http://localhost:8081',
@@ -77,8 +75,7 @@ return await window.ethereum.request({
 ```
 
 where:
-- **claimIds**: list of claim ids to remove, e. g. `ClaimOffer.body.credentials[...].id`
-- **credentialIds**: list of claim ids to remove, e. g. `W3CCredential.id`
+- **ids**: list of claim ids to remove, e. g. `W3CCredential.id`
 
 ### Create a proof
 Make sure you are on the correct network before creating a proof!

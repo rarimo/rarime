@@ -114,9 +114,7 @@ export const onRpcRequest = async ({
 
       const params = request.params as RemoveCredentialsRequestParams;
 
-      const claimIds =
-        params?.claimIds ||
-        params?.credentialIds.map((id) => getClaimIdFromVCId(id));
+      const claimIds = params.ids.map((id) => getClaimIdFromVCId(id));
 
       const vcManager = await VCManager.create();
 

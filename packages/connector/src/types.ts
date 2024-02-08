@@ -69,15 +69,9 @@ export type SaveCredentialsRequestParams = {
   type: string;
 };
 
-export type RemoveCredentialsRequestParams =
-  | {
-      credentialIds: string[];
-      claimIds: never;
-    }
-  | {
-      credentialIds: never;
-      claimIds: string[];
-    };
+export type RemoveCredentialsRequestParams = {
+  ids: string[];
+};
 
 export type CredentialStatus = {
   id: string;

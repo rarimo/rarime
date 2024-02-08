@@ -270,15 +270,12 @@ where:
 ### Remove Verifiable Credentials
 ```javascript
 await connector.removeCredentials({
-  claimIds: ['86531650-023c-4c6c-a437-a82e137ead68'],
-  // or
-  // credentialIds: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
+  ids: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
   });
 ```
 
 where:
-- **claimIds**: list of claim IDs to remove, e.g. `ClaimOffer.body.credentials[...].id`
-- **credentialIds**: list of credential IDs to remove, e.g. `W3CCredential.id`
+- **ids**: list of credential IDs to remove, e.g. `W3CCredential.id`
 
 ### Send proof to custom verifier contract
 ```javascript
