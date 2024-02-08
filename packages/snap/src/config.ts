@@ -107,7 +107,6 @@ export const MANAGE_IDENTITY_ALLOWED_HOSTNAMES = [
   'app.stage.rarime.com',
   // Production
   'app.rarime.com',
-  'localhost',
 ];
 
 export const CERAMIC_URL = 'https://ceramic.rarimo.com';
