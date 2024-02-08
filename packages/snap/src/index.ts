@@ -1,6 +1,13 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
-import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
+import {
+  copyable,
+  divider,
+  heading,
+  panel,
+  text,
+  Component,
+} from '@metamask/snaps-sdk';
 import {
   CheckCredentialExistenceRequestParams,
   RemoveCredentialsRequestParams,
@@ -122,11 +129,18 @@ export const onRpcRequest = async ({
           content: panel([
             heading('Remove Credentials'),
             divider(),
-            ...vcs.map((el) => {
-              const vcTargetType = el.type[1];
 
-              return text(`${vcTargetType}\n`);
-            }),
+            ...vcs.reduce((acc, el, idx) => {
+              const vcTargetType = el.type[1];
+              const vcID = el.id;
+
+              return acc.concat([
+                text(`**Credential #${idx + 1}**`),
+                text(`Type: ${vcTargetType}`),
+                text(`ID: ${vcID}`),
+                divider(),
+              ]);
+            }, [] as Component[]),
           ]),
         },
       });
