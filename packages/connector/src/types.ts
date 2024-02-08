@@ -36,7 +36,7 @@ export type SnapConnector = {
   checkCredentialExistence(
     params: CheckCredentialExistenceRequestParams,
   ): Promise<SaveCredentialsResponse[]>;
-  exportPK(): Promise<void>;
+  exportIdentity(): Promise<void>;
 };
 
 export type GetSnapsResponse = {

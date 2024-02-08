@@ -15,6 +15,18 @@ await window.ethereum.request({
 });
 ```
 
+### Export identity
+To export an identity you need to call this method:
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: { method: 'export_identity' },
+  },
+});
+```
+
 ### Save Verifiable Credentials
 To save Verifiable Credentials you need to call this method with params:
 ```javascript

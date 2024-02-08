@@ -439,6 +439,10 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.ExportIdentity: {
+      if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
+        throw new Error('This origin does not have access to credentials');
+      }
+
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
       if (!identityStorage.privateKeyHex) {
