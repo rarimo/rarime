@@ -4,6 +4,7 @@ import { MetamaskSnap } from './snap';
 import {
   CheckCredentialExistenceRequestParams,
   CreateProofRequestParams,
+  RemoveCredentialsRequestParams,
   RPCMethods,
   SaveCredentialsRequestParams,
   SaveCredentialsResponse,
@@ -53,6 +54,16 @@ export const saveCredentials = async function (
 ): Promise<SaveCredentialsResponse[]> {
   return await sendSnapMethod(
     { method: RPCMethods.SaveCredentials, params },
+    this.snapId,
+  );
+};
+
+export const removeCredentials = async function (
+  this: MetamaskSnap,
+  params: RemoveCredentialsRequestParams,
+): Promise<void> {
+  return await sendSnapMethod(
+    { method: RPCMethods.RemoveCredentials, params },
     this.snapId,
   );
 };

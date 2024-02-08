@@ -41,15 +41,15 @@ export const hashVC = (type: string, issuerDid: string, ownerDid: string) => {
   return sha256(Buffer.from(issuerDid + type + ownerDid));
 };
 
-const getClaimIdFromVC = (credential: W3CCredential) => {
+export const getClaimIdFromVCId = (vcId: string) => {
   try {
-    const claimIdUrl = new URL(credential.id);
+    const claimIdUrl = new URL(vcId);
 
     const pathNameParts = claimIdUrl.pathname.split('/');
 
     return pathNameParts[pathNameParts.length - 1];
   } catch (error) {
-    return credential.id;
+    return vcId;
   }
 };
 
@@ -279,6 +279,14 @@ export class VCManager {
   public async getDecryptedVCsByOffer(
     offer: SaveCredentialsRequestParams,
   ): Promise<W3CCredential[]> {
+    const claimIds = getClaimIdsFromOffer(offer);
+
+    return this.getDecryptedVCsByClaimIds(claimIds);
+  }
+
+  public async getDecryptedVCsByClaimIds(
+    claimIds: string[],
+  ): Promise<W3CCredential[]> {
     const client = this.ceramicProvider.client();
 
     const ownerDid = client.did?.id;
@@ -286,8 +294,6 @@ export class VCManager {
     if (!ownerDid) {
       throw new TypeError('Client not authenticated');
     }
-
-    const claimIds = getClaimIdsFromOffer(offer);
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
@@ -342,7 +348,7 @@ export class VCManager {
       ownerDid,
     );
 
-    const claimId = getClaimIdFromVC(credential);
+    const claimId = getClaimIdFromVCId(credential.id);
 
     const [hashedOwnerDid, hashedQueryHash, hashedClaimId] = await Promise.all([
       this.personalHashStr(ownerDid),
