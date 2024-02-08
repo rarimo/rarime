@@ -45,7 +45,10 @@ import {
   isValidCreateProofRequest,
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
-import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
+import {
+  GET_CREDENTIALS_ALLOWED_HOSTNAMES,
+  MANAGE_IDENTITY_ALLOWED_HOSTNAMES,
+} from './config';
 
 export const onRpcRequest = async ({
   request,
@@ -429,7 +432,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.GetCredentials: {
-      if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
+      if (!GET_CREDENTIALS_ALLOWED_HOSTNAMES.includes(getHostname(origin))) {
         throw new Error('This origin does not have access to credentials');
       }
 
@@ -439,7 +442,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.ExportIdentity: {
-      if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
+      if (!MANAGE_IDENTITY_ALLOWED_HOSTNAMES.includes(getHostname(origin))) {
         throw new Error('This origin does not have access to export identity');
       }
 

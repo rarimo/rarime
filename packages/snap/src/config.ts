@@ -89,15 +89,25 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
   },
 };
 
-export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = [
+export const GET_CREDENTIALS_ALLOWED_HOSTNAMES = [
   // Local
   'localhost',
   // Staging
   'dashboard.stage.rarime.com',
-  'app.staging.rarime.com',
+  'app.stage.rarime.com',
   // Production
   'dashboard.rarime.com',
   'app.rarime.com',
+];
+
+export const MANAGE_IDENTITY_ALLOWED_HOSTNAMES = [
+  // Local
+  'localhost',
+  // Staging
+  'app.stage.rarime.com',
+  // Production
+  'app.rarime.com',
+  'localhost',
 ];
 
 export const CERAMIC_URL = 'https://ceramic.rarimo.com';
