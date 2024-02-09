@@ -89,12 +89,12 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
   },
 };
 
-export const GET_CREDENTIALS_SUPPORTED_HOSTNAMES = [
+export const HOSTNAMES_WHITELIST = [
   // Local
   'localhost',
   // Staging
   'dashboard.stage.rarime.com',
-  'app.staging.rarime.com',
+  'app.stage.rarime.com',
   // Production
   'dashboard.rarime.com',
   'app.rarime.com',

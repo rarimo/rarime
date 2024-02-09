@@ -31,10 +31,10 @@ import {
   checkIfStateSynced,
   getClaimIdFromVCId,
   getCoreOperationByIndex,
-  getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
   isDidSupported,
+  isOriginInWhitelist,
   loadDataFromRarimoCore,
   migrateVCsToLastCeramicModel,
   parseDidV2,
@@ -45,7 +45,6 @@ import {
   isValidCreateProofRequest,
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
-import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
 export const onRpcRequest = async ({
   request,
@@ -429,13 +428,38 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.GetCredentials: {
-      if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
+      if (!isOriginInWhitelist(origin)) {
         throw new Error('This origin does not have access to credentials');
       }
 
       const vcManager = await VCManager.create();
 
       return await vcManager.getAllDecryptedVCs();
+    }
+
+    case RPCMethods.ExportIdentity: {
+      if (!isOriginInWhitelist(origin)) {
+        throw new Error('This origin does not have access to export identity');
+      }
+
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+      if (!identityStorage.privateKeyHex) {
+        throw new Error('Identity not created');
+      }
+
+      return snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'alert',
+          content: panel([
+            heading('Your RariMe private key'),
+            divider(),
+            text('Сopy:'),
+            copyable(identityStorage.privateKeyHex),
+          ]),
+        },
+      });
     }
 
     default:

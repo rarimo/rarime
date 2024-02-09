@@ -42,6 +42,13 @@ createIdentity(): Promise<string>
 ```
 Returns DID.
 
+### Export identity
+To export your identity you need to call this method:
+```typescript
+ExportIdentity(): Promise<string>
+```
+Show Your identity private key in metamask dialog.
+
 ### Save Verifiable Credentials
 To save Verifiable Credentials you need to call this method with params:
 ```typescript

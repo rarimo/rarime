@@ -15,6 +15,7 @@ export enum RPCMethods {
   CreateProof = 'create_proof',
   CheckStateContractSync = 'check_state_contract_sync',
   GetCredentials = 'get_credentials',
+  ExportIdentity = 'export_identity',
 }
 
 export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
@@ -35,6 +36,7 @@ export type SnapConnector = {
   checkCredentialExistence(
     params: CheckCredentialExistenceRequestParams,
   ): Promise<SaveCredentialsResponse[]>;
+  exportIdentity(): Promise<void>;
 };
 
 export type GetSnapsResponse = {
