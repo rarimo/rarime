@@ -53,6 +53,13 @@ const {
 ```
 Returns DID.
 
+### Export identity
+To export your identity you need to call this method:
+```typescript
+ExportIdentity(): Promise<string>
+```
+Show Your identity private key in metamask dialog.
+
 ### Save Verifiable Credentials
 To save Verifiable Credentials you need to call this method with params:
 ```typescript
@@ -243,12 +250,11 @@ where:
 	- **type**: type of credentials allowed
 	- **credentialSubject**: query request to a query circuit
 
-
 ### Save Verifiable Credentials
 ```javascript
 const connector = await snap.getConnector();
 
-const proof = connector.saveCredentials({
+const vc = connector.saveCredentials({
   body: {
     credentials: [
       {
@@ -278,6 +284,16 @@ where:
 		- **description**: description of the schema
 		- **id**: credential id
 	- **url**: URL to which requested information is sent and response is received
+
+### Remove Verifiable Credentials
+```javascript
+await connector.removeCredentials({
+  ids: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
+  });
+```
+
+where:
+- **ids**: list of credential IDs to remove, e.g. `W3CCredential.id`
 
 ### Send proof to custom verifier contract
 ```javascript

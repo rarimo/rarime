@@ -8,11 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]
 ### Added
 - `@rarimo/rarime`:
-  - get identity rpc method
-
+  - `RemoveCredentials` credentials RPC method
+  - `ExportIdentity` RPC method
+  - `getIdentity` rpc method
 
 ## [2.0.3] - 2024-02-06
-
 ### Changed
 - `@rarimo/rarime`:
   - Tweaked wording in the ZK proof generation prompt;

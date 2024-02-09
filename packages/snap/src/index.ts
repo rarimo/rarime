@@ -1,8 +1,16 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
-import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
+import {
+  copyable,
+  divider,
+  heading,
+  panel,
+  text,
+  Component,
+} from '@metamask/snaps-sdk';
 import {
   CheckCredentialExistenceRequestParams,
+  RemoveCredentialsRequestParams,
   CreateIdentityRequestParams,
   RPCMethods,
   SaveCredentialsResponse,
@@ -23,11 +31,12 @@ import {
 import { AuthZkp } from './auth-zkp';
 import {
   checkIfStateSynced,
+  getClaimIdFromVCId,
   getCoreOperationByIndex,
-  getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
   isDidSupported,
+  isOriginInWhitelist,
   loadDataFromRarimoCore,
   migrateVCsToLastCeramicModel,
   parseDidV2,
@@ -38,7 +47,6 @@ import {
   isValidCreateProofRequest,
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
-import { GET_CREDENTIALS_SUPPORTED_HOSTNAMES } from './config';
 
 export const onRpcRequest = async ({
   request,
@@ -99,12 +107,57 @@ export const onRpcRequest = async ({
       return result;
     }
 
+    case RPCMethods.RemoveCredentials: {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
+      const params = request.params as RemoveCredentialsRequestParams;
+
+      const claimIds = params.ids.map((id) => getClaimIdFromVCId(id));
+
+      const vcManager = await VCManager.create();
+
+      const vcs = await vcManager.getDecryptedVCsByClaimIds(claimIds);
+
+      const res = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([
+            heading('Remove Credentials'),
+            divider(),
+
+            ...vcs.reduce((acc, el, idx) => {
+              const vcTargetType = el.type[1];
+              const vcID = el.id;
+
+              return acc.concat([
+                text(`**Credential #${idx + 1}**`),
+                text(`Type: ${vcTargetType}`),
+                text(`ID: ${vcID}`),
+                divider(),
+              ]);
+            }, [] as Component[]),
+          ]),
+        },
+      });
+
+      if (!res) {
+        throw new Error('User rejected request');
+      }
+
+      return Promise.all(vcs.map((vc) => vcManager.clearMatchedVcs(vc)));
+    }
+
     case RPCMethods.SaveCredentials: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {
         throw new Error('Identity not created');
       }
 
+      // FIXME: mb multiple offers?
       const offer = (request.params as any) as SaveCredentialsRequestParams;
 
       isValidSaveCredentialsOfferRequest(offer);
@@ -388,7 +441,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.GetCredentials: {
-      if (!GET_CREDENTIALS_SUPPORTED_HOSTNAMES.includes(getHostname(origin))) {
+      if (!isOriginInWhitelist(origin)) {
         throw new Error('This origin does not have access to credentials');
       }
 
@@ -398,6 +451,10 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.ExportIdentity: {
+      if (!isOriginInWhitelist(origin)) {
+        throw new Error('This origin does not have access to export identity');
+      }
+
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
       if (!identityStorage.privateKeyHex) {
@@ -409,7 +466,7 @@ export const onRpcRequest = async ({
         params: {
           type: 'alert',
           content: panel([
-            heading('Your identity private key'),
+            heading('Your RariMe private key'),
             divider(),
             text('Сopy:'),
             copyable(identityStorage.privateKeyHex),

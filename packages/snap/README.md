@@ -28,6 +28,18 @@ await window.ethereum.request({
 });
 ```
 
+### Export identity
+To export an identity you need to call this method:
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: { method: 'export_identity' },
+  },
+});
+```
+
 ### Save Verifiable Credentials
 To save Verifiable Credentials you need to call this method with params:
 ```javascript
@@ -70,6 +82,25 @@ where:
 		- **description**: description of the schema
 		- **id**: credential id
 	- **url**: URL to which requested information is sent and response is received
+
+### Remove Verifiable Credentials
+```javascript
+return await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+    request: {
+      method: 'remove_credentials',
+      params: {
+        ids: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
+      }
+    },
+    snapId: 'local:http://localhost:8081',
+  },
+})
+```
+
+where:
+- **ids**: list of claim ids to remove, e. g. `W3CCredential.id`
 
 ### Create a proof
 Make sure you are on the correct network before creating a proof!
