@@ -243,34 +243,41 @@ export const onRpcRequest = async ({
           },
         }));
 
-      if (res) {
-        const identity = await Identity.create(params?.privateKeyHex);
-
-        await setItemInStore(StorageKeys.identity, {
-          privateKeyHex: identity.privateKeyHex,
-          did: identity.didString,
-          didBigInt: identity.identityIdBigIntString,
-        });
-
-        await snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'alert',
-            content: panel([
-              heading('Your RariMe is ready for use!'),
-              divider(),
-              text('Your unique identifier(DID):'),
-              copyable(identity.didString),
-            ]),
-          },
-        });
-
-        return {
-          identityIdString: identity.didString,
-          identityIdBigIntString: identity.identityIdBigIntString,
-        };
+      if (!res) {
+        throw new Error('User rejected request');
       }
-      throw new Error('User rejected request');
+
+      const entropy = await snap.request({
+        method: 'snap_getEntropy',
+        params: { version: 1 },
+      });
+      const keyHex = entropy.startsWith('0x') ? entropy.substring(2) : entropy;
+
+      const identity = await Identity.create(params?.privateKeyHex || keyHex);
+
+      await setItemInStore(StorageKeys.identity, {
+        privateKeyHex: identity.privateKeyHex,
+        did: identity.didString,
+        didBigInt: identity.identityIdBigIntString,
+      });
+
+      await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'alert',
+          content: panel([
+            heading('Your RariMe is ready for use!'),
+            divider(),
+            text('Your unique identifier(DID):'),
+            copyable(identity.didString),
+          ]),
+        },
+      });
+
+      return {
+        identityIdString: identity.didString,
+        identityIdBigIntString: identity.identityIdBigIntString,
+      };
     }
 
     case RPCMethods.GetIdentity: {
