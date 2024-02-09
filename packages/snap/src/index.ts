@@ -108,6 +108,10 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.RemoveCredentials: {
+      if (!isOriginInWhitelist(origin)) {
+        throw new Error('This origin does not have access to export identity');
+      }
+
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {
         throw new Error('Identity not created');
