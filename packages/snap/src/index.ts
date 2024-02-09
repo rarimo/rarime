@@ -31,10 +31,10 @@ import {
   checkIfStateSynced,
   getClaimIdFromVCId,
   getCoreOperationByIndex,
-  getHostname,
   getProviderChainInfo,
   getRarimoCoreUrl,
   isDidSupported,
+  isOriginInWhitelist,
   loadDataFromRarimoCore,
   migrateVCsToLastCeramicModel,
   parseDidV2,
@@ -45,10 +45,6 @@ import {
   isValidCreateProofRequest,
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
-import {
-  GET_CREDENTIALS_ALLOWED_HOSTNAMES,
-  MANAGE_IDENTITY_ALLOWED_HOSTNAMES,
-} from './config';
 
 export const onRpcRequest = async ({
   request,
@@ -432,7 +428,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.GetCredentials: {
-      if (!GET_CREDENTIALS_ALLOWED_HOSTNAMES.includes(getHostname(origin))) {
+      if (!isOriginInWhitelist(origin)) {
         throw new Error('This origin does not have access to credentials');
       }
 
@@ -442,7 +438,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.ExportIdentity: {
-      if (!MANAGE_IDENTITY_ALLOWED_HOSTNAMES.includes(getHostname(origin))) {
+      if (!isOriginInWhitelist(origin)) {
         throw new Error('This origin does not have access to export identity');
       }
 
@@ -457,7 +453,7 @@ export const onRpcRequest = async ({
         params: {
           type: 'alert',
           content: panel([
-            heading('Your identity private key'),
+            heading('Your RariMe private key'),
             divider(),
             text('Сopy:'),
             copyable(identityStorage.privateKeyHex),

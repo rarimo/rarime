@@ -89,7 +89,7 @@ export const SUPPORTED_CHAINS: Record<number, ChainInfo> = {
   },
 };
 
-export const GET_CREDENTIALS_ALLOWED_HOSTNAMES = [
+export const HOSTNAMES_WHITELIST = [
   // Local
   'localhost',
   // Staging
@@ -97,15 +97,6 @@ export const GET_CREDENTIALS_ALLOWED_HOSTNAMES = [
   'app.stage.rarime.com',
   // Production
   'dashboard.rarime.com',
-  'app.rarime.com',
-];
-
-export const MANAGE_IDENTITY_ALLOWED_HOSTNAMES = [
-  // Local
-  'localhost',
-  // Staging
-  'app.stage.rarime.com',
-  // Production
   'app.rarime.com',
 ];
 

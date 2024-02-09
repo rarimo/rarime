@@ -1,5 +1,5 @@
 import { providers } from 'ethers';
-import { config, SUPPORTED_CHAINS } from '../config';
+import { config, HOSTNAMES_WHITELIST, SUPPORTED_CHAINS } from '../config';
 import { ChainInfo } from '../types';
 
 export const getChainInfo = (chainId: number): ChainInfo => {
@@ -36,6 +36,10 @@ export const getRarimoStateContractAddress = (chainId: number) => {
 
 export const getHostname = (origin: string): string => {
   return new URL(origin).hostname;
+};
+
+export const isOriginInWhitelist = (origin: string) => {
+  return HOSTNAMES_WHITELIST.includes(getHostname(origin));
 };
 
 export const uniqBy = (arr: any[], predicate: string) => {
