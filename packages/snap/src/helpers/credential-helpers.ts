@@ -35,6 +35,7 @@ import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCrede
 import { Identity } from '../identity';
 import { getCoreClaimFromProof } from './proof-helpers';
 import { CeramicProvider } from './ceramic-helpers';
+import { genPkHexFromEntropy } from './identity-helpers';
 
 const _SALT = 'pu?)Rx829U3ot.iB)D+z9Iyh';
 
@@ -501,19 +502,11 @@ export const migrateVCsToLastCeramicModel = async () => {
     return;
   }
 
-  const entropy = await snap.request({
-    method: 'snap_getEntropy',
-    params: {
-      version: 1,
-    },
-  });
-  const entropyKeyHex = entropy.startsWith('0x')
-    ? entropy.substring(2)
-    : entropy;
-
-  const identityStorage = await getItemFromStore(StorageKeys.identity);
+  const entropyKeyHex = await genPkHexFromEntropy();
 
   const entropyIdentity = await Identity.create(entropyKeyHex);
+
+  const identityStorage = await getItemFromStore(StorageKeys.identity);
 
   const isPKImported =
     identityStorage.privateKeyHex === entropyIdentity.privateKeyHex;
@@ -522,16 +515,7 @@ export const migrateVCsToLastCeramicModel = async () => {
     return;
   }
 
-  const saltedEntropy = await snap.request({
-    method: 'snap_getEntropy',
-    params: {
-      version: 1,
-      salt: _SALT,
-    },
-  });
-  const saltedEntropyHex = saltedEntropy.startsWith('0x')
-    ? saltedEntropy.substring(2)
-    : saltedEntropy;
+  const saltedEntropyHex = await genPkHexFromEntropy(_SALT);
 
   const oldKeyHexManager = await VCManager.create({
     saltedEntropy: saltedEntropyHex,
@@ -555,8 +539,8 @@ export const migrateVCsToLastCeramicModel = async () => {
         (acc, vc) => {
           const isVcExist = Boolean(
             acc.find((el) => {
-              const elId = getClaimIdFromVC(el);
-              const vcId = getClaimIdFromVC(vc);
+              const elId = getClaimIdFromVCId(el.id);
+              const vcId = getClaimIdFromVCId(vc.id);
 
               return elId === vcId;
             }),

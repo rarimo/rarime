@@ -24,7 +24,7 @@ export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
 
 export type SnapConnector = {
   createIdentity(
-    params: CreateIdentityRequestParams,
+    params?: CreateIdentityRequestParams,
   ): Promise<{
     identityIdString: string;
     identityIdBigIntString: string;

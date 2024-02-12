@@ -42,8 +42,8 @@ createIdentity(): Promise<string>
 ```
 Returns DID.
 
-### get identity
-Returns did and did in big int string format if they are exists, otherwise method throws error.
+### Get identity
+Returns DID and DID in big int string format if they are exists, otherwise method throws error.
 
 ```typescript
 const {
@@ -51,6 +51,19 @@ const {
   identityIdBigIntString,
 } = await connector.getIdentity()
 ```
+
+or
+```typescript
+const privateKeyHex = '0x...'
+
+const {
+  identityIdString,
+  identityIdBigIntString,
+} = await connector.getIdentity({
+  privateKeyHex,
+})
+```
+
 Returns DID.
 
 ### Export identity

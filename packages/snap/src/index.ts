@@ -31,6 +31,7 @@ import {
 import { AuthZkp } from './auth-zkp';
 import {
   checkIfStateSynced,
+  genPkHexFromEntropy,
   getClaimIdFromVCId,
   getCoreOperationByIndex,
   getProviderChainInfo,
@@ -109,7 +110,9 @@ export const onRpcRequest = async ({
 
     case RPCMethods.RemoveCredentials: {
       if (!isOriginInWhitelist(origin)) {
-        throw new Error('This origin does not have access to export identity');
+        throw new Error(
+          'This origin does not have access to remove credentials',
+        );
       }
 
       const identityStorage = await getItemFromStore(StorageKeys.identity);
@@ -215,7 +218,7 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      const params = (request.params as any) as CreateIdentityRequestParams;
+      const params = request.params as CreateIdentityRequestParams;
 
       if (params?.privateKeyHex && !utils.isHexString(params?.privateKeyHex)) {
         throw new Error('Invalid private key');
@@ -251,13 +254,9 @@ export const onRpcRequest = async ({
         throw new Error('User rejected request');
       }
 
-      const entropy = await snap.request({
-        method: 'snap_getEntropy',
-        params: { version: 1 },
-      });
-      const keyHex = entropy.startsWith('0x') ? entropy.substring(2) : entropy;
-
-      const identity = await Identity.create(params?.privateKeyHex || keyHex);
+      const identity = await Identity.create(
+        params?.privateKeyHex || (await genPkHexFromEntropy()),
+      );
 
       await setItemInStore(StorageKeys.identity, {
         privateKeyHex: identity.privateKeyHex,

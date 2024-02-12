@@ -15,8 +15,8 @@ await window.ethereum.request({
 });
 ```
 
-### Create an identity
-Returns did and did in big int string format if they are exists, otherwise method throws error.
+### Get identity
+Returns DID and DID in big int string format if they are exists, otherwise method throws error.
 
 ```javascript
 await window.ethereum.request({

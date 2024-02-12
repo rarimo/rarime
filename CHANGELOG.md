@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ExportIdentity` RPC method
   - `getIdentity` rpc method
 
+### Changed
+- `@rarimo/rarime`:
+  - `CreateIdentity` - now can generate from a private key hex from params
+
 ## [2.0.3] - 2024-02-06
 ### Changed
 - `@rarimo/rarime`:

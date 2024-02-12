@@ -40,7 +40,7 @@ export const checkCredentialExistence = async function (
 
 export const createIdentity = async function (
   this: MetamaskSnap,
-  params: CreateIdentityRequestParams,
+  params?: CreateIdentityRequestParams,
 ): Promise<IdentityDidPair> {
   return await sendSnapMethod(
     { method: RPCMethods.CreateIdentity, params },
