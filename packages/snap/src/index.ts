@@ -220,7 +220,10 @@ export const onRpcRequest = async ({
 
       const params = request.params as CreateIdentityRequestParams;
 
-      if (params?.privateKeyHex && !utils.isHexString(params?.privateKeyHex)) {
+      if (
+        params?.privateKeyHex &&
+        !utils.isHexString(`0x${params?.privateKeyHex}`)
+      ) {
         throw new Error('Invalid private key');
       }
 
