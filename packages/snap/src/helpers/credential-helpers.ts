@@ -144,7 +144,7 @@ export class VCManager {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
       if (!identityStorage) {
-        throw new Error('Identity not created yet');
+        throw new Error('Identity was not created yet');
       }
 
       privateKeyHex = identityStorage.privateKeyHex;
