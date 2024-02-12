@@ -509,7 +509,7 @@ export const migrateVCsToLastCeramicModel = async () => {
   const identityStorage = await getItemFromStore(StorageKeys.identity);
 
   const isPKImported =
-    identityStorage.privateKeyHex === entropyIdentity.privateKeyHex;
+    identityStorage.privateKeyHex !== entropyIdentity.privateKeyHex;
 
   if (isPKImported) {
     return;
