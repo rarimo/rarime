@@ -43,7 +43,7 @@ createIdentity(): Promise<string>
 Returns DID.
 
 ### Get identity
-Returns DID and DID in big int string format if they are exists, otherwise method throws error.
+Returns DID in string and BigInt string formats. Throws error if the DID wasn't initialised yet.
 
 ```typescript
 const {
