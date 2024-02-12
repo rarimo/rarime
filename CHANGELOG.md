@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `@rarimo/rarime`:
   - `RemoveCredentials` credentials RPC method
   - `ExportIdentity` RPC method
-  - `GetIdentity` rpc method
+  - `GetIdentity` RPC method
 
 ### Changed
 - `@rarimo/rarime`:
