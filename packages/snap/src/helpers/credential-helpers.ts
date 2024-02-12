@@ -32,8 +32,10 @@ import {
 import { getItemFromStore, setItemInStore } from '../rpc';
 import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
 import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
+import { Identity } from '../identity';
 import { getCoreClaimFromProof } from './proof-helpers';
 import { CeramicProvider } from './ceramic-helpers';
+import { genPkHexFromEntropy } from './identity-helpers';
 
 const _SALT = 'pu?)Rx829U3ot.iB)D+z9Iyh';
 
@@ -108,21 +110,9 @@ const loadAllCredentialsListPages = async <
 
 export const getAuthenticatedCeramicProvider = async (
   opts: { definition: object; serverURL?: string },
-  pkHex?: string,
+  pkHex: string,
 ) => {
-  let privateKeyHex = pkHex ?? '';
-
-  if (!pkHex) {
-    const identityStorage = await getItemFromStore(StorageKeys.identity);
-
-    if (!identityStorage) {
-      throw new Error('Identity not created yet');
-    }
-
-    privateKeyHex = identityStorage.privateKeyHex;
-  }
-
-  const ceramicProvider = CeramicProvider.create(privateKeyHex, {
+  const ceramicProvider = CeramicProvider.create(pkHex, {
     ...(opts.serverURL && { serverURL: opts.serverURL }),
     definition: opts.definition,
   });
@@ -143,25 +133,33 @@ export class VCManager {
   }
 
   static async create(opts?: {
+    saltedEntropy?: string;
     pkHex?: string;
     definition?: object;
     serverURL?: string;
   }) {
+    let privateKeyHex = opts?.pkHex;
+
+    if (!privateKeyHex) {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+      if (!identityStorage) {
+        throw new Error('Identity was not created yet');
+      }
+
+      privateKeyHex = identityStorage.privateKeyHex;
+    }
+
+    if (!privateKeyHex) {
+      throw new Error('Private key is not defined');
+    }
+
     /**
      * Add some account-specific entropy to the input,
      * additional entropy will prevent someone from counting
      * the total number of credentials issued by some particular issuer
      */
-    const entropy = await snap.request({
-      method: 'snap_getEntropy',
-      params: {
-        version: 1,
-        salt: _SALT,
-      },
-    });
-    const saltedEntropy = entropy.startsWith('0x')
-      ? entropy.substring(2)
-      : entropy;
+    const saltedEntropy = opts?.saltedEntropy ?? privateKeyHex;
 
     const definition = opts?.definition ?? VerifiableRuntimeCompositeV2;
 
@@ -171,7 +169,7 @@ export class VCManager {
           ...(opts?.serverURL && { serverURL: opts.serverURL }),
           definition,
         },
-        opts?.pkHex,
+        privateKeyHex,
       ),
       saltedEntropy,
     );
@@ -504,6 +502,28 @@ export const migrateVCsToLastCeramicModel = async () => {
     return;
   }
 
+  const entropyKeyHex = await genPkHexFromEntropy();
+
+  const entropyIdentity = await Identity.create(entropyKeyHex);
+
+  const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+  const isPKImported =
+    identityStorage.privateKeyHex !== entropyIdentity.privateKeyHex;
+
+  if (isPKImported) {
+    return;
+  }
+
+  const saltedEntropyHex = await genPkHexFromEntropy(_SALT);
+
+  const oldKeyHexManager = await VCManager.create({
+    saltedEntropy: saltedEntropyHex,
+    pkHex: entropyKeyHex,
+  });
+
+  const oldKeyHexVCs = await oldKeyHexManager.getAllDecryptedVCs();
+
   const storeCredentials: W3CCredential[] =
     (await getItemFromStore(StorageKeys.credentials)) || [];
 
@@ -515,11 +535,21 @@ export const migrateVCsToLastCeramicModel = async () => {
 
       const ceramicVCs = await vcManager.getAllDecryptedVCs();
 
-      const vcs = [...storeCredentials, ...ceramicVCs].reduce((acc, vc) => {
-        const isVcExist = Boolean(acc.find((el) => el.id === vc.id));
+      const vcs = [...storeCredentials, ...ceramicVCs, ...oldKeyHexVCs].reduce(
+        (acc, vc) => {
+          const isVcExist = Boolean(
+            acc.find((el) => {
+              const elId = getClaimIdFromVCId(el.id);
+              const vcId = getClaimIdFromVCId(vc.id);
 
-        return [...acc, ...(isVcExist ? [] : [vc])];
-      }, [] as W3CCredential[]);
+              return elId === vcId;
+            }),
+          );
+
+          return [...acc, ...(isVcExist ? [] : [vc])];
+        },
+        [] as W3CCredential[],
+      );
 
       await Promise.all(
         vcs.map(async (vc) => {

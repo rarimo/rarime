@@ -3,8 +3,10 @@ import { getUpdateStateDetails, getUpdateStateTx } from './helpers';
 import { MetamaskSnap } from './snap';
 import {
   CheckCredentialExistenceRequestParams,
+  CreateIdentityRequestParams,
   CreateProofRequestParams,
   RemoveCredentialsRequestParams,
+  IdentityDidPair,
   RPCMethods,
   SaveCredentialsRequestParams,
   SaveCredentialsResponse,
@@ -38,12 +40,21 @@ export const checkCredentialExistence = async function (
 
 export const createIdentity = async function (
   this: MetamaskSnap,
-): Promise<{
-  identityIdString: string;
-  identityIdBigIntString: string;
-}> {
+  params?: CreateIdentityRequestParams,
+): Promise<IdentityDidPair> {
   return await sendSnapMethod(
-    { method: RPCMethods.CreateIdentity },
+    { method: RPCMethods.CreateIdentity, params },
+    this.snapId,
+  );
+};
+
+export const getIdentity = async function (
+  this: MetamaskSnap,
+): Promise<IdentityDidPair> {
+  return await sendSnapMethod(
+    {
+      method: RPCMethods.GetIdentity,
+    },
     this.snapId,
   );
 };

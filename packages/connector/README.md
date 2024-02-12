@@ -42,6 +42,30 @@ createIdentity(): Promise<string>
 ```
 Returns DID.
 
+### Get identity
+Returns DID in string and BigInt string formats. Throws error if the DID wasn't initialised yet.
+
+```typescript
+const {
+  identityIdString,
+  identityIdBigIntString,
+} = await connector.getIdentity()
+```
+
+or
+```typescript
+const privateKeyHex = '0x...'
+
+const {
+  identityIdString,
+  identityIdBigIntString,
+} = await connector.getIdentity({
+  privateKeyHex,
+})
+```
+
+Returns DID.
+
 ### Export identity
 To export your identity you need to call this method:
 ```typescript

@@ -15,6 +15,19 @@ await window.ethereum.request({
 });
 ```
 
+### Get identity
+Returns DID and DID in big int string format if they are exists, otherwise method throws error.
+
+```javascript
+await window.ethereum.request({
+  method: 'wallet_invokeSnap',
+  params: {
+  snapId: 'snapId',
+    request: { method: 'get_identity' },
+  },
+});
+```
+
 ### Export identity
 To export an identity you need to call this method:
 ```javascript
