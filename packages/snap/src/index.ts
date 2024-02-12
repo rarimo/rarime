@@ -155,7 +155,9 @@ export const onRpcRequest = async ({
         throw new Error('User rejected request');
       }
 
-      return Promise.all(vcs.map((vc) => vcManager.clearMatchedVcs(vc)));
+      await Promise.all(vcs.map((vc) => vcManager.clearMatchedVcs(vc)));
+
+      return undefined;
     }
 
     case RPCMethods.SaveCredentials: {
