@@ -111,7 +111,7 @@ export const onRpcRequest = async ({
     case RPCMethods.RemoveCredentials: {
       if (!isOriginInWhitelist(origin)) {
         throw new Error(
-          'This origin does not have access to remove credentials',
+          'This origin does not have access to the RemoveCredentials method',
         );
       }
 
