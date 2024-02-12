@@ -33,3 +33,14 @@ export const isDidSupported = (identityId: string): boolean => {
     return false;
   }
 };
+
+export const genPkHexFromEntropy = async (salt?: string) => {
+  const entropy = await snap.request({
+    method: 'snap_getEntropy',
+    params: {
+      version: 1,
+      ...(salt ? { salt } : {}),
+    },
+  });
+  return entropy.startsWith('0x') ? entropy.substring(2) : entropy;
+};

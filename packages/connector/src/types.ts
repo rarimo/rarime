@@ -16,13 +16,16 @@ export enum RPCMethods {
   CheckStateContractSync = 'check_state_contract_sync',
   GetCredentials = 'get_credentials',
   ExportIdentity = 'export_identity',
+  GetIdentity = 'get_identity',
 }
 
 export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
   Pick<W3CCredential, 'issuer'>;
 
 export type SnapConnector = {
-  createIdentity(): Promise<{
+  createIdentity(
+    params?: CreateIdentityRequestParams,
+  ): Promise<{
     identityIdString: string;
     identityIdBigIntString: string;
   }>;
@@ -37,6 +40,12 @@ export type SnapConnector = {
     params: CheckCredentialExistenceRequestParams,
   ): Promise<SaveCredentialsResponse[]>;
   exportIdentity(): Promise<void>;
+  getIdentity(): Promise<IdentityDidPair>;
+};
+
+export type IdentityDidPair = {
+  identityIdString: string;
+  identityIdBigIntString: string;
 };
 
 export type GetSnapsResponse = {
@@ -46,6 +55,10 @@ export type GetSnapsResponse = {
     version?: string;
     initialPermissions?: { [k: string]: unknown };
   };
+};
+
+export type CreateIdentityRequestParams = {
+  privateKeyHex?: string;
 };
 
 export type CheckCredentialExistenceRequestParams = {

@@ -11,11 +11,13 @@ import {
 import {
   CheckCredentialExistenceRequestParams,
   RemoveCredentialsRequestParams,
+  CreateIdentityRequestParams,
   RPCMethods,
   SaveCredentialsResponse,
 } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
+import { utils } from 'ethers';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -29,6 +31,7 @@ import {
 import { AuthZkp } from './auth-zkp';
 import {
   checkIfStateSynced,
+  genPkHexFromEntropy,
   getClaimIdFromVCId,
   getCoreOperationByIndex,
   getProviderChainInfo,
@@ -106,6 +109,12 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.RemoveCredentials: {
+      if (!isOriginInWhitelist(origin)) {
+        throw new Error(
+          'This origin does not have access to the RemoveCredentials method',
+        );
+      }
+
       const identityStorage = await getItemFromStore(StorageKeys.identity);
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -209,6 +218,12 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
+      const params = request.params as CreateIdentityRequestParams;
+
+      if (params?.privateKeyHex && !utils.isHexString(params?.privateKeyHex)) {
+        throw new Error('Invalid private key');
+      }
+
       if (
         identityStorage?.did &&
         identityStorage?.didBigInt &&
@@ -235,42 +250,50 @@ export const onRpcRequest = async ({
           },
         }));
 
-      if (res) {
-        const entropy = await snap.request({
-          method: 'snap_getEntropy',
-          params: { version: 1 },
-        });
-        const keyHex = entropy.startsWith('0x')
-          ? entropy.substring(2)
-          : entropy;
-
-        const identity = await Identity.create(keyHex);
-
-        await setItemInStore(StorageKeys.identity, {
-          privateKeyHex: identity.privateKeyHex,
-          did: identity.didString,
-          didBigInt: identity.identityIdBigIntString,
-        });
-
-        await snap.request({
-          method: 'snap_dialog',
-          params: {
-            type: 'alert',
-            content: panel([
-              heading('Your RariMe is ready for use!'),
-              divider(),
-              text('Your unique identifier(DID):'),
-              copyable(identity.didString),
-            ]),
-          },
-        });
-
-        return {
-          identityIdString: identity.didString,
-          identityIdBigIntString: identity.identityIdBigIntString,
-        };
+      if (!res) {
+        throw new Error('User rejected request');
       }
-      throw new Error('User rejected request');
+
+      const identity = await Identity.create(
+        params?.privateKeyHex || (await genPkHexFromEntropy()),
+      );
+
+      await setItemInStore(StorageKeys.identity, {
+        privateKeyHex: identity.privateKeyHex,
+        did: identity.didString,
+        didBigInt: identity.identityIdBigIntString,
+      });
+
+      await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'alert',
+          content: panel([
+            heading('Your RariMe is ready for use!'),
+            divider(),
+            text('Your unique identifier(DID):'),
+            copyable(identity.didString),
+          ]),
+        },
+      });
+
+      return {
+        identityIdString: identity.didString,
+        identityIdBigIntString: identity.identityIdBigIntString,
+      };
+    }
+
+    case RPCMethods.GetIdentity: {
+      const identityStorage = await getItemFromStore(StorageKeys.identity);
+
+      if (!identityStorage) {
+        throw new Error('Identity not created');
+      }
+
+      return {
+        identityIdString: identityStorage.did,
+        identityIdBigIntString: identityStorage.didBigInt,
+      };
     }
 
     case RPCMethods.CreateProof: {
