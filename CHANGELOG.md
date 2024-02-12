@@ -10,11 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `@rarimo/rarime`:
   - `RemoveCredentials` credentials RPC method
   - `ExportIdentity` RPC method
-  - `getIdentity` rpc method
+  - `GetIdentity` rpc method
 
 ### Changed
 - `@rarimo/rarime`:
-  - `CreateIdentity` - now can generate from a private key hex from params
+  - `CreateIdentity` - accept `privateKeyHex` optional param for identity creation
 
 ## [2.0.3] - 2024-02-06
 ### Changed
