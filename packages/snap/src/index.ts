@@ -18,6 +18,7 @@ import {
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
 import { utils } from 'ethers';
+import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { CircuitId, StorageKeys } from './enums';
@@ -48,6 +49,20 @@ import {
   isValidCreateProofRequest,
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
+
+import {
+  addChain,
+  ChainInfo,
+  generateWallet,
+  getAllChains,
+  getChainDetails,
+  parser,
+  RequestParams,
+  StdSignDoc,
+  validateChain,
+  validateChainId,
+} from './wallet';
+import { getChainPanel } from './wallet/ui';
 
 export const onRpcRequest = async ({
   request,
@@ -488,6 +503,130 @@ export const onRpcRequest = async ({
           ]),
         },
       });
+    }
+
+    // WALLET
+
+    case 'wallet_signDirect': {
+      const params: RequestParams<SignDoc> = (request.params as unknown) as RequestParams<SignDoc>;
+      const panels = parser.parse(params.signDoc, origin, 'direct');
+      const confirmed = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel(panels),
+        },
+      });
+
+      if (!confirmed) {
+        throw new Error('User denied transaction');
+      }
+
+      const { signerAddress, signDoc } = params;
+      await validateChainId(signDoc.chainId);
+      // const { low, high, unsigned } = signDoc.accountNumber;
+      const chainDetails = await getChainDetails(signDoc.chainId);
+      const wallet = await generateWallet(chainDetails);
+
+      // const accountNumber = new Long(low, high, unsigned);
+      const sd: SignDoc = {
+        bodyBytes: new Uint8Array(Object.values(signDoc.bodyBytes)),
+        authInfoBytes: new Uint8Array(Object.values(signDoc.authInfoBytes)),
+        chainId: signDoc.chainId,
+        accountNumber: signDoc.accountNumber,
+      };
+      return await wallet.signDirect(signerAddress, sd);
+    }
+
+    case 'wallet_signAmino': {
+      const params: RequestParams<StdSignDoc> = (request.params as unknown) as RequestParams<StdSignDoc>;
+      const panels = parser.parse(params.signDoc, origin, 'amino');
+
+      const confirmed = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel(panels),
+        },
+      });
+      if (!confirmed) {
+        throw new Error('User denied transaction');
+      }
+
+      const { signerAddress, signDoc } = params;
+
+      const receivedChainId =
+        params.chainId || signDoc.chain_id || signDoc.chainId || '';
+
+      if (!receivedChainId) {
+        throw new Error('ChainId is mandatory params');
+      }
+
+      if (!params.isADR36) {
+        await validateChainId(receivedChainId);
+      }
+
+      const chainDetails = await getChainDetails(receivedChainId);
+
+      const wallet = await generateWallet(chainDetails);
+
+      const defaultFee = signDoc.fee;
+      const defaultMemo = signDoc.memo;
+
+      const sortedSignDoc = {
+        chain_id: receivedChainId,
+        account_number: signDoc.account_number ?? signDoc.accountNumber,
+        sequence: signDoc.sequence,
+        fee: defaultFee,
+        memo: defaultMemo,
+        msgs: signDoc.msgs,
+      };
+      return await wallet.signAmino(signerAddress, sortedSignDoc, {
+        extraEntropy: params.enableExtraEntropy
+          ? params.enableExtraEntropy
+          : false,
+      });
+    }
+
+    case 'wallet_getKey': {
+      const { chainId } = request.params as { chainId: string };
+      await validateChainId(chainId);
+      const chainDetails = await getChainDetails(chainId);
+      const wallet = await generateWallet(chainDetails);
+      const accounts = wallet.getAccounts();
+      return {
+        address: accounts[0].address,
+        algo: 'secp256k1',
+        bech32Address: accounts[0].address,
+        isNanoLedger: false,
+        name: 'Cosmos',
+        pubkey: new Uint8Array(Object.values(accounts[0].pubkey)),
+      };
+    }
+
+    case 'wallet_suggestChain': {
+      const { chainInfo } = (request.params as unknown) as {
+        chainInfo: ChainInfo;
+      };
+      validateChain(chainInfo);
+      const panels = getChainPanel(origin, chainInfo);
+      const confirmed = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel(panels),
+        },
+      });
+      if (!confirmed) {
+        throw new Error('User denied transaction');
+      }
+
+      await addChain(chainInfo);
+      return { message: 'Successfully added chain', chainInfo };
+    }
+
+    case 'wallet_getSupportedChains': {
+      return await getAllChains();
     }
 
     default:
