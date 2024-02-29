@@ -21,37 +21,6 @@ stdLibBrowser = {
     __dirname,
     '../../node_modules/@iden3/js-jsonld-merklization/dist/node/esm/index.js',
   ),
-
-  // '@cosmjs/amino': path.join(
-  //   __dirname,
-  //   '../../node_modules/@cosmjs/amino/build/index.js',
-  // ),
-  // '@leapwallet/buffer-boba': path.join(
-  //   __dirname,
-  //   '../../node_modules/@leapwallet/buffer-boba/dist/index.es.js',
-  // ),
-  // '@leapwallet/parser-parfait': path.join(
-  //   __dirname,
-  //   '../../node_modules/@leapwallet/parser-parfait/dist/index.es.js',
-  // ),
-  // '@noble/secp256k1': path.join(
-  //   __dirname,
-  //   '../../node_modules/@noble/secp256k1/lib/esm/index.js',
-  // ),
-  // '@metamask/key-tree': path.join(
-  //   __dirname,
-  //   '../../node_modules/@metamask/key-tree/dist/esm/index.js',
-  // ),
-  // '@noble/hashes': path.join(
-  //   __dirname,
-  //   '../../node_modules/@noble/hashes/esm/index.js',
-  // ),
-  // 'base64-js': path.join(__dirname, '../../node_modules/base64-js/index.js'),
-  // bech32: path.join(__dirname, '../../node_modules/bech32/dist/index.js'),
-  // 'cosmjs-types': path.join(
-  //   __dirname,
-  //   '../../node_modules/cosmjs-types/index.js',
-  // ),
 };
 
 console.log('START building ESM bundle...');
