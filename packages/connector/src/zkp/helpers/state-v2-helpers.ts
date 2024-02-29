@@ -3,7 +3,7 @@ import { utils } from 'ethers';
 
 import { TransactionRequest } from '@ethersproject/providers';
 import {
-  ChainInfo,
+  RarimoChainInfo,
   StateInfo,
   Operation,
   OperationProof,
@@ -86,7 +86,7 @@ export const getUpdateStateDetails = async (
 
 export const getUpdateStateTx = async (
   accountId: string,
-  chainInfo: ChainInfo,
+  chainInfo: RarimoChainInfo,
   state: StateInfo,
   operation: Operation,
   rarimoCoreUrl: string,

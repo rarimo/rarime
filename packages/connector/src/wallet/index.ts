@@ -138,6 +138,10 @@ export class RarimeWallet
   }
 }
 
+export * from './consts';
+export * from './helpers';
+export * from './types';
+
 // /**
 //  * Helps to do signArbitrary of the data provided
 //  *

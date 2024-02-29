@@ -4,10 +4,10 @@ import { DocumentNode } from 'graphql/language';
 import type {
   CreateProofRequestParams,
   ProofQuery,
+  SaveCredentialsRequestParams,
 } from '@rarimo/rarime-connector';
 import { ProofType, StorageKeys } from '../enums';
 import {
-  SaveCredentialsRequestParams,
   ClearVc,
   ClearVcMutation,
   ClearVcMutationVariables,

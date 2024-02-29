@@ -10,7 +10,7 @@ import {
   SaveCredentialsResponse,
   W3CCredential,
   ZKPProofSnapResponse,
-} from '../zkp/types';
+} from '../zkp';
 import {
   ChainInfo,
   WalletRequestAminoSignParams,
@@ -18,8 +18,8 @@ import {
   WalletRequestGetKeyParams,
   WalletRequestSuggestChainParams,
   WalletSignDirectResponse,
-} from '../wallet/types';
-import { CHAINS } from '../wallet/consts';
+  CHAINS,
+} from '../wallet';
 
 export type GetSnapsResponse = {
   [k: string]: {

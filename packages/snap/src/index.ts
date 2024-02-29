@@ -9,11 +9,10 @@ import {
   Component,
 } from '@metamask/snaps-sdk';
 import {
-  CheckCredentialExistenceRequestParams,
-  RemoveCredentialsRequestParams,
-  CreateIdentityRequestParams,
   RPCMethods,
   SaveCredentialsResponse,
+  SnapRequestParams,
+  CircuitId,
 } from '@rarimo/rarime-connector';
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
@@ -21,14 +20,8 @@ import { utils } from 'ethers';
 import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
-import { CircuitId, StorageKeys } from './enums';
-import {
-  SaveCredentialsRequestParams,
-  CreateProofRequestParams,
-  GetStateInfoResponse,
-  MerkleProof,
-  TextField,
-} from './types';
+import { StorageKeys } from './enums';
+import { GetStateInfoResponse, MerkleProof, TextField } from './types';
 import { AuthZkp } from './auth-zkp';
 import {
   checkIfStateSynced,
@@ -52,13 +45,10 @@ import {
 
 import {
   addChain,
-  ChainInfo,
   generateWallet,
   getAllChains,
   getChainDetails,
   parser,
-  RequestParams,
-  StdSignDoc,
   validateChain,
   validateChainId,
 } from './wallet';
@@ -78,6 +68,7 @@ export const onRpcRequest = async ({
   switch (request.method) {
     case RPCMethods.CheckCredentialExistence: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
+
       if (!identityStorage) {
         throw new Error('Identity not created');
       }
@@ -85,7 +76,7 @@ export const onRpcRequest = async ({
       const {
         claimOffer,
         proofRequest,
-      } = request.params as CheckCredentialExistenceRequestParams;
+      } = request.params as SnapRequestParams[RPCMethods.CheckCredentialExistence];
 
       const vcManager = await VCManager.create();
 
@@ -131,11 +122,12 @@ export const onRpcRequest = async ({
       }
 
       const identityStorage = await getItemFromStore(StorageKeys.identity);
+
       if (!identityStorage) {
         throw new Error('Identity not created');
       }
 
-      const params = request.params as RemoveCredentialsRequestParams;
+      const params = request.params as SnapRequestParams[RPCMethods.RemoveCredentials];
 
       const claimIds = params.ids.map((id) => getClaimIdFromVCId(id));
 
@@ -177,12 +169,13 @@ export const onRpcRequest = async ({
 
     case RPCMethods.SaveCredentials: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
+
       if (!identityStorage) {
         throw new Error('Identity not created');
       }
 
       // FIXME: mb multiple offers?
-      const offer = (request.params as any) as SaveCredentialsRequestParams;
+      const offer = request.params as SnapRequestParams[RPCMethods.SaveCredentials];
 
       isValidSaveCredentialsOfferRequest(offer);
 
@@ -235,7 +228,7 @@ export const onRpcRequest = async ({
     case RPCMethods.CreateIdentity: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-      const params = request.params as CreateIdentityRequestParams;
+      const params = request.params as SnapRequestParams[RPCMethods.CreateIdentity];
 
       if (
         params?.privateKeyHex &&
@@ -318,13 +311,15 @@ export const onRpcRequest = async ({
 
     case RPCMethods.CreateProof: {
       const identityStorage = await getItemFromStore(StorageKeys.identity);
+
       if (!identityStorage) {
         throw new Error('Identity not created');
       }
 
-      const params = request.params as CreateProofRequestParams;
-
-      const { issuerDid, ...createProofRequest } = params;
+      const {
+        issuerDid,
+        ...createProofRequest
+      } = request.params as SnapRequestParams[RPCMethods.CreateProof];
 
       isValidCreateProofRequest(createProofRequest);
 
@@ -463,6 +458,7 @@ export const onRpcRequest = async ({
           zkpProof,
         };
       }
+
       throw new Error('User rejected request');
     }
 
@@ -507,8 +503,9 @@ export const onRpcRequest = async ({
 
     // WALLET
 
-    case 'wallet_signDirect': {
-      const params: RequestParams<SignDoc> = (request.params as unknown) as RequestParams<SignDoc>;
+    case RPCMethods.WalletSignDirect: {
+      const params = (request.params as unknown) as SnapRequestParams[RPCMethods.WalletSignDirect];
+
       const panels = parser.parse(params.signDoc, origin, 'direct');
       const confirmed = await snap.request({
         method: 'snap_dialog',
@@ -538,8 +535,8 @@ export const onRpcRequest = async ({
       return await wallet.signDirect(signerAddress, sd);
     }
 
-    case 'wallet_signAmino': {
-      const params: RequestParams<StdSignDoc> = (request.params as unknown) as RequestParams<StdSignDoc>;
+    case RPCMethods.WalletSignAmino: {
+      const params = (request.params as unknown) as SnapRequestParams[RPCMethods.WalletSignAmino];
       const panels = parser.parse(params.signDoc, origin, 'amino');
 
       const confirmed = await snap.request({
@@ -588,8 +585,10 @@ export const onRpcRequest = async ({
       });
     }
 
-    case 'wallet_getKey': {
-      const { chainId } = request.params as { chainId: string };
+    case RPCMethods.WalletGetKey: {
+      const {
+        chainId,
+      } = request.params as SnapRequestParams[RPCMethods.WalletGetKey];
       await validateChainId(chainId);
       const chainDetails = await getChainDetails(chainId);
       const wallet = await generateWallet(chainDetails);
@@ -604,10 +603,10 @@ export const onRpcRequest = async ({
       };
     }
 
-    case 'wallet_suggestChain': {
-      const { chainInfo } = (request.params as unknown) as {
-        chainInfo: ChainInfo;
-      };
+    case RPCMethods.WalletSuggestChain: {
+      const {
+        chainInfo,
+      } = request.params as SnapRequestParams[RPCMethods.WalletSuggestChain];
       validateChain(chainInfo);
       const panels = getChainPanel(origin, chainInfo);
       const confirmed = await snap.request({
@@ -625,7 +624,7 @@ export const onRpcRequest = async ({
       return { message: 'Successfully added chain', chainInfo };
     }
 
-    case 'wallet_getSupportedChains': {
+    case RPCMethods.WalletGetSupportedChains: {
       return await getAllChains();
     }
 

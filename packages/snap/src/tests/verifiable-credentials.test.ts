@@ -1,13 +1,13 @@
 import * as crypto from 'crypto';
 import { Hex, PrivateKey } from '@iden3/js-crypto';
-import { ProofQuery } from '@rarimo/rarime-connector';
-import { hashVC, VCManager } from '../helpers';
 import {
-  SaveCredentialsRequestParams,
+  ProofQuery,
+  CircuitId,
   CreateProofRequestParams,
+  SaveCredentialsRequestParams,
   W3CCredential,
-} from '../types';
-import { CircuitId } from '../enums';
+} from '@rarimo/rarime-connector';
+import { hashVC, VCManager } from '../helpers';
 
 const dummyOffer: SaveCredentialsRequestParams = {
   body: {

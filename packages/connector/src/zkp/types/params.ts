@@ -1,4 +1,4 @@
-import { ProofQuery } from './zkp';
+import { CreateProofRequest } from './zkp';
 
 export type CreateIdentityRequestParams = {
   privateKeyHex?: string;
@@ -31,15 +31,6 @@ export type RemoveCredentialsRequestParams = {
   ids: string[];
 };
 
-export type CreateProofRequestParams = {
-  id?: number;
-  accountAddress?: string; // Metamask user address for onchain proofs
+export type CreateProofRequestParams = CreateProofRequest & {
   issuerDid: string;
-  circuitId:
-    | 'credentialAtomicQueryMTPV2'
-    | 'credentialAtomicQueryMTPV2OnChain'
-    | 'credentialAtomicQuerySigV2'
-    | 'credentialAtomicQuerySigV2OnChain';
-  challenge?: string; // bigint string
-  query: ProofQuery;
 };

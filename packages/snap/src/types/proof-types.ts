@@ -1,21 +1,7 @@
 import { Signature } from '@iden3/js-crypto';
 import { Claim } from '@iden3/js-iden3-core';
 import { Hash, Proof } from '@iden3/js-merkletree';
-import type { ProofQuery } from '@rarimo/rarime-connector';
 import { Query } from '../helpers';
-import { CircuitId } from '../enums';
-
-export type CreateProofRequest = {
-  id?: number;
-  accountAddress?: string;
-  circuitId: CircuitId;
-  challenge?: string; // bigint string
-  query: ProofQuery;
-};
-
-export type CreateProofRequestParams = {
-  issuerDid: string;
-} & CreateProofRequest;
 
 export type State = {
   txId?: string;

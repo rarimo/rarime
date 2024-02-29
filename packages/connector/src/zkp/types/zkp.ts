@@ -1,4 +1,5 @@
 import { TransactionRequest } from '@ethersproject/providers';
+import type { CircuitId } from '../enums';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -114,7 +115,7 @@ export type Operation = {
 
 export type RarimoNetworkType = 'mainnet' | 'beta';
 
-export type ChainInfo = {
+export type RarimoChainInfo = {
   id: number;
   rpcUrl: string;
   stateContractAddress: string;
@@ -127,7 +128,7 @@ export type OperationProof = {
 };
 
 export type ZKPProofSnapResponse = {
-  chainInfo: ChainInfo;
+  chainInfo: RarimoChainInfo;
   rarimoCoreUrl: string;
   isSynced: boolean;
 
@@ -140,4 +141,12 @@ export type ZKPProofSnapResponse = {
   operation: Operation;
 
   zkpProof: ZKProof;
+};
+
+export type CreateProofRequest = {
+  id?: number;
+  accountAddress?: string;
+  circuitId: CircuitId;
+  challenge?: string; // bigint string
+  query: ProofQuery;
 };

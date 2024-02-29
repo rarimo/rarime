@@ -2,6 +2,7 @@ import { proving, type ZKProof } from '@iden3/js-jwz';
 
 import { Hex, Signature } from '@iden3/js-crypto';
 import { fromLittleEndian } from '@iden3/js-iden3-core';
+import { CircuitId, CreateProofRequest } from '@rarimo/rarime-connector';
 import { type Identity } from './identity';
 
 import {
@@ -23,7 +24,6 @@ import {
 } from './helpers';
 import type {
   ClaimNonRevStatus,
-  CreateProofRequest,
   GISTProof,
   NodeAuxValue,
   W3CCredential,
@@ -35,7 +35,6 @@ import {
   defaultMTLevelsOnChain,
   defaultValueArraySize,
 } from './const';
-import { CircuitId } from './enums';
 
 export class ZkpGen {
   identity: Identity = {} as Identity;

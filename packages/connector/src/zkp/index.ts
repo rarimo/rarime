@@ -98,3 +98,8 @@ export class ZkpSnap extends RarimeSnapBase {
     };
   };
 }
+
+export * from './consts';
+export * from './helpers';
+export * from './types';
+export * from './enums';

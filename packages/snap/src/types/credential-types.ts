@@ -1,8 +1,6 @@
 /* eslint-disable jsdoc/check-tag-names */
 import { Proof } from '@iden3/js-merkletree';
 
-export type { SaveCredentialsRequestParams } from '@rarimo/rarime-connector';
-
 export type CredentialStatus = {
   id: string;
   type: string;
@@ -26,29 +24,6 @@ export type W3CCredential = {
   issuer: string;
   credentialSchema: CredentialSchema;
   proof?: { [key: string]: any } | any[];
-};
-
-export type ClaimOffer = {
-  body: {
-    Credentials: [
-      {
-        description: string;
-        id: string;
-      },
-    ];
-    /**
-     *
-     * @format
-     * url
-     */
-    url: string;
-  };
-  from: string;
-  id: string;
-  threadID?: string;
-  to: string;
-  typ?: string;
-  type: string;
 };
 
 export type Issuer = {

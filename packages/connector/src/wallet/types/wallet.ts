@@ -1,15 +1,6 @@
 import { AminoMsg, Coin } from '@cosmjs/amino';
 import Long from 'long';
 
-export type GetSnapsResponse = Record<string, Snap>;
-
-export type Snap = {
-  permissionName: string;
-  id: string;
-  version: string;
-  initialPermissions: Record<string, unknown>;
-};
-
 export type Bech32Config = {
   readonly bech32PrefixAccAddr: string;
   readonly bech32PrefixAccPub?: string;
@@ -100,12 +91,6 @@ export type StdSignDoc = {
   readonly fee: StdFee;
   readonly msgs: readonly AminoMsg[];
   readonly memo: string;
-};
-
-export type ProviderLong = Long;
-
-export type SuggestChainOptions = {
-  force?: boolean;
 };
 
 export type Pubkey = {

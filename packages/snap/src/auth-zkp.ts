@@ -1,10 +1,11 @@
 import { fromBigEndian } from '@iden3/js-iden3-core';
 import { proving, Token } from '@iden3/js-jwz';
 import * as uuid from 'uuid';
+import { SaveCredentialsRequestParams } from '@rarimo/rarime-connector';
 import { Identity } from './identity';
 
 import { config } from './config';
-import { W3CCredential, SaveCredentialsRequestParams } from './types';
+import { W3CCredential } from './types';
 import {
   getGISTProof,
   getNodeAuxValue,
