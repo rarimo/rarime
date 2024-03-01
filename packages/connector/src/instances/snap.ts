@@ -14,7 +14,10 @@ export class RarimeSnapBase {
 
   public readonly version: string;
 
-  public constructor(snapId: string, version = versionJson.version) {
+  public constructor(
+    snapId = defaultSnapOrigin,
+    version = versionJson.version,
+  ) {
     this.snapId = snapId;
     this.version = version;
   }
@@ -26,9 +29,12 @@ export class RarimeSnapBase {
     const provider = await getProvider();
 
     return await provider.request({
-      method,
+      method: 'wallet_invokeSnap',
       params: {
-        request: { params },
+        request: {
+          method,
+          params,
+        },
         snapId: this.snapId,
       },
     });
@@ -59,14 +65,12 @@ export class RarimeSnapBase {
     try {
       await getProvider();
 
-      const snapId = this.snapId ?? defaultSnapOrigin;
-
       const walletSnaps = await getWalletSnaps();
 
       return Boolean(
         Object.values(walletSnaps).find(
           (permission) =>
-            permission.id === snapId &&
+            permission.id === this.snapId &&
             (!this.version || permission.version === this.version),
         ),
       );

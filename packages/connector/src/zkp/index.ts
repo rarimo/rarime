@@ -1,12 +1,17 @@
 import { RarimeSnapBase } from '../instances';
 import { RPCMethods } from '../enums';
 import { SnapRequestParams, SnapRequestsResponses } from '../types';
+import { defaultSnapOrigin } from '../consts';
+import versionJson from '../version.json';
 import { ZKPProofResponse } from './types';
 import { getUpdateStateDetails, getUpdateStateTx } from './helpers';
 
 export class ZkpSnap extends RarimeSnapBase {
-  public constructor(snapId: string) {
-    super(snapId);
+  public constructor(
+    snapId = defaultSnapOrigin,
+    version = versionJson.version,
+  ) {
+    super(snapId, version);
   }
 
   createIdentity = async (

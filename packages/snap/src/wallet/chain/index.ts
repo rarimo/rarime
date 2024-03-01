@@ -47,6 +47,7 @@ export const validateChain = (chainInfo: ChainInfo) => {
 
 export const validateChainId = async (chainId: string) => {
   const chains: any = await getAllChains();
+
   if (!chains[chainId]) {
     throw new Error('Invalid chainId');
   }

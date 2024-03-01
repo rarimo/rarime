@@ -9,6 +9,8 @@ import Long from 'long';
 import { ethers } from 'ethers';
 import { RarimeSnapBase } from '../instances';
 import { RPCMethods } from '../enums';
+import { defaultSnapOrigin } from '../consts';
+import versionJson from '../version.json';
 import { SignAminoOptions, StdSignDoc } from './types';
 import { CHAINS } from './consts';
 import { getGasPriceForChainName } from './helpers';
@@ -18,8 +20,12 @@ export class RarimeWallet
   implements OfflineDirectSigner {
   readonly chainId: string;
 
-  public constructor(snapId: string, chainId: string) {
-    super(snapId);
+  public constructor(
+    chainId: string,
+    snapId = defaultSnapOrigin,
+    version = versionJson.version,
+  ) {
+    super(snapId, version);
     this.chainId = chainId;
   }
 
@@ -137,6 +143,8 @@ export class RarimeWallet
     });
   }
 }
+
+export const createWallet = (chainId: string) => {};
 
 export * from './consts';
 export * from './helpers';

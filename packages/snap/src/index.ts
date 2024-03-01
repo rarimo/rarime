@@ -589,10 +589,15 @@ export const onRpcRequest = async ({
       const {
         chainId,
       } = request.params as SnapRequestParams[RPCMethods.WalletGetKey];
+
       await validateChainId(chainId);
+
       const chainDetails = await getChainDetails(chainId);
+
       const wallet = await generateWallet(chainDetails);
+
       const accounts = wallet.getAccounts();
+
       return {
         address: accounts[0].address,
         algo: 'secp256k1',
