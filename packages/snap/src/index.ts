@@ -17,7 +17,7 @@ import {
 import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
 import { utils } from 'ethers';
-import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import Long from 'long';
 import { Identity } from './identity';
 import { getItemFromStore, setItemInStore } from './rpc';
 import { StorageKeys } from './enums';
@@ -521,19 +521,26 @@ export const onRpcRequest = async ({
       }
 
       const { signerAddress, signDoc } = params;
+
       await validateChainId(signDoc.chainId);
-      // const { low, high, unsigned } = signDoc.accountNumber;
+
+      const { low, high, unsigned } = Long.fromString(
+        signDoc.accountNumber,
+        true,
+      );
+
       const chainDetails = await getChainDetails(signDoc.chainId);
+
       const wallet = await generateWallet(chainDetails);
 
-      // const accountNumber = new Long(low, high, unsigned);
-      const sd: SignDoc = {
+      const accountNumber = new Long(low, high, unsigned);
+
+      return await wallet.signDirect(signerAddress, {
         bodyBytes: new Uint8Array(Object.values(signDoc.bodyBytes)),
         authInfoBytes: new Uint8Array(Object.values(signDoc.authInfoBytes)),
         chainId: signDoc.chainId,
-        accountNumber: signDoc.accountNumber,
-      };
-      return await wallet.signDirect(signerAddress, sd);
+        accountNumber,
+      });
     }
 
     case RPCMethods.WalletSignAmino: {
@@ -613,6 +620,7 @@ export const onRpcRequest = async ({
       const {
         chainInfo,
       } = request.params as SnapRequestParams[RPCMethods.WalletSuggestChain];
+
       validateChain(chainInfo);
       const panels = getChainPanel(origin, chainInfo);
       const confirmed = await snap.request({

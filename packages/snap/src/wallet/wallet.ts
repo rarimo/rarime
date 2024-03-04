@@ -3,13 +3,11 @@ import { sha256 } from '@noble/hashes/sha256';
 import { ripemd160 } from '@noble/hashes/ripemd160';
 import { bech32 } from 'bech32';
 import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import {
-  BIP44CoinTypeNode,
-  getBIP44AddressKeyDeriver,
-} from '@metamask/key-tree';
 
 import * as base64js from 'base64-js';
 import { StdSignDoc } from '@cosmjs/amino';
+import { getItemFromStore } from '../rpc';
+import { StorageKeys } from '../enums';
 
 export type Pubkey = {
   readonly type: string;
@@ -23,10 +21,11 @@ export type StdSignature = {
 
 export const encodeSecp256k1Pubkey = (pubkey: Uint8Array): Pubkey => {
   if (pubkey.length !== 33 || (pubkey[0] !== 0x02 && pubkey[0] !== 0x03)) {
-    throw new Error(
+    throw new TypeError(
       'Public key must be compressed secp256k1, i.e. 33 bytes starting with 0x02 or 0x03',
     );
   }
+
   return {
     type: 'tendermint/PubKeySecp256k1',
     value: base64js.fromByteArray(pubkey),
@@ -38,7 +37,7 @@ export const encodeSecp256k1Signature = (
   signature: Uint8Array,
 ): StdSignature => {
   if (signature.length !== 64) {
-    throw new Error(
+    throw new TypeError(
       'Signature must be 64 bytes long. Cosmos SDK uses a 2x32 byte fixed length encoding for the secp256k1 signature integers r and s.',
     );
   }
@@ -127,22 +126,27 @@ export class Wallet {
 
   async signDirect(signerAddress: string, signDoc: SignDoc) {
     const accounts = this.getAccounts();
+
     const account = accounts.find((acc) => acc.address === signerAddress);
 
     if (!account) {
-      throw new Error('Signer address does not match wallet address');
+      throw new TypeError('Signer address does not match wallet address');
     }
+
     const hash = sha256(serializeSignDoc(signDoc));
+
     const signature = await secp.sign(hash, this.privateKey, {
-      // canonical: true,
+      canonical: true,
       extraEntropy: true,
-      // der: false,
+      der: false,
     });
 
-    return {
+    const resp = {
       signed: { ...signDoc, accountNumber: signDoc.accountNumber.toString() },
       signature: encodeSecp256k1Signature(account.pubkey, signature),
     };
+
+    return resp;
   }
 
   async signAmino(
@@ -153,11 +157,11 @@ export class Wallet {
     const accounts = this.getAccounts();
     const account = accounts.find((acc) => acc.address === signerAddress);
     if (!account) {
-      throw new Error('Signer address does not match wallet address');
+      throw new TypeError('Signer address does not match wallet address');
     }
 
     if (!account.pubkey) {
-      throw new Error('Unable to derive keypair');
+      throw new TypeError('Unable to derive keypair');
     }
     const hash = sha256(serializeStdSignDoc(signDoc));
     const extraEntropy = options?.extraEntropy ? true : undefined;
@@ -177,21 +181,11 @@ export class Wallet {
 export const generateWallet = async (
   options: WalletOptions,
 ): Promise<Wallet> => {
-  const atomNodeJson = ((await snap.request({
-    method: 'snap_getBip44Entropy',
-    params: {
-      coinType: options.coinType,
-    },
-  })) as unknown) as BIP44CoinTypeNode;
+  const identityStorage = await getItemFromStore(StorageKeys.identity);
 
-  const addressKeyDeriver = await getBIP44AddressKeyDeriver(atomNodeJson);
-  const addressKey0 = await addressKeyDeriver(0);
-
-  if (!addressKey0.privateKey) {
-    throw new Error(
-      `Error in creating wallet for chain ${options.addressPrefix}`,
-    );
+  if (!identityStorage.privateKeyHex) {
+    throw new TypeError('No private key found');
   }
 
-  return Wallet.create(addressKey0.privateKey, options.addressPrefix);
+  return Wallet.create(identityStorage.privateKeyHex, options.addressPrefix);
 };

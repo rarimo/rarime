@@ -5,7 +5,6 @@
 import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { AccountData, AminoSignResponse } from '@cosmjs/amino';
 import { DirectSignResponse, OfflineDirectSigner } from '@cosmjs/proto-signing';
-import Long from 'long';
 import { BigNumber } from 'ethers';
 import { RarimeSnapBase } from '../instances';
 import { RPCMethods } from '../enums';
@@ -65,9 +64,7 @@ export class RarimeWallet
       signerAddress,
       signDoc: {
         ...signDoc,
-        accountNumber: BigNumber.from(
-          Long.fromString(signDoc.accountNumber.toString(), true).toString(),
-        ).toBigInt(),
+        accountNumber: signDoc.accountNumber.toString(),
       },
     });
 

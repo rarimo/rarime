@@ -9,7 +9,9 @@ export type RequestParams<T> = {
   readonly chainId?: string;
 };
 
-export type WalletRequestDirectSignParams = RequestParams<SignDoc>;
+export type WalletRequestDirectSignParams = RequestParams<
+  Omit<SignDoc, 'accountNumber'> & { accountNumber: string }
+>;
 
 export type WalletRequestAminoSignParams = RequestParams<StdSignDoc>;
 
