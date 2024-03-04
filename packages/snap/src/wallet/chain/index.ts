@@ -1,5 +1,5 @@
 import { ChainInfo, CHAINS } from '@rarimo/rarime-connector';
-import { ALLOWEDCOINTYPES } from '../constants';
+import { ALLOWED_COIN_TYPES } from '../constants';
 import db from '../db';
 
 export const getAllChains = async () => {
@@ -40,7 +40,7 @@ export const validateChain = (chainInfo: ChainInfo) => {
     throw new Error('60 bip44.coinType is not Supported');
   }
 
-  if (!ALLOWEDCOINTYPES.includes(bip44.coinType)) {
+  if (!ALLOWED_COIN_TYPES.includes(bip44.coinType)) {
     throw new Error('Invalid bip44.coinType value');
   }
 };

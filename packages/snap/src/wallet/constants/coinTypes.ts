@@ -1,4 +1,4 @@
-export const ALLOWEDCOINTYPES = [
+export const ALLOWED_COIN_TYPES = [
   118,
   564,
   494,

@@ -1,5 +1,4 @@
 import { AminoMsg, Coin } from '@cosmjs/amino';
-import Long from 'long';
 
 export type Bech32Config = {
   readonly bech32PrefixAccAddr: string;
@@ -63,7 +62,9 @@ export type ChainInfo = {
    */
   readonly feeCurrencies: FeeCurrency[];
 
-  image: string;
+  chainSymbolImageUrl: string;
+
+  beta?: boolean;
 };
 
 export type SignAminoOptions = {

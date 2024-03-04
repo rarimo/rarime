@@ -6,7 +6,7 @@ import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { AccountData, AminoSignResponse } from '@cosmjs/amino';
 import { DirectSignResponse, OfflineDirectSigner } from '@cosmjs/proto-signing';
 import Long from 'long';
-import { ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import { RarimeSnapBase } from '../instances';
 import { RPCMethods } from '../enums';
 import { defaultSnapOrigin } from '../consts';
@@ -65,7 +65,7 @@ export class RarimeWallet
       signerAddress,
       signDoc: {
         ...signDoc,
-        accountNumber: ethers.BigNumber.from(
+        accountNumber: BigNumber.from(
           Long.fromString(signDoc.accountNumber.toString(), true).toString(),
         ).toBigInt(),
       },
@@ -75,7 +75,7 @@ export class RarimeWallet
       signature: signature.signature,
       signed: {
         ...signature.signed,
-        accountNumber: ethers.BigNumber.from(
+        accountNumber: BigNumber.from(
           signDoc.accountNumber.toString(),
         ).toBigInt(),
         authInfoBytes: new Uint8Array(
@@ -112,22 +112,25 @@ export class RarimeWallet
     const chain = CHAINS[this.chainId as keyof typeof CHAINS];
 
     // Override gasPrice
-    if (!options?.preferNoSetFee && chain && chain.denom) {
+    if (!options?.preferNoSetFee) {
       const gasPriceFromRegistry = await getGasPriceForChainName(
         chain.chainName,
       );
+
       const gas: any =
         'gasLimit' in signDoc.fee ? signDoc.fee.gasLimit : signDoc.fee.gas;
+
       if (gasPriceFromRegistry) {
         const amount = [
           {
-            amount: ethers.BigNumber.from(
-              ethers.BigNumber.from(gasPriceFromRegistry)
-                .mul(ethers.BigNumber.from(gas))
+            amount: BigNumber.from(
+              BigNumber.from(gasPriceFromRegistry)
+                .mul(BigNumber.from(gas))
                 .toNumber()
                 .toFixed(0),
             ).toString(),
-            denom: chain.denom,
+
+            denom: chain.currencies[0].coinDenom,
           },
         ];
         signDoc.fee.amount = amount;
@@ -144,7 +147,7 @@ export class RarimeWallet
   }
 }
 
-export const createWallet = (chainId: string) => {};
+// export const createWallet = (chainId: string) => {};
 
 export * from './consts';
 export * from './helpers';

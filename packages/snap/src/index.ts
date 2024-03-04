@@ -507,6 +507,7 @@ export const onRpcRequest = async ({
       const params = (request.params as unknown) as SnapRequestParams[RPCMethods.WalletSignDirect];
 
       const panels = parser.parse(params.signDoc, origin, 'direct');
+
       const confirmed = await snap.request({
         method: 'snap_dialog',
         params: {

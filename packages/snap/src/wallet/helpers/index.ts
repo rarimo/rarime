@@ -17,7 +17,8 @@ import {
 import * as base64js from 'base64-js';
 
 import { BigNumber } from 'ethers';
-import { DENOMS } from '../constants';
+import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { ChainInfo, CHAINS, StdSignDoc } from '@rarimo/rarime-connector';
 
 const messageParser = new MessageParser();
 
@@ -78,27 +79,26 @@ export const sliceAddress = (address?: string, visibleLetters = 5) => {
   )}`;
 };
 
-const tokenToString = (token: Token) => {
+const tokenToString = (token: Token, chain: ChainInfo) => {
   try {
-    const trace = DENOMS[token.denomination as keyof typeof DENOMS];
-    if (!trace) {
-      throw new Error('Denomination not found for the token specified.');
-    }
     return `${formatBigNumber(
-      BigNumber.from(token.quantity).div(10 ** trace.coinDecimals),
-    )} ${trace.coinDenom}`;
+      BigNumber.from(token.quantity).div(
+        10 ** chain.currencies[0].coinDecimals,
+      ),
+    )} ${chain.currencies[0].coinDenom}`;
   } catch {
     if (token?.denomination?.startsWith('u') ?? false) {
       return `${token.quantity} ${token.denomination.slice(1)}`;
     }
+
     return `${token?.quantity ?? ''} ${sliceAddress(
       token?.denomination ?? '',
     )}`;
   }
 };
 
-const tokensToString = (tokens: Token[]) => {
-  const traces = tokens.map((t) => tokenToString(t));
+const tokensToString = (tokens: Token[], chain: ChainInfo) => {
+  const traces = tokens.map((t) => tokenToString(t, chain));
   return traces.join(', ');
 };
 
@@ -126,7 +126,11 @@ export const getSimpleType = (type: string | undefined) => {
   return parts[parts.length - 1] ?? '';
 };
 
-export const getMessageDetails = (message: ParsedMessage, raw: any): string => {
+export const getMessageDetails = (
+  message: ParsedMessage,
+  raw: any,
+  chain: ChainInfo,
+): string => {
   switch (message.__type) {
     case ParsedMessageType.AuthzExec:
       return `${sliceAddress(
@@ -151,7 +155,7 @@ export const getMessageDetails = (message: ParsedMessage, raw: any): string => {
     case ParsedMessageType.BankMultiSend:
       return `Send ${message.inputs.length} coins to ${message.outputs.length} recipients`;
     case ParsedMessageType.BankSend: {
-      return `Send ${tokensToString(message.tokens)} to ${sliceAddress(
+      return `Send ${tokensToString(message.tokens, chain)} to ${sliceAddress(
         message.toAddress,
       )}`;
     }
@@ -168,23 +172,26 @@ export const getMessageDetails = (message: ParsedMessage, raw: any): string => {
     case ParsedMessageType.GammCreatePool:
       return `Create a Balancer pool with ${tokensToString(
         message.tokens,
+        chain,
       )} assets`;
     case ParsedMessageType.GammJoinPool:
       return `Join pool ${message.poolId} with ${tokensToString(
         message.tokens,
+        chain,
       )} assets in return for ${message.shares} shares`;
     case ParsedMessageType.GammExitPool:
       return `Exit pool ${message.poolId} with ${
         message.shares
-      } shares in return for ${tokensToString(message.tokens)} assets`;
+      } shares in return for ${tokensToString(message.tokens, chain)} assets`;
     case ParsedMessageType.GammSwapExact: {
       const tokenOut = {
         quantity: message.tokenOutAmount,
         denomination:
           message.routes[message.routes.length - 1].tokenOutDenomination,
       };
-      return `Swap ${tokenToString(message.tokenIn)} for ${tokenToString(
+      return `Swap ${tokenToString(message.tokenIn, chain)} for ${tokenToString(
         tokenOut,
+        chain,
       )}`;
     }
 
@@ -193,48 +200,56 @@ export const getMessageDetails = (message: ParsedMessage, raw: any): string => {
         quantity: message.tokenInAmount,
         denomination: message.routes[0].tokenInDenomination,
       };
-      return `Swap ${tokenToString(tokenIn)} for ${tokenToString(
+      return `Swap ${tokenToString(tokenIn, chain)} for ${tokenToString(
         message.tokenOut,
+        chain,
       )}`;
     }
     case ParsedMessageType.GammSwapExactAndExit:
       return `Sell ${message.shares} shares for ${tokenToString(
         message.tokenOut,
+        chain,
       )} and exit pool ${message.poolId}`;
     case ParsedMessageType.GammSwapMaxAndExit:
       return `Sell ${message.shares} shares for ${tokenToString(
         message.tokenOut,
+        chain,
       )} and exit pool ${message.poolId}`;
     case ParsedMessageType.GammSwapExactAndJoin:
       return `Buy ${message.shares} shares for ${tokenToString(
         message.tokenIn,
+        chain,
       )} and join pool ${message.poolId}`;
     case ParsedMessageType.GammSwapMaxAndJoin:
       return `Buy ${message.shares} shares for ${tokenToString(
         message.tokenIn,
+        chain,
       )} and join pool ${message.poolId}`;
     case ParsedMessageType.GovSubmitProposal:
       return `Submit proposal with deposit of ${tokensToString(
         message.initialDeposit,
+        chain,
       )}`;
     case ParsedMessageType.GovVote:
       return `Vote ${convertVoteOptionToString(
         message.option || raw?.option,
       )} on proposal ${getProposalId(message?.proposalId)}`;
     case ParsedMessageType.GovDeposit:
-      return `Deposit ${tokensToString(message?.amount ?? [])} on proposal ${
-        message.proposalId
-      }`;
+      return `Deposit ${tokensToString(
+        message?.amount ?? [],
+        chain,
+      )} on proposal ${message.proposalId}`;
     case ParsedMessageType.IbcSend:
-      return `Send ${tokenToString(message.token)} to ${sliceAddress(
+      return `Send ${tokenToString(message.token, chain)} to ${sliceAddress(
         message.toAddress,
       )} via IBC`;
     case ParsedMessageType.IbcReceive:
-      return `Receive ${tokenToString(message.token)} from ${sliceAddress(
-        message.fromAddress,
-      )} via IBC`;
+      return `Receive ${tokenToString(
+        message.token,
+        chain,
+      )} from ${sliceAddress(message.fromAddress)} via IBC`;
     case ParsedMessageType.LockupLock:
-      return `Lock ${tokensToString(message.tokens)} for ${
+      return `Lock ${tokensToString(message.tokens, chain)} for ${
         message.duration
       } seconds`;
     case ParsedMessageType.LockupUnlock:
@@ -248,30 +263,43 @@ export const getMessageDetails = (message: ParsedMessage, raw: any): string => {
     case ParsedMessageType.StakingEditValidator:
       return `Edit ${message.moniker} validator`;
     case ParsedMessageType.StakingDelegate:
-      return `Delegate ${tokenToString({
-        quantity: message.quantity,
-        denomination: message.denomination,
-      })} to ${sliceAddress(message.validatorAddress)}`;
+      return `Delegate ${tokenToString(
+        {
+          quantity: message.quantity,
+          denomination: message.denomination,
+        },
+        chain,
+      )} to ${sliceAddress(message.validatorAddress)}`;
     case ParsedMessageType.StakingUndelegate:
-      return `Undelegate ${tokenToString({
-        quantity: message.quantity,
-        denomination: message.denomination,
-      })} from ${sliceAddress(message.validatorAddress)}`;
+      return `Undelegate ${tokenToString(
+        {
+          quantity: message.quantity,
+          denomination: message.denomination,
+        },
+        chain,
+      )} from ${sliceAddress(message.validatorAddress)}`;
     case ParsedMessageType.StakingBeginRedelegate:
-      return `Redelegate ${tokenToString({
-        quantity: message.quantity,
-        denomination: message.denomination,
-      })} from ${sliceAddress(
-        message.sourceValidatorAddress,
-      )} to ${sliceAddress(message.destinationValidatorAddress)}`;
+      return `Redelegate ${tokenToString(
+        {
+          quantity: message.quantity,
+          denomination: message.denomination,
+        },
+        chain,
+      )} from ${sliceAddress(message.sourceValidatorAddress)} to ${sliceAddress(
+        message.destinationValidatorAddress,
+      )}`;
     case ParsedMessageType.StakingCancelUnbondingDelegation:
-      return `Cancel unbonding delegation for ${tokenToString({
-        quantity: message.quantity,
-        denomination: message.denomination,
-      })} from ${sliceAddress(message.validatorAddress)}`;
+      return `Cancel unbonding delegation for ${tokenToString(
+        {
+          quantity: message.quantity,
+          denomination: message.denomination,
+        },
+        chain,
+      )} from ${sliceAddress(message.validatorAddress)}`;
     case ParsedMessageType.SuperfluidLockAndDelegate:
       return `Lock ${tokensToString(
         message.tokens,
+        chain,
       )} and delegate to ${sliceAddress(message.validatorAddress)}`;
     case ParsedMessageType.SuperfluidUnlockAndUndelegate:
       return `Remove lock ${message.lockId} and undelegate`;
@@ -286,10 +314,13 @@ export const getMessageDetails = (message: ParsedMessage, raw: any): string => {
     case ParsedMessageType.StakeIBCDeleteValidator:
       return `Delete liquid staking validator ${message.validatorAddress}`;
     case ParsedMessageType.StakeIBCLiquidStake:
-      return `Liquid stake ${tokenToString({
-        denomination: message.denomination,
-        quantity: message.quantity,
-      })}`;
+      return `Liquid stake ${tokenToString(
+        {
+          denomination: message.denomination,
+          quantity: message.quantity,
+        },
+        chain,
+      )}`;
     case ParsedMessageType.StakeIBCClearBalance:
       return `Clear liquid staking balance of ${message.quantity}`;
     case ParsedMessageType.StakeIBCRedeemStake:
@@ -325,8 +356,12 @@ export const getMessageDetails = (message: ParsedMessage, raw: any): string => {
 };
 
 export const parser = {
-  parse(signDoc: any, origin: string, signMode: 'direct' | 'amino') {
-    if (signMode === 'direct') {
+  parse(
+    signDoc: StdSignDoc | SignDoc,
+    origin: string,
+    signMode: 'direct' | 'amino',
+  ) {
+    if (signMode === 'direct' && 'bodyBytes' in signDoc) {
       const bodyBytes = new Uint8Array(Object.values(signDoc.bodyBytes));
       const authInfoBytes = new Uint8Array(
         Object.values(signDoc.authInfoBytes),
@@ -383,8 +418,10 @@ export const parser = {
         heading(''),
       ];
 
+      const chain = CHAINS[signDoc.chainId];
+
       parsedMessages.forEach((msg) => {
-        const panelMsg = getMessageDetails(msg.parsed, msg.raw);
+        const panelMsg = getMessageDetails(msg.parsed, msg.raw, chain);
         if (panelMsg !== 'Unknown Transaction Type') {
           panels.push(heading(`${panelMsg}`));
         }
@@ -397,6 +434,7 @@ export const parser = {
       }
       return panels;
     }
+
     const panels: any = [
       text(` **Approve transaction from**`),
       copyable(`${origin}`),
