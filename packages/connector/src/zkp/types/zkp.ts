@@ -1,5 +1,5 @@
 import { TransactionRequest } from '@ethersproject/providers';
-import type { CircuitId } from '../enums';
+import type { CircuitId } from '@/zkp/enums';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

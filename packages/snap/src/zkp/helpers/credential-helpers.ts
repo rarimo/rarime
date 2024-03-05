@@ -6,7 +6,8 @@ import type {
   ProofQuery,
   SaveCredentialsRequestParams,
 } from '@rarimo/rarime-connector';
-import { ProofType, StorageKeys } from '../enums';
+import VerifiableRuntimeCompositeV2 from '../../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
+import VerifiableRuntimeComposite from '../../../ceramic/composites/VerifiableCredentials-runtime.json';
 import {
   ClearVc,
   ClearVcMutation,
@@ -28,14 +29,14 @@ import {
   GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables,
   GetVerifiableCredentialsByClaimIdAndQueryHashQuery,
   GetVerifiableCredentialsByClaimIdAndQueryHash,
-} from '../types';
-import { getItemFromStore, setItemInStore } from '../rpc';
-import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
-import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
-import { Identity } from '../identity';
-import { getCoreClaimFromProof } from './proof-helpers';
-import { CeramicProvider } from './ceramic-helpers';
-import { genPkHexFromEntropy } from './identity-helpers';
+} from '@/zkp/types';
+import { getCoreClaimFromProof } from '@/zkp/helpers/proof-helpers';
+import { CeramicProvider } from '@/zkp/helpers/ceramic-helpers';
+import { genPkHexFromEntropy } from '@/zkp/helpers/identity-helpers';
+import { snapStorage } from '@/helpers';
+import { Identity } from '@/zkp/identity';
+import { ProofType } from '@/zkp/enums';
+import { StorageKeys } from '@/enums';
 
 const _SALT = 'pu?)Rx829U3ot.iB)D+z9Iyh';
 
@@ -141,7 +142,7 @@ export class VCManager {
     let privateKeyHex = opts?.pkHex;
 
     if (!privateKeyHex) {
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       if (!identityStorage) {
         throw new Error('Identity was not created yet');
@@ -506,7 +507,7 @@ export const migrateVCsToLastCeramicModel = async () => {
 
   const entropyIdentity = await Identity.create(entropyKeyHex);
 
-  const identityStorage = await getItemFromStore(StorageKeys.identity);
+  const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
   const isPKImported =
     identityStorage.privateKeyHex !== entropyIdentity.privateKeyHex;
@@ -525,7 +526,7 @@ export const migrateVCsToLastCeramicModel = async () => {
   const oldKeyHexVCs = await oldKeyHexManager.getAllDecryptedVCs();
 
   const storeCredentials: W3CCredential[] =
-    (await getItemFromStore(StorageKeys.credentials)) || [];
+    (await snapStorage.getItem(StorageKeys.credentials)) || [];
 
   await Promise.all(
     [VerifiableRuntimeComposite].map(async (definition) => {
@@ -557,7 +558,7 @@ export const migrateVCsToLastCeramicModel = async () => {
         }),
       );
 
-      await setItemInStore(StorageKeys.credentials, []);
+      await snapStorage.setItem(StorageKeys.credentials, []);
     }),
   );
 };

@@ -2,24 +2,24 @@
 import { providers, utils } from 'ethers';
 
 import { TransactionRequest } from '@ethersproject/providers';
-import {
-  ChainInfo,
-  StateInfo,
-  OperationResponse,
-  LightweightStateV2__factory,
-  OperationProof,
-  StateProof,
-  StateV2__factory,
-} from '../types';
-import { ILightweightStateV2 } from '../types/contracts/LightweightStateV2';
+import { FetcherError } from '@/zkp/helpers/error-helper';
 import {
   getChainInfo,
   getProviderChainInfo,
   getRarimoCoreUrl,
   getRarimoEvmRpcUrl,
   getRarimoStateContractAddress,
-} from './common-helpers';
-import { FetcherError } from './error-helper';
+} from '@/zkp/helpers/common-helpers';
+import {
+  StateInfo,
+  OperationResponse,
+  LightweightStateV2__factory,
+  OperationProof,
+  StateProof,
+  StateV2__factory,
+} from '@/zkp/types';
+import { ILightweightStateV2 } from '@/zkp/types/contracts/LightweightStateV2';
+import { ChainInfo } from '@/types';
 
 export const getGISTProof = async ({
   rpcUrl,

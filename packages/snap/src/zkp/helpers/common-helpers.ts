@@ -1,6 +1,6 @@
 import { providers } from 'ethers';
-import { config, HOSTNAMES_WHITELIST, SUPPORTED_CHAINS } from '../config';
-import { ChainInfo } from '../types';
+import { config, HOSTNAMES_WHITELIST, SUPPORTED_CHAINS } from '@/config';
+import { ChainInfo } from '@/types';
 
 export const getChainInfo = (chainId: number): ChainInfo => {
   const chainInfo = SUPPORTED_CHAINS[chainId];

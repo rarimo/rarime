@@ -5,6 +5,7 @@
     "moduleResolution": "node",
     "module": "es2020",
     "target": "es2020",
+    "baseUrl": ".",
     "declaration": true,
     "inlineSourceMap": true,
     "esModuleInterop": true,
@@ -18,7 +19,10 @@
     "typeRoots": [
       "node_modules/@types",
       "src/zkp/types"
-    ]
+    ],
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
     "src/**/*.ts"

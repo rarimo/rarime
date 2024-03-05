@@ -6,8 +6,8 @@ import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 import * as base64js from 'base64-js';
 import { StdSignDoc } from '@cosmjs/amino';
-import { getItemFromStore } from '../rpc';
-import { StorageKeys } from '../enums';
+import { snapStorage } from '@/helpers';
+import { StorageKeys } from '@/enums';
 
 export type Pubkey = {
   readonly type: string;
@@ -181,7 +181,7 @@ export class Wallet {
 export const generateWallet = async (
   options: WalletOptions,
 ): Promise<Wallet> => {
-  const identityStorage = await getItemFromStore(StorageKeys.identity);
+  const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
   if (!identityStorage.privateKeyHex) {
     throw new TypeError('No private key found');

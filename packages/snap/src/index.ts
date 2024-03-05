@@ -18,11 +18,26 @@ import { DID } from '@iden3/js-iden3-core';
 import type { JsonRpcRequest } from '@metamask/utils';
 import { utils } from 'ethers';
 import Long from 'long';
-import { Identity } from './identity';
-import { getItemFromStore, setItemInStore } from './rpc';
-import { StorageKeys } from './enums';
-import { GetStateInfoResponse, MerkleProof, TextField } from './types';
-import { AuthZkp } from './auth-zkp';
+import {
+  isValidCreateProofRequest,
+  isValidSaveCredentialsOfferRequest,
+} from '@/typia-generated';
+import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
+import { TextField } from '@/types';
+import {
+  addChain,
+  generateWallet,
+  getAllChains,
+  getChainDetails,
+  parser,
+  validateChain,
+  validateChainId,
+} from '@/wallet';
+import { getChainPanel } from '@/wallet/ui';
+import { Identity } from '@/zkp/identity';
+import { GetStateInfoResponse, MerkleProof } from '@/zkp/types';
+import { AuthZkp } from '@/zkp/auth-zkp';
 import {
   checkIfStateSynced,
   genPkHexFromEntropy,
@@ -36,23 +51,8 @@ import {
   migrateVCsToLastCeramicModel,
   parseDidV2,
   VCManager,
-} from './helpers';
-import { ZkpGen } from './zkp-gen';
-import {
-  isValidCreateProofRequest,
-  isValidSaveCredentialsOfferRequest,
-} from './typia-generated';
-
-import {
-  addChain,
-  generateWallet,
-  getAllChains,
-  getChainDetails,
-  parser,
-  validateChain,
-  validateChainId,
-} from './wallet';
-import { getChainPanel } from './wallet/ui';
+} from '@/zkp/helpers';
+import { ZkpGen } from '@/zkp/zkp-gen';
 
 export const onRpcRequest = async ({
   request,
@@ -67,7 +67,7 @@ export const onRpcRequest = async ({
 
   switch (request.method) {
     case RPCMethods.CheckCredentialExistence: {
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -121,7 +121,7 @@ export const onRpcRequest = async ({
         );
       }
 
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -168,7 +168,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.SaveCredentials: {
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -226,7 +226,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.CreateIdentity: {
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       const params = request.params as SnapRequestParams[RPCMethods.CreateIdentity];
 
@@ -271,7 +271,7 @@ export const onRpcRequest = async ({
         params?.privateKeyHex || (await genPkHexFromEntropy()),
       );
 
-      await setItemInStore(StorageKeys.identity, {
+      await snapStorage.setItem(StorageKeys.identity, {
         privateKeyHex: identity.privateKeyHex,
         did: identity.didString,
         didBigInt: identity.identityIdBigIntString,
@@ -297,7 +297,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.GetIdentity: {
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -310,7 +310,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.CreateProof: {
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       if (!identityStorage) {
         throw new Error('Identity not created');
@@ -481,7 +481,7 @@ export const onRpcRequest = async ({
         throw new Error('This origin does not have access to export identity');
       }
 
-      const identityStorage = await getItemFromStore(StorageKeys.identity);
+      const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 
       if (!identityStorage.privateKeyHex) {
         throw new Error('Identity not created');

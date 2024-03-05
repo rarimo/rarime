@@ -1,4 +1,4 @@
-import { Operators } from '../enums';
+import { Operators } from '@/zkp/enums';
 
 export const defaultMTLevels = 40; // max MT levels, default value for identity circuits
 export const defaultValueArraySize = 64; // max value array size, default value for identity circuits

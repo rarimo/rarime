@@ -5668,6 +5668,7 @@ __metadata:
     key-did-provider-ed25519: 3.0.2
     key-did-resolver: 3.0.0
     lodash: ^4.17.21
+    long: ^5.2.3
     node-stdlib-browser: 1.2.0
     nodemon: 2.0.20
     npm-commands: ^1.2.1

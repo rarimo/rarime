@@ -1,5 +1,5 @@
 import { AccountData, AminoSignResponse } from '@cosmjs/amino';
-import { RPCMethods } from '../enums';
+import { RPCMethods } from '@/enums';
 import {
   CheckCredentialExistenceRequestParams,
   CreateIdentityRequestParams,
@@ -10,7 +10,7 @@ import {
   SaveCredentialsResponse,
   W3CCredential,
   ZKPProofSnapResponse,
-} from '../zkp';
+} from '@/zkp';
 import {
   ChainInfo,
   WalletRequestAminoSignParams,
@@ -19,7 +19,7 @@ import {
   WalletRequestSuggestChainParams,
   WalletSignDirectResponse,
   CHAINS,
-} from '../wallet';
+} from '@/wallet';
 
 export type GetSnapsResponse = {
   [k: string]: {

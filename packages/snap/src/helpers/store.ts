@@ -1,3 +1,6 @@
+import { StorageKeys } from '@/enums';
+import { StorageMap } from '@/types';
+
 const getState = async () => {
   return await snap.request({
     method: 'snap_manageState',
@@ -5,14 +8,19 @@ const getState = async () => {
   });
 };
 
-export const getItemFromStore = async (key: string): Promise<any> => {
+const getItem = async <T extends StorageKeys>(
+  key: T,
+): Promise<StorageMap[T]> => {
   const state = await getState();
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return state?.[key] ? JSON.parse(state[key]) : null;
 };
 
-export const setItemInStore = async (key: string, inputData: any) => {
+const setItem = async <T extends StorageKeys>(
+  key: T,
+  inputData: StorageMap[T],
+) => {
   const state = (await getState()) ?? {};
 
   state[key] = JSON.stringify(inputData);
@@ -22,7 +30,7 @@ export const setItemInStore = async (key: string, inputData: any) => {
   });
 };
 
-export const clearState = async () => {
+const clear = async () => {
   return await snap.request({
     method: 'snap_manageState',
     params: { operation: 'clear' },
@@ -31,7 +39,7 @@ export const clearState = async () => {
 
 export const snapStorage = {
   getState,
-  getItemFromStore,
-  setItemInStore,
-  clearState,
+  getItem,
+  setItem,
+  clear,
 };

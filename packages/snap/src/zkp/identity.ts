@@ -9,9 +9,9 @@ import {
 } from '@iden3/js-iden3-core';
 import { hashElems, InMemoryDB, Merkletree, Proof } from '@iden3/js-merkletree';
 
-import { initPrivateKey, prepareSiblingsStr } from './helpers';
-import { config } from './config';
-import { defaultMTLevels } from './const';
+import { config } from '@/config';
+import { defaultMTLevels } from '@/zkp/const';
+import { initPrivateKey, prepareSiblingsStr } from '@/zkp/helpers';
 
 export type TreeState = {
   state: string;

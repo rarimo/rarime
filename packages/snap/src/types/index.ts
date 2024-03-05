@@ -1,6 +1,2 @@
-export * from './credential-types';
-export * from './contracts';
-export * from './proof-types';
 export * from './global-types';
-export * from './state-types';
-export * from './graphql';
+export * from './storage';

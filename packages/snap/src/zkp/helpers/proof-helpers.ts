@@ -8,20 +8,25 @@ import {
   fromLittleEndian,
   MerklizedRootPosition,
 } from '@iden3/js-iden3-core';
-import {
-  Hash,
-  newHashFromBigInt,
-  newHashFromHex,
-  NodeAux,
-  Proof,
-  ZERO_HASH,
-} from '@iden3/js-merkletree';
+import { Hash, NodeAux, Proof, ZERO_HASH } from '@iden3/js-merkletree';
 import {
   getDocumentLoader,
   Merklizer,
   MtValue,
   Path,
 } from '@iden3/js-jsonld-merklization';
+import {
+  BJJSignatureProof2021,
+  CircuitClaim,
+  Iden3SparseMerkleTreeProof,
+  Query,
+  ValueProof,
+} from '@/zkp/helpers/model-helpers';
+import { parseDidV2 } from '@/zkp/helpers/identity-helpers';
+import {
+  getRevocationStatus,
+  loadDataByUrl,
+} from '@/zkp/helpers/credential-helpers';
 import {
   GISTProof,
   JSONSchema,
@@ -32,18 +37,9 @@ import {
   StateProof,
   TreeState,
   W3CCredential,
-} from '../types';
-import { ProofType } from '../enums';
-import { QueryOperators } from '../const';
-import { getRevocationStatus, loadDataByUrl } from './credential-helpers';
-import {
-  BJJSignatureProof2021,
-  CircuitClaim,
-  Iden3SparseMerkleTreeProof,
-  Query,
-  ValueProof,
-} from './model-helpers';
-import { parseDidV2 } from './identity-helpers';
+} from '@/zkp/types';
+import { ProofType } from '@/zkp/enums';
+import { QueryOperators } from '@/zkp/const';
 
 export const extractProof = (proof: {
   [key: string]: any;
@@ -150,10 +146,10 @@ export const buildTreeState = (
   revocationTreeRoot: string,
   rootOfRoots: string,
 ): TreeState => ({
-  state: newHashFromHex(state),
-  claimsRoot: newHashFromHex(claimsTreeRoot),
-  revocationRoot: newHashFromHex(revocationTreeRoot),
-  rootOfRoots: newHashFromHex(rootOfRoots),
+  state: Hash.fromHex(state),
+  claimsRoot: Hash.fromHex(claimsTreeRoot),
+  revocationRoot: Hash.fromHex(revocationTreeRoot),
+  rootOfRoots: Hash.fromHex(rootOfRoots),
 });
 
 export const convertEndianSwappedCoreStateHashHex = (hash: string) => {
@@ -574,18 +570,16 @@ export const toGISTProof = (smtProof: StateProof): GISTProof => {
     existence = true;
   } else if (smtProof.auxExistence) {
     nodeAux = {
-      key: newHashFromBigInt(smtProof.auxIndex),
-      value: newHashFromBigInt(smtProof.auxValue),
+      key: Hash.fromBigInt(smtProof.auxIndex),
+      value: Hash.fromBigInt(smtProof.auxValue),
     };
   }
 
-  const allSiblings: Hash[] = smtProof.siblings.map((s) =>
-    newHashFromBigInt(s),
-  );
+  const allSiblings: Hash[] = smtProof.siblings.map((s) => Hash.fromBigInt(s));
 
   const proof = newProofFromData(existence, allSiblings, nodeAux);
 
-  const root = newHashFromBigInt(smtProof.root);
+  const root = Hash.fromBigInt(smtProof.root);
 
   return {
     root,

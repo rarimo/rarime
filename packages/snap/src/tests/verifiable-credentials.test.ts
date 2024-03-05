@@ -7,7 +7,7 @@ import {
   SaveCredentialsRequestParams,
   W3CCredential,
 } from '@rarimo/rarime-connector';
-import { hashVC, VCManager } from '../helpers';
+import { hashVC, VCManager } from '../zkp/helpers';
 
 const dummyOffer: SaveCredentialsRequestParams = {
   body: {

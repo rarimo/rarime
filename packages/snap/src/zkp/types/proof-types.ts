@@ -1,7 +1,7 @@
 import { Signature } from '@iden3/js-crypto';
 import { Claim } from '@iden3/js-iden3-core';
 import { Hash, Proof } from '@iden3/js-merkletree';
-import { Query } from '../helpers';
+import { Query } from '@/zkp/helpers';
 
 export type State = {
   txId?: string;

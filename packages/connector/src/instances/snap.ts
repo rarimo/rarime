@@ -4,10 +4,10 @@ import {
   getProvider,
   getWalletSnaps,
   isMetamaskInstalled,
-} from '../helpers';
-import { defaultSnapOrigin } from '../consts';
-import { RPCMethods } from '../enums';
-import { SnapRequestParams, SnapRequestsResponses } from '../types';
+} from '@/helpers';
+import { defaultSnapOrigin } from '@/consts';
+import { RPCMethods } from '@/enums';
+import { SnapRequestParams, SnapRequestsResponses } from '@/types';
 
 export class RarimeSnapBase {
   public readonly snapId: string;

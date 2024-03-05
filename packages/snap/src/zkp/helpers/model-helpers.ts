@@ -1,12 +1,12 @@
 import { Proof } from '@iden3/js-merkletree';
 import { Claim as CoreClaim, Id } from '@iden3/js-iden3-core';
-import { ProofType } from '../enums';
 import {
   BJJSignatureProof,
   CredentialStatus,
   State,
   TreeState,
-} from '../types';
+} from '@/zkp/types';
+import { ProofType } from '@/zkp/enums';
 
 export class IssuerData {
   id!: string;

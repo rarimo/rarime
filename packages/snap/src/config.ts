@@ -1,4 +1,4 @@
-import { ChainInfo } from './types';
+import { ChainInfo } from '@/types';
 
 export const config = {
   AUTH_BJJ_CREDENTIAL_HASH: 'cca3371a6cb1b715004407e325bd993c',

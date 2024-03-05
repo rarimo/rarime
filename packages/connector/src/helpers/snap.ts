@@ -1,7 +1,7 @@
 import { compare } from 'compare-versions';
-import { SUPPORTED_METAMASK_VERSION } from '../consts';
-import { GetSnapsResponse } from '../types';
-import { RPCMethods } from '../enums';
+import { SUPPORTED_METAMASK_VERSION } from '@/consts';
+import { GetSnapsResponse } from '@/types';
+import { RPCMethods } from '@/enums';
 
 export const getProvider = async () => {
   let mmFound = false;

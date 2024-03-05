@@ -6,13 +6,13 @@ import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { AccountData, AminoSignResponse } from '@cosmjs/amino';
 import { DirectSignResponse, OfflineDirectSigner } from '@cosmjs/proto-signing';
 import { BigNumber } from 'ethers';
-import { RarimeSnapBase } from '../instances';
-import { RPCMethods } from '../enums';
-import { defaultSnapOrigin } from '../consts';
 import versionJson from '../version.json';
 import { SignAminoOptions, StdSignDoc } from './types';
 import { CHAINS } from './consts';
 import { getGasPriceForChainName } from './helpers';
+import { defaultSnapOrigin } from '@/consts';
+import { RPCMethods } from '@/enums';
+import { RarimeSnapBase } from '@/instances';
 
 export class RarimeWallet
   extends RarimeSnapBase
