@@ -3,18 +3,17 @@
 import type { TransactionRequest } from '@ethersproject/providers';
 import { utils } from 'ethers';
 
-import { LightweightStateV2__factory } from '../contracts';
-
 import { FetcherError } from '@/helpers/error-helper';
 import { sleep } from '@/helpers/promise';
-import { CORE_POLLING_INTERVAL } from '@/zkp';
+import { CORE_POLLING_INTERVAL } from '@/zkp/consts';
 import type {
   RarimoChainInfo,
   StateInfo,
   Operation,
   OperationProof,
   UpdateStateDetails,
-} from '@/zkp';
+} from '@/zkp/types';
+import { LightweightStateV2__factory } from '@/zkp/types/contracts';
 
 export const loadDataFromRarimoCore = async <T>(
   url: string,

@@ -25,7 +25,8 @@
     "lint:types": "tsc --noEmit --pretty",
     "lint:style": "eslint --color 'src/**/*.{js,ts,tsx}'",
     "lint:style:fix": "yarn run lint:style --fix",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "yarn build",
+    "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/zkp/types/contracts"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.32.2",
@@ -36,8 +37,10 @@
     "long": "^5.2.3"
   },
   "devDependencies": {
+    "@typechain/ethers-v5": "11.1.1",
     "cosmjs-types": "^0.9.0",
-    "tsc-alias": "^1.8.8"
+    "tsc-alias": "^1.8.8",
+    "typechain": "8.3.1"
   },
   "publishConfig": {
     "access": "public"

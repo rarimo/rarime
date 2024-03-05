@@ -16,10 +16,6 @@
       "dom",
       "es2017"
     ],
-    "typeRoots": [
-      "node_modules/@types",
-      "src/zkp/types"
-    ],
     "paths": {
       "@/*": ["src/*"]
     }

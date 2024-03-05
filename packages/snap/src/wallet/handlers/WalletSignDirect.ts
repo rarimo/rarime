@@ -5,6 +5,7 @@ import type {
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
+import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import Long from 'long';
 
 import { getChainDetails, validateChainId } from '@/wallet/chain';
@@ -21,7 +22,11 @@ export const walletSignDirect = async ({
   const params =
     request.params as unknown as SnapRequestParams[RPCMethods.WalletSignDirect];
 
-  const panels = parser.parse(params.signDoc, origin, 'direct');
+  const panels = parser.parse(
+    params.signDoc as unknown as SignDoc,
+    origin,
+    'direct',
+  );
 
   const confirmed = await snap.request({
     method: 'snap_dialog',
@@ -51,6 +56,6 @@ export const walletSignDirect = async ({
     bodyBytes: new Uint8Array(Object.values(signDoc.bodyBytes)),
     authInfoBytes: new Uint8Array(Object.values(signDoc.authInfoBytes)),
     chainId: signDoc.chainId,
-    accountNumber,
+    accountNumber: accountNumber as unknown as bigint,
   });
 };

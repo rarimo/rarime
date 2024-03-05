@@ -1,5 +1,10 @@
 /* eslint-disable camelcase */
 import type { TransactionRequest } from '@ethersproject/providers';
+import type { ILightweightStateV2 } from '@rarimo/rarime-connector';
+import {
+  LightweightStateV2__factory,
+  StateV2__factory,
+} from '@rarimo/rarime-connector';
 import { providers, utils } from 'ethers';
 
 import type { ChainInfo } from '@/types';
@@ -17,8 +22,6 @@ import type {
   OperationProof,
   StateProof,
 } from '@/zkp/types';
-import { LightweightStateV2__factory, StateV2__factory } from '@/zkp/types';
-import type { ILightweightStateV2 } from '@/zkp/types/contracts/LightweightStateV2';
 
 export const getGISTProof = async ({
   rpcUrl,
