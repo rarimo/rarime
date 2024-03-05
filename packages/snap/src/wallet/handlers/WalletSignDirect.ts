@@ -1,17 +1,15 @@
+import { panel } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { panel } from '@metamask/snaps-sdk';
 import Long from 'long';
-import {
-  generateWallet,
-  getChainDetails,
-  parser,
-  validateChainId,
-} from '@/wallet';
+
+import { getChainDetails, validateChainId } from '@/wallet/chain';
+import { parser } from '@/wallet/helpers';
+import { generateWallet } from '@/wallet/wallet';
 
 export const walletSignDirect = async ({
   request,
@@ -20,7 +18,8 @@ export const walletSignDirect = async ({
   request: JsonRpcRequest;
   origin: string;
 }): Promise<SnapRequestsResponses[RPCMethods.WalletSignDirect]> => {
-  const params = (request.params as unknown) as SnapRequestParams[RPCMethods.WalletSignDirect];
+  const params =
+    request.params as unknown as SnapRequestParams[RPCMethods.WalletSignDirect];
 
   const panels = parser.parse(params.signDoc, origin, 'direct');
 

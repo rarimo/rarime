@@ -1,5 +1,5 @@
 import { copyable, heading, text } from '@metamask/snaps-sdk';
-import { ChainInfo } from '@rarimo/rarime-connector';
+import type { ChainInfo } from '@rarimo/rarime-connector';
 
 export const getChainPanel = (origin: string, chainInfo: ChainInfo) => {
   const panels: any = [heading(`Add new chain`), copyable(`${origin}`)];

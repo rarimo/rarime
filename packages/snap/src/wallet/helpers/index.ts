@@ -1,24 +1,20 @@
-import { text, heading, copyable } from '@metamask/snaps-sdk';
-import {
-  MessageParser,
-  parfait,
-  ParsedMessage,
-  ParsedMessageType,
-  Token,
-  CosmosGovVoteOption,
-} from '@leapwallet/parser-parfait';
-
 import {
   convertObjectCasingFromCamelToSnake,
   DirectSignDocDecoder,
   UnknownMessage,
 } from '@leapwallet/buffer-boba';
-
+import type { parfait, ParsedMessage, Token } from '@leapwallet/parser-parfait';
+import {
+  MessageParser,
+  ParsedMessageType,
+  CosmosGovVoteOption,
+} from '@leapwallet/parser-parfait';
+import { text, heading, copyable } from '@metamask/snaps-sdk';
+import type { ChainInfo, StdSignDoc } from '@rarimo/rarime-connector';
+import { CHAINS } from '@rarimo/rarime-connector';
 import * as base64js from 'base64-js';
-
+import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { BigNumber } from 'ethers';
-import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { ChainInfo, CHAINS, StdSignDoc } from '@rarimo/rarime-connector';
 
 const messageParser = new MessageParser();
 
@@ -138,9 +134,7 @@ export const getMessageDetails = (
       )} shall execute the following authorized message ${message.messages
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore not sure why ts is complaining here
-        .map((m) =>
-          getSimpleType('type' in m ? (m['@type'] as string) : m['@type']),
-        )
+        .map((m) => getSimpleType('type' in m ? m['@type'] : m['@type']))
         .join(', ')} on behalf of you`;
     case ParsedMessageType.AuthzGrant:
       return `Grant authorization for ${sliceAddress(
@@ -397,7 +391,7 @@ export const parser = {
         }
 
         const convertedMsg = convertObjectCasingFromCamelToSnake(
-          ((msg as unknown) as { unpacked: any }).unpacked,
+          (msg as unknown as { unpacked: any }).unpacked,
         );
 
         return {

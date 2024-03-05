@@ -1,5 +1,6 @@
-import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { ChainInfo, StdSignDoc } from './wallet';
+import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+
+import type { ChainInfo, StdSignDoc } from './wallet';
 
 export type RequestParams<T> = {
   readonly signDoc: T;

@@ -1,4 +1,4 @@
-import { AminoMsg, Coin } from '@cosmjs/amino';
+import type { AminoMsg, Coin } from '@cosmjs/amino';
 
 export type Bech32Config = {
   readonly bech32PrefixAccAddr: string;

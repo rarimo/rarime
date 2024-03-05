@@ -1,10 +1,11 @@
 import versionJson from '../version.json';
-import { getUpdateStateDetails, getUpdateStateTx } from '@/zkp/helpers';
-import { ZKPProofResponse } from '@/zkp/types';
-import { RarimeSnapBase } from '@/instances';
-import { RPCMethods } from '@/enums';
-import { SnapRequestParams, SnapRequestsResponses } from '@/types';
+
 import { defaultSnapOrigin } from '@/consts';
+import { RPCMethods } from '@/enums';
+import { RarimeSnapBase } from '@/instances';
+import type { SnapRequestParams, SnapRequestsResponses } from '@/types';
+import { getUpdateStateDetails, getUpdateStateTx } from '@/zkp/helpers';
+import type { ZKPProofResponse } from '@/zkp/types';
 
 export class ZkpSnap extends RarimeSnapBase {
   public constructor(

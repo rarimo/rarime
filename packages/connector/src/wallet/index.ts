@@ -2,21 +2,27 @@
 /* eslint require-atomic-updates: 0 */ // --> OFF
 /* eslint jsdoc/require-param: 0 */ // --> OFF
 
-import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { AccountData, AminoSignResponse } from '@cosmjs/amino';
-import { DirectSignResponse, OfflineDirectSigner } from '@cosmjs/proto-signing';
+import type { AccountData, AminoSignResponse } from '@cosmjs/amino';
+import type {
+  DirectSignResponse,
+  OfflineDirectSigner,
+} from '@cosmjs/proto-signing';
+import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { BigNumber } from 'ethers';
-import versionJson from '../version.json';
-import { SignAminoOptions, StdSignDoc } from './types';
+
 import { CHAINS } from './consts';
 import { getGasPriceForChainName } from './helpers';
+import type { SignAminoOptions, StdSignDoc } from './types';
+import versionJson from '../version.json';
+
 import { defaultSnapOrigin } from '@/consts';
 import { RPCMethods } from '@/enums';
 import { RarimeSnapBase } from '@/instances';
 
 export class RarimeWallet
   extends RarimeSnapBase
-  implements OfflineDirectSigner {
+  implements OfflineDirectSigner
+{
   readonly chainId: string;
 
   public constructor(
@@ -106,7 +112,7 @@ export class RarimeWallet
       throw new Error('Chain ID does not match signer chain ID');
     }
 
-    const chain = CHAINS[this.chainId as keyof typeof CHAINS];
+    const chain = CHAINS[this.chainId];
 
     // Override gasPrice
     if (!options?.preferNoSetFee) {

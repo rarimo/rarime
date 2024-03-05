@@ -7,7 +7,8 @@ import {
   idenState,
   SchemaHash,
 } from '@iden3/js-iden3-core';
-import { hashElems, InMemoryDB, Merkletree, Proof } from '@iden3/js-merkletree';
+import type { Proof } from '@iden3/js-merkletree';
+import { hashElems, InMemoryDB, Merkletree } from '@iden3/js-merkletree';
 
 import { config } from '@/config';
 import { defaultMTLevels } from '@/zkp/const';

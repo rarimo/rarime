@@ -1,8 +1,8 @@
-import typia from 'typia';
-import {
+import type {
   SaveCredentialsRequestParams,
   CreateProofRequest,
 } from '@rarimo/rarime-connector';
+import typia from 'typia';
 
 const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
   let errorMessage = 'invalid_argument: ';
@@ -15,7 +15,7 @@ const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
   return errorMessage;
 };
 
-const handleIValidation = (result: typia.IValidation<unknown>) => {
+const handleIValidation = (result: typia.IValidation) => {
   if (result.success) {
     return undefined;
   }

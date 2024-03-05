@@ -1,10 +1,12 @@
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { generateWallet, getChainDetails, validateChainId } from '@/wallet';
+
+import { getChainDetails, validateChainId } from '@/wallet/chain';
+import { generateWallet } from '@/wallet/wallet';
 
 export const walletGetKey = async ({
   request,
@@ -12,9 +14,8 @@ export const walletGetKey = async ({
   request: JsonRpcRequest;
   origin: string;
 }): Promise<SnapRequestsResponses[RPCMethods.WalletGetKey]> => {
-  const {
-    chainId,
-  } = request.params as SnapRequestParams[RPCMethods.WalletGetKey];
+  const { chainId } =
+    request.params as SnapRequestParams[RPCMethods.WalletGetKey];
 
   await validateChainId(chainId);
 
@@ -27,9 +28,6 @@ export const walletGetKey = async ({
   return {
     address: accounts[0].address,
     algo: 'secp256k1',
-    bech32Address: accounts[0].address,
-    isNanoLedger: false,
-    name: 'Cosmos',
     pubkey: new Uint8Array(Object.values(accounts[0].pubkey)),
   };
 };

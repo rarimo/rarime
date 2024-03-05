@@ -1,4 +1,4 @@
-import { ChainInfo } from '@/wallet/types';
+import type { ChainInfo } from '@/wallet/types';
 
 export const CHAINS: Record<string, ChainInfo> = {
   'rarimo_42-1': {

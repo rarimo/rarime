@@ -1,5 +1,9 @@
 import type { JsonRpcRequest } from '@metamask/utils';
-import { RPCMethods, SnapRequestsResponses } from '@rarimo/rarime-connector';
+import type {
+  RPCMethods,
+  SnapRequestsResponses,
+} from '@rarimo/rarime-connector';
+
 import { isOriginInWhitelist, VCManager } from '@/zkp/helpers';
 
 export const getCredentials = async ({

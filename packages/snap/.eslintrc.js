@@ -2,6 +2,8 @@ module.exports = {
   extends: ['../../.eslintrc.js'],
 
   ignorePatterns: [
+    '**/codegen.ts',
+    '**/jest.config.ts',
     '!.eslintrc.js',
     'dist/',
     '**/src/typia-generated/*.ts',

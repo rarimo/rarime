@@ -1,16 +1,14 @@
+import { panel } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { panel } from '@metamask/snaps-sdk';
-import {
-  generateWallet,
-  getChainDetails,
-  parser,
-  validateChainId,
-} from '@/wallet';
+
+import { getChainDetails, validateChainId } from '@/wallet/chain';
+import { parser } from '@/wallet/helpers';
+import { generateWallet } from '@/wallet/wallet';
 
 export const walletSignAmino = async ({
   request,
@@ -19,7 +17,8 @@ export const walletSignAmino = async ({
   request: JsonRpcRequest;
   origin: string;
 }): Promise<SnapRequestsResponses[RPCMethods.WalletSignAmino]> => {
-  const params = (request.params as unknown) as SnapRequestParams[RPCMethods.WalletSignAmino];
+  const params =
+    request.params as unknown as SnapRequestParams[RPCMethods.WalletSignAmino];
   const panels = parser.parse(params.signDoc, origin, 'amino');
 
   const confirmed = await snap.request({

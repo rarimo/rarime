@@ -1,5 +1,5 @@
-import { StorageKeys } from '@/enums';
-import { StorageMap } from '@/types';
+import type { StorageKeys } from '@/enums';
+import type { StorageMap } from '@/types';
 
 const getState = async () => {
   return await snap.request({

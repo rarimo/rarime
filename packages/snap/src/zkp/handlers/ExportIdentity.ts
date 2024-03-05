@@ -1,8 +1,9 @@
-import type { JsonRpcRequest } from '@metamask/utils';
 import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
-import { isOriginInWhitelist } from '@/zkp/helpers';
-import { snapStorage } from '@/helpers';
+import type { JsonRpcRequest } from '@metamask/utils';
+
 import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
+import { isOriginInWhitelist } from '@/zkp/helpers';
 
 export const exportIdentity = async ({
   origin,

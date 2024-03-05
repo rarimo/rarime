@@ -1,20 +1,29 @@
 /* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { Hex, Signature } from '@iden3/js-crypto';
-import type { ProofQuery } from '@rarimo/rarime-connector';
 import {
   Claim,
   DID,
   fromLittleEndian,
   MerklizedRootPosition,
 } from '@iden3/js-iden3-core';
-import { Hash, NodeAux, Proof, ZERO_HASH } from '@iden3/js-merkletree';
+import type { MtValue } from '@iden3/js-jsonld-merklization';
 import {
   getDocumentLoader,
   Merklizer,
-  MtValue,
   Path,
 } from '@iden3/js-jsonld-merklization';
+import type { NodeAux } from '@iden3/js-merkletree';
+import { Hash, Proof, ZERO_HASH } from '@iden3/js-merkletree';
+import type { ProofQuery } from '@rarimo/rarime-connector';
+
+import { QueryOperators } from '@/zkp/const';
+import { ProofType } from '@/zkp/enums';
+import {
+  getRevocationStatus,
+  loadDataByUrl,
+} from '@/zkp/helpers/credential-helpers';
+import { parseDidV2 } from '@/zkp/helpers/identity-helpers';
 import {
   BJJSignatureProof2021,
   CircuitClaim,
@@ -22,12 +31,7 @@ import {
   Query,
   ValueProof,
 } from '@/zkp/helpers/model-helpers';
-import { parseDidV2 } from '@/zkp/helpers/identity-helpers';
-import {
-  getRevocationStatus,
-  loadDataByUrl,
-} from '@/zkp/helpers/credential-helpers';
-import {
+import type {
   GISTProof,
   JSONSchema,
   MTProof,
@@ -38,8 +42,6 @@ import {
   TreeState,
   W3CCredential,
 } from '@/zkp/types';
-import { ProofType } from '@/zkp/enums';
-import { QueryOperators } from '@/zkp/const';
 
 export const extractProof = (proof: {
   [key: string]: any;
@@ -90,9 +92,8 @@ export const getCoreClaimFromProof = (
       }
     }
   } else if (typeof credentialProof === 'object') {
-    const { claim, proofType: extractedProofType } = extractProof(
-      credentialProof,
-    );
+    const { claim, proofType: extractedProofType } =
+      extractProof(credentialProof);
     if (extractedProofType === proofType) {
       return claim;
     }

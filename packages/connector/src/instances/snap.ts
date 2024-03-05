@@ -1,13 +1,14 @@
 import versionJson from '../version.json';
+
+import { defaultSnapOrigin } from '@/consts';
+import type { RPCMethods } from '@/enums';
 import {
   checkSnapSupport,
   getProvider,
   getWalletSnaps,
   isMetamaskInstalled,
 } from '@/helpers';
-import { defaultSnapOrigin } from '@/consts';
-import { RPCMethods } from '@/enums';
-import { SnapRequestParams, SnapRequestsResponses } from '@/types';
+import type { SnapRequestParams, SnapRequestsResponses } from '@/types';
 
 export class RarimeSnapBase {
   public readonly snapId: string;
@@ -22,10 +23,10 @@ export class RarimeSnapBase {
     this.version = version;
   }
 
-  public async sendSnapRequest<M extends RPCMethods>(
-    method: M,
-    params?: SnapRequestParams[M],
-  ): Promise<SnapRequestsResponses[M]> {
+  public async sendSnapRequest<Method extends RPCMethods>(
+    method: Method,
+    params?: SnapRequestParams[Method],
+  ): Promise<SnapRequestsResponses[Method]> {
     const provider = await getProvider();
 
     return await provider.request({
@@ -74,8 +75,8 @@ export class RarimeSnapBase {
             (!this.version || permission.version === this.version),
         ),
       );
-    } catch (e) {
-      console.log('Failed to obtain installed snaps', e);
+    } catch (error) {
+      console.log('Failed to obtain installed snaps', error);
       return false;
     }
   }

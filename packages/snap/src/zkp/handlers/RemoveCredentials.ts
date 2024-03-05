@@ -1,17 +1,19 @@
+import type { Component } from '@metamask/snaps-sdk';
+import { divider, heading, panel, text } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { Component, divider, heading, panel, text } from '@metamask/snaps-sdk';
+
+import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
 import {
   getClaimIdFromVCId,
   isOriginInWhitelist,
   VCManager,
 } from '@/zkp/helpers';
-import { snapStorage } from '@/helpers';
-import { StorageKeys } from '@/enums';
 
 export const removeCredentials = async ({
   request,
@@ -32,7 +34,8 @@ export const removeCredentials = async ({
     throw new Error('Identity not created');
   }
 
-  const params = request.params as SnapRequestParams[RPCMethods.RemoveCredentials];
+  const params =
+    request.params as SnapRequestParams[RPCMethods.RemoveCredentials];
 
   const claimIds = params.ids.map((id) => getClaimIdFromVCId(id));
 
@@ -48,7 +51,7 @@ export const removeCredentials = async ({
         heading('Remove Credentials'),
         divider(),
 
-        ...vcs.reduce((acc, el, idx) => {
+        ...vcs.reduce<Component[]>((acc, el, idx) => {
           const vcTargetType = el.type[1];
           const vcID = el.id;
 
@@ -58,7 +61,7 @@ export const removeCredentials = async ({
             text(`ID: ${vcID}`),
             divider(),
           ]);
-        }, [] as Component[]),
+        }, []),
       ]),
     },
   });
@@ -67,7 +70,7 @@ export const removeCredentials = async ({
     throw new Error('User rejected request');
   }
 
-  await Promise.all(vcs.map((vc) => vcManager.clearMatchedVcs(vc)));
+  await Promise.all(vcs.map(async (vc) => vcManager.clearMatchedVcs(vc)));
 
   return undefined;
 };

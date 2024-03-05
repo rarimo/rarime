@@ -1,16 +1,17 @@
+import { divider, heading, panel, text } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { divider, heading, panel, text } from '@metamask/snaps-sdk';
-import { snapStorage } from '@/helpers';
+
 import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
 import { isValidSaveCredentialsOfferRequest } from '@/typia-generated';
+import { AuthZkp } from '@/zkp/auth-zkp';
 import { VCManager } from '@/zkp/helpers';
 import { Identity } from '@/zkp/identity';
-import { AuthZkp } from '@/zkp/auth-zkp';
 
 export const saveCredentials = async ({
   request,

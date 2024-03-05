@@ -1,9 +1,9 @@
 import { fromBigEndian } from '@iden3/js-iden3-core';
 import { proving, Token } from '@iden3/js-jwz';
+import type { SaveCredentialsRequestParams } from '@rarimo/rarime-connector';
 import * as uuid from 'uuid';
-import { SaveCredentialsRequestParams } from '@rarimo/rarime-connector';
 
-import { W3CCredential } from '@/zkp/types';
+import { config } from '@/config';
 import { defaultMTLevels, defaultMTLevelsOnChain } from '@/zkp/const';
 import {
   getGISTProof,
@@ -15,8 +15,8 @@ import {
   prepareSiblingsStr,
   toGISTProof,
 } from '@/zkp/helpers';
-import { Identity } from '@/zkp/identity';
-import { config } from '@/config';
+import type { Identity } from '@/zkp/identity';
+import type { W3CCredential } from '@/zkp/types';
 
 export class AuthZkp {
   identity: Identity = {} as Identity;

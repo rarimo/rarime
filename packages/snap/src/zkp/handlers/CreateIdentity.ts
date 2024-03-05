@@ -1,13 +1,14 @@
+import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
 import { utils } from 'ethers';
-import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
-import { snapStorage } from '@/helpers';
+
 import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
 import { genPkHexFromEntropy, isDidSupported } from '@/zkp/helpers';
 import { Identity } from '@/zkp/identity';
 

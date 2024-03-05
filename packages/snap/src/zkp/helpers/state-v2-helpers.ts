@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
+import type { TransactionRequest } from '@ethersproject/providers';
 import { providers, utils } from 'ethers';
 
-import { TransactionRequest } from '@ethersproject/providers';
-import { FetcherError } from '@/zkp/helpers/error-helper';
+import type { ChainInfo } from '@/types';
 import {
   getChainInfo,
   getProviderChainInfo,
@@ -10,16 +10,15 @@ import {
   getRarimoEvmRpcUrl,
   getRarimoStateContractAddress,
 } from '@/zkp/helpers/common-helpers';
-import {
+import { FetcherError } from '@/zkp/helpers/error-helper';
+import type {
   StateInfo,
   OperationResponse,
-  LightweightStateV2__factory,
   OperationProof,
   StateProof,
-  StateV2__factory,
 } from '@/zkp/types';
-import { ILightweightStateV2 } from '@/zkp/types/contracts/LightweightStateV2';
-import { ChainInfo } from '@/types';
+import { LightweightStateV2__factory, StateV2__factory } from '@/zkp/types';
+import type { ILightweightStateV2 } from '@/zkp/types/contracts/LightweightStateV2';
 
 export const getGISTProof = async ({
   rpcUrl,
@@ -83,7 +82,7 @@ export const getRarimoGISTRoot = async ({
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
 export const getCurrentChainGISTRoot = async (): Promise<bigint> => {
   const provider = new providers.Web3Provider(
-    (ethereum as any) as providers.ExternalProvider,
+    ethereum as any as providers.ExternalProvider,
   );
   const network = await provider.getNetwork();
   const chainInfo = getChainInfo(network.chainId);
@@ -151,11 +150,11 @@ export const getUpdateStateDetails = async (
       operationProof = await loadDataFromRarimoCore<OperationProof>(
         `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}/proof`,
       );
-    } catch (e) {
-      if (e instanceof FetcherError && e.response.status === 400) {
+    } catch (error) {
+      if (error instanceof FetcherError && error.response.status === 400) {
         await new Promise((resolve) => setTimeout(resolve, 5_000));
       } else {
-        throw e;
+        throw error;
       }
     }
   } while (!operationProof);

@@ -10,14 +10,13 @@ export const getGasPriceForChainName = async (
   chainName: string,
   gasLevel = 'average',
 ) => {
-  const gasPriceRegistry: any = await fetch(
+  const gasPriceRegistry = await fetch(
     'https://assets.leapwallet.io/cosmos-registry/v1/gas/gas-prices.json',
   );
   if (!gasPriceRegistry.ok) {
     throw new Error(`Failed to get Gas price ${gasPriceRegistry.status}`);
   }
   const gasPrices = await gasPriceRegistry.json();
-  console.log(gasPrices, chainName, gasLevel);
 
   return gasPrices?.[chainName]?.[gasLevel];
 };

@@ -1,12 +1,13 @@
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SaveCredentialsResponse,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { snapStorage } from '@/helpers';
+
 import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
 import { VCManager } from '@/zkp/helpers';
 
 export const CheckCredentialExistence = async ({
@@ -21,10 +22,8 @@ export const CheckCredentialExistence = async ({
     throw new Error('Identity not created');
   }
 
-  const {
-    claimOffer,
-    proofRequest,
-  } = request.params as SnapRequestParams[RPCMethods.CheckCredentialExistence];
+  const { claimOffer, proofRequest } =
+    request.params as SnapRequestParams[RPCMethods.CheckCredentialExistence];
 
   const vcManager = await VCManager.create();
 

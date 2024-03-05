@@ -1,5 +1,5 @@
-import { StorageKeys } from '@/enums';
-import { W3CCredential } from '@/zkp/types';
+import type { StorageKeys } from '@/enums';
+import type { W3CCredential } from '@/zkp/types';
 
 export type StorageMap = {
   [StorageKeys.identity]: {

@@ -1,13 +1,13 @@
-import * as secp from '@noble/secp256k1';
-import { sha256 } from '@noble/hashes/sha256';
+import type { StdSignDoc } from '@cosmjs/amino';
 import { ripemd160 } from '@noble/hashes/ripemd160';
+import { sha256 } from '@noble/hashes/sha256';
+import * as secp from '@noble/secp256k1';
+import * as base64js from 'base64-js';
 import { bech32 } from 'bech32';
 import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
-import * as base64js from 'base64-js';
-import { StdSignDoc } from '@cosmjs/amino';
-import { snapStorage } from '@/helpers';
 import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
 
 export type Pubkey = {
   readonly type: string;
@@ -93,11 +93,11 @@ export type WalletOptions = {
 };
 
 export class Wallet {
-  private privateKey: Uint8Array;
+  private readonly privateKey: Uint8Array;
 
-  private pubkey: Uint8Array;
+  private readonly pubkey: Uint8Array;
 
-  private address: string;
+  private readonly address: string;
 
   constructor(privateKey: Uint8Array, publicKey: Uint8Array, address: string) {
     this.privateKey = privateKey;

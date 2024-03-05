@@ -1,8 +1,16 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
-import { RPCMethods } from '@rarimo/rarime-connector';
+
 import type { JsonRpcRequest } from '@metamask/utils';
-import { migrateVCsToLastCeramicModel } from '@/zkp/helpers';
+import { RPCMethods } from '@rarimo/rarime-connector';
+
+import {
+  walletSignDirect,
+  walletSignAmino,
+  walletGetKey,
+  walletSuggestChain,
+  walletGetSupportedChains,
+} from '@/wallet';
 import {
   CheckCredentialExistence,
   checkStateContractSync,
@@ -14,13 +22,7 @@ import {
   removeCredentials,
   saveCredentials,
 } from '@/zkp';
-import {
-  walletSignDirect,
-  walletSignAmino,
-  walletGetKey,
-  walletSuggestChain,
-  walletGetSupportedChains,
-} from '@/wallet';
+import { migrateVCsToLastCeramicModel } from '@/zkp/helpers';
 
 export const onRpcRequest = async ({
   request,

@@ -1,11 +1,12 @@
+import { panel } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { panel } from '@metamask/snaps-sdk';
-import { addChain, validateChain } from '@/wallet';
+
+import { addChain, validateChain } from '@/wallet/chain';
 import { getChainPanel } from '@/wallet/ui';
 
 export const walletSuggestChain = async ({
@@ -15,9 +16,8 @@ export const walletSuggestChain = async ({
   request: JsonRpcRequest;
   origin: string;
 }): Promise<SnapRequestsResponses[RPCMethods.WalletSuggestChain]> => {
-  const {
-    chainInfo,
-  } = request.params as SnapRequestParams[RPCMethods.WalletSuggestChain];
+  const { chainInfo } =
+    request.params as SnapRequestParams[RPCMethods.WalletSuggestChain];
 
   validateChain(chainInfo);
   const panels = getChainPanel(origin, chainInfo);

@@ -1,18 +1,20 @@
 /* eslint-disable camelcase */
+
+import type { TransactionRequest } from '@ethersproject/providers';
 import { utils } from 'ethers';
 
-import { TransactionRequest } from '@ethersproject/providers';
-import {
+import { LightweightStateV2__factory } from '../contracts';
+
+import { FetcherError } from '@/helpers/error-helper';
+import { sleep } from '@/helpers/promise';
+import { CORE_POLLING_INTERVAL } from '@/zkp';
+import type {
   RarimoChainInfo,
   StateInfo,
   Operation,
   OperationProof,
   UpdateStateDetails,
-} from '../types';
-import { LightweightStateV2__factory } from '../contracts';
-import { CORE_POLLING_INTERVAL } from '../consts';
-import { FetcherError } from '../../helpers/error-helper';
-import { sleep } from '../../helpers/promise.helpers';
+} from '@/zkp';
 
 export const loadDataFromRarimoCore = async <T>(
   url: string,
@@ -45,11 +47,11 @@ export const getUpdateStateDetails = async (
         `/rarimo/rarimo-core/rarimocore/operation/${state.lastUpdateOperationIndex}/proof`,
         rarimoCoreUrl,
       );
-    } catch (e) {
-      if (e instanceof FetcherError && e.response.status === 400) {
+    } catch (error) {
+      if (error instanceof FetcherError && error.response.status === 400) {
         await sleep(CORE_POLLING_INTERVAL);
       } else {
-        throw e;
+        throw error;
       }
     }
   } while (!operationProof);

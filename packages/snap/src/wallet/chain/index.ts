@@ -1,11 +1,13 @@
-import { ChainInfo, CHAINS } from '@rarimo/rarime-connector';
+import type { ChainInfo } from '@rarimo/rarime-connector';
+import { CHAINS } from '@rarimo/rarime-connector';
+
 import { ALLOWED_COIN_TYPES } from '../constants';
 import db from '../db';
 
 export const getAllChains = async () => {
-  const storedChains: Record<string, ChainInfo> = ((await db.get(
+  const storedChains: Record<string, ChainInfo> = (await db.get(
     db.CHAINS,
-  )) as unknown) as Record<string, ChainInfo>;
+  )) as unknown as Record<string, ChainInfo>;
   return { ...CHAINS, ...storedChains };
 };
 

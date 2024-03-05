@@ -1,7 +1,12 @@
 import { compare } from 'compare-versions';
+
 import { SUPPORTED_METAMASK_VERSION } from '@/consts';
-import { GetSnapsResponse } from '@/types';
-import { RPCMethods } from '@/enums';
+import type { RPCMethods } from '@/enums';
+import type {
+  GetSnapsResponse,
+  SnapRequestParams,
+  SnapRequestsResponses,
+} from '@/types';
 
 export const getProvider = async () => {
   let mmFound = false;
@@ -71,10 +76,10 @@ export const getWalletSnaps = async (): Promise<GetSnapsResponse> => {
   });
 };
 
-export const sendSnapMethod = async <T>(
-  request: { method: RPCMethods; params?: any[] },
+export const sendSnapMethod = async <Method extends RPCMethods>(
+  request: { method: Method; params?: SnapRequestParams[Method] },
   snapId: string,
-): Promise<T> => {
+): Promise<SnapRequestsResponses[Method]> => {
   const provider = await getProvider();
 
   return await provider.request({

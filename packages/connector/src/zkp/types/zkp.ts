@@ -1,4 +1,5 @@
-import { TransactionRequest } from '@ethersproject/providers';
+import type { TransactionRequest } from '@ethersproject/providers';
+
 import type { CircuitId } from '@/zkp/enums';
 
 declare global {

@@ -1,14 +1,16 @@
+import { DID } from '@iden3/js-iden3-core';
+import { divider, heading, panel, text } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
-import {
-  CircuitId,
+import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
-import { divider, heading, panel, text } from '@metamask/snaps-sdk';
-import { DID } from '@iden3/js-iden3-core';
-import { snapStorage } from '@/helpers';
+import { CircuitId } from '@rarimo/rarime-connector';
+
 import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
+import type { TextField } from '@/types';
 import { isValidCreateProofRequest } from '@/typia-generated';
 import {
   checkIfStateSynced,
@@ -19,10 +21,9 @@ import {
   parseDidV2,
   VCManager,
 } from '@/zkp/helpers';
-import { TextField } from '@/types';
 import { Identity } from '@/zkp/identity';
+import type { GetStateInfoResponse, MerkleProof } from '@/zkp/types';
 import { ZkpGen } from '@/zkp/zkp-gen';
-import { GetStateInfoResponse, MerkleProof } from '@/zkp/types';
 
 export const createProof = async ({
   request,
@@ -36,10 +37,8 @@ export const createProof = async ({
     throw new Error('Identity not created');
   }
 
-  const {
-    issuerDid,
-    ...createProofRequest
-  } = request.params as SnapRequestParams[RPCMethods.CreateProof];
+  const { issuerDid, ...createProofRequest } =
+    request.params as SnapRequestParams[RPCMethods.CreateProof];
 
   isValidCreateProofRequest(createProofRequest);
 
@@ -106,9 +105,7 @@ export const createProof = async ({
                 const textField = Object.keys(fieldOperators).map(
                   (operator) => {
                     return text(
-                      `${fieldName} - ${operator} ${
-                        (fieldOperators as any)?.[operator]
-                      }\n`,
+                      `${fieldName} - ${operator} ${fieldOperators?.[operator]}\n`,
                     );
                   },
                 );

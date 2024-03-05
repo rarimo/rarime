@@ -1,4 +1,4 @@
-import { CreateProofRequest } from './zkp';
+import type { CreateProofRequest } from './zkp';
 
 export type CreateIdentityRequestParams = {
   privateKeyHex?: string;

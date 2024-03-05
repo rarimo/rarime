@@ -1,12 +1,21 @@
-import { proving, ZKProof } from '@iden3/js-jwz';
-
-import { Hex, Signature } from '@iden3/js-crypto';
+import type { Signature } from '@iden3/js-crypto';
+import { Hex } from '@iden3/js-crypto';
 import { fromLittleEndian } from '@iden3/js-iden3-core';
-import { CircuitId, CreateProofRequest } from '@rarimo/rarime-connector';
+import type { ZKProof } from '@iden3/js-jwz';
+import { proving } from '@iden3/js-jwz';
+import type { CreateProofRequest } from '@rarimo/rarime-connector';
+import { CircuitId } from '@rarimo/rarime-connector';
 
+import { config } from '@/config';
+import {
+  defaultMTLevels,
+  defaultMTLevelsClaimsMerklization,
+  defaultMTLevelsOnChain,
+  defaultValueArraySize,
+} from '@/zkp/const';
+import type { CircuitClaim, Query } from '@/zkp/helpers';
 import {
   buildTreeState,
-  CircuitClaim,
   getGISTProof,
   getNodeAuxValue,
   getPreparedCredential,
@@ -17,24 +26,16 @@ import {
   newCircuitClaimData,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
-  Query,
   toCircuitsQuery,
   toGISTProof,
 } from '@/zkp/helpers';
-import { Identity } from '@/zkp/identity';
+import type { Identity } from '@/zkp/identity';
 import type {
   ClaimNonRevStatus,
   GISTProof,
   NodeAuxValue,
   W3CCredential,
 } from '@/zkp/types';
-import {
-  defaultMTLevels,
-  defaultMTLevelsClaimsMerklization,
-  defaultMTLevelsOnChain,
-  defaultValueArraySize,
-} from '@/zkp/const';
-import { config } from '@/config';
 
 export class ZkpGen {
   identity: Identity = {} as Identity;
@@ -239,14 +240,18 @@ export class ZkpGen {
 
       issuerID: this.circuitClaimData.issuerId.bigInt().toString(),
 
-      issuerAuthClaim: this.circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
+      issuerAuthClaim:
+        this.circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
       issuerAuthClaimMtp: prepareSiblingsStr(
         this.circuitClaimData.signatureProof.issuerAuthIncProof.proof,
         defaultMTLevels,
       ),
-      issuerAuthClaimsTreeRoot: this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
-      issuerAuthRevTreeRoot: this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
-      issuerAuthRootsTreeRoot: this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
+      issuerAuthClaimsTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
+      issuerAuthRevTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
+      issuerAuthRootsTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
 
       issuerAuthClaimNonRevMtp: prepareSiblingsStr(
         this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
@@ -254,7 +259,8 @@ export class ZkpGen {
       ),
       issuerAuthClaimNonRevMtpNoAux: this.nodeAuxIssuerAuthNonRev.noAux,
       issuerAuthClaimNonRevMtpAuxHi: this.nodeAuxIssuerAuthNonRev.key.string(),
-      issuerAuthClaimNonRevMtpAuxHv: this.nodeAuxIssuerAuthNonRev.value.string(),
+      issuerAuthClaimNonRevMtpAuxHv:
+        this.nodeAuxIssuerAuthNonRev.value.string(),
 
       issuerClaim: this.circuitClaimData.claim.marshalJson(),
       isRevocationChecked: '1',
@@ -265,14 +271,20 @@ export class ZkpGen {
       issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
       issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
       issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
-      issuerClaimNonRevClaimsTreeRoot: this.nonRevProof.treeState.claimsRoot.string(),
-      issuerClaimNonRevRevTreeRoot: this.nonRevProof.treeState.revocationRoot.string(),
-      issuerClaimNonRevRootsTreeRoot: this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        this.nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        this.nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        this.nonRevProof.treeState.rootOfRoots.string(),
       issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
 
-      issuerClaimSignatureR8x: this.circuitClaimData.signatureProof.signature.R8[0].toString(),
-      issuerClaimSignatureR8y: this.circuitClaimData.signatureProof.signature.R8[1].toString(),
-      issuerClaimSignatureS: this.circuitClaimData.signatureProof.signature.S.toString(),
+      issuerClaimSignatureR8x:
+        this.circuitClaimData.signatureProof.signature.R8[0].toString(),
+      issuerClaimSignatureR8y:
+        this.circuitClaimData.signatureProof.signature.R8[1].toString(),
+      issuerClaimSignatureS:
+        this.circuitClaimData.signatureProof.signature.S.toString(),
 
       timestamp: this.timestamp,
 
@@ -310,14 +322,18 @@ export class ZkpGen {
 
       issuerID: this.circuitClaimData.issuerId.bigInt().toString(),
 
-      issuerAuthClaim: this.circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
+      issuerAuthClaim:
+        this.circuitClaimData.signatureProof.issuerAuthClaim?.marshalJson(),
       issuerAuthClaimMtp: prepareSiblingsStr(
         this.circuitClaimData.signatureProof.issuerAuthIncProof.proof,
         defaultMTLevels,
       ),
-      issuerAuthClaimsTreeRoot: this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
-      issuerAuthRevTreeRoot: this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
-      issuerAuthRootsTreeRoot: this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
+      issuerAuthClaimsTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.claimsRoot.string(),
+      issuerAuthRevTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.revocationRoot.string(),
+      issuerAuthRootsTreeRoot:
+        this.circuitClaimData.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
 
       issuerAuthClaimNonRevMtp: prepareSiblingsStr(
         this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
@@ -325,7 +341,8 @@ export class ZkpGen {
       ),
       issuerAuthClaimNonRevMtpNoAux: this.nodeAuxIssuerAuthNonRev.noAux,
       issuerAuthClaimNonRevMtpAuxHi: this.nodeAuxIssuerAuthNonRev.key.string(),
-      issuerAuthClaimNonRevMtpAuxHv: this.nodeAuxIssuerAuthNonRev.value.string(),
+      issuerAuthClaimNonRevMtpAuxHv:
+        this.nodeAuxIssuerAuthNonRev.value.string(),
 
       issuerClaim: this.circuitClaimData.claim.marshalJson(),
       isRevocationChecked: '1',
@@ -336,14 +353,20 @@ export class ZkpGen {
       issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
       issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
       issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
-      issuerClaimNonRevClaimsTreeRoot: this.nonRevProof.treeState.claimsRoot.string(),
-      issuerClaimNonRevRevTreeRoot: this.nonRevProof.treeState.revocationRoot.string(),
-      issuerClaimNonRevRootsTreeRoot: this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        this.nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        this.nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        this.nonRevProof.treeState.rootOfRoots.string(),
       issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
 
-      issuerClaimSignatureR8x: this.circuitClaimData.signatureProof.signature.R8[0].toString(),
-      issuerClaimSignatureR8y: this.circuitClaimData.signatureProof.signature.R8[1].toString(),
-      issuerClaimSignatureS: this.circuitClaimData.signatureProof.signature.S.toString(),
+      issuerClaimSignatureR8x:
+        this.circuitClaimData.signatureProof.signature.R8[0].toString(),
+      issuerClaimSignatureR8y:
+        this.circuitClaimData.signatureProof.signature.R8[1].toString(),
+      issuerClaimSignatureS:
+        this.circuitClaimData.signatureProof.signature.S.toString(),
 
       timestamp: this.timestamp,
 
@@ -390,19 +413,26 @@ export class ZkpGen {
       issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
       issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
       issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
-      issuerClaimNonRevClaimsTreeRoot: this.nonRevProof.treeState.claimsRoot.string(),
-      issuerClaimNonRevRevTreeRoot: this.nonRevProof.treeState.revocationRoot.string(),
-      issuerClaimNonRevRootsTreeRoot: this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        this.nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        this.nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        this.nonRevProof.treeState.rootOfRoots.string(),
       issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
 
       issuerClaimMtp: prepareSiblingsStr(
         this.circuitClaimData.incProof.proof,
         defaultMTLevels,
       ),
-      issuerClaimClaimsTreeRoot: this.circuitClaimData.incProof.treeState?.claimsRoot.string(),
-      issuerClaimRevTreeRoot: this.circuitClaimData.incProof.treeState?.revocationRoot.string(),
-      issuerClaimRootsTreeRoot: this.circuitClaimData.incProof.treeState?.rootOfRoots.string(),
-      issuerClaimIdenState: this.circuitClaimData.incProof.treeState?.state.string(),
+      issuerClaimClaimsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.claimsRoot.string(),
+      issuerClaimRevTreeRoot:
+        this.circuitClaimData.incProof.treeState?.revocationRoot.string(),
+      issuerClaimRootsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.rootOfRoots.string(),
+      issuerClaimIdenState:
+        this.circuitClaimData.incProof.treeState?.state.string(),
 
       timestamp: this.timestamp,
 
@@ -480,19 +510,26 @@ export class ZkpGen {
       issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
       issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
       issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
-      issuerClaimNonRevClaimsTreeRoot: this.nonRevProof.treeState.claimsRoot.string(),
-      issuerClaimNonRevRevTreeRoot: this.nonRevProof.treeState.revocationRoot.string(),
-      issuerClaimNonRevRootsTreeRoot: this.nonRevProof.treeState.rootOfRoots.string(),
+      issuerClaimNonRevClaimsTreeRoot:
+        this.nonRevProof.treeState.claimsRoot.string(),
+      issuerClaimNonRevRevTreeRoot:
+        this.nonRevProof.treeState.revocationRoot.string(),
+      issuerClaimNonRevRootsTreeRoot:
+        this.nonRevProof.treeState.rootOfRoots.string(),
       issuerClaimNonRevState: this.nonRevProof.treeState.state.string(),
 
       issuerClaimMtp: prepareSiblingsStr(
         this.circuitClaimData.incProof.proof,
         defaultMTLevels,
       ),
-      issuerClaimClaimsTreeRoot: this.circuitClaimData.incProof.treeState?.claimsRoot.string(),
-      issuerClaimRevTreeRoot: this.circuitClaimData.incProof.treeState?.revocationRoot.string(),
-      issuerClaimRootsTreeRoot: this.circuitClaimData.incProof.treeState?.rootOfRoots.string(),
-      issuerClaimIdenState: this.circuitClaimData.incProof.treeState?.state.string(),
+      issuerClaimClaimsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.claimsRoot.string(),
+      issuerClaimRevTreeRoot:
+        this.circuitClaimData.incProof.treeState?.revocationRoot.string(),
+      issuerClaimRootsTreeRoot:
+        this.circuitClaimData.incProof.treeState?.rootOfRoots.string(),
+      issuerClaimIdenState:
+        this.circuitClaimData.incProof.treeState?.state.string(),
 
       timestamp: this.timestamp,
 
