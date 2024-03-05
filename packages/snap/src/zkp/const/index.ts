@@ -1,1 +1,1 @@
-export * from './global-const';
+export * from './general';
