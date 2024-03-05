@@ -1,13 +1,13 @@
 import type { ChainInfo } from '@rarimo/rarime-connector';
 import { CHAINS } from '@rarimo/rarime-connector';
 
-import { ALLOWED_COIN_TYPES } from '../constants';
-import db from '../db';
+import { StorageKeys } from '@/enums';
+import { snapStorage } from '@/helpers';
+import { ALLOWED_COIN_TYPES } from '@/wallet/constants';
 
 export const getAllChains = async () => {
-  const storedChains: Record<string, ChainInfo> = (await db.get(
-    db.CHAINS,
-  )) as unknown as Record<string, ChainInfo>;
+  const storedChains = await snapStorage.getItem(StorageKeys.chains);
+
   return { ...CHAINS, ...storedChains };
 };
 
@@ -34,7 +34,7 @@ export const validateChain = (chainInfo: ChainInfo) => {
     throw new Error('Manadatory param bip44 coinType');
   }
 
-  if (bip44.coinType && typeof bip44.coinType !== 'number') {
+  if (bip44.coinType && isNaN(Number(bip44.coinType))) {
     throw new Error('bip44.coinType should be of type Number');
   }
 
@@ -56,7 +56,12 @@ export const validateChainId = async (chainId: string) => {
 };
 
 export const addChain = async (chainInfo: ChainInfo) => {
-  return await db.update(db.CHAINS, chainInfo.chainId, chainInfo);
+  const storedChains = await snapStorage.getItem(StorageKeys.chains);
+
+  return await snapStorage.setItem(StorageKeys.chains, {
+    ...storedChains,
+    [chainInfo.chainId]: chainInfo,
+  });
 };
 
 export const getChainDetails = async (chainId: string) => {
