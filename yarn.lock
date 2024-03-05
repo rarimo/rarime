@@ -5512,6 +5512,7 @@ __metadata:
     cosmjs-types: ^0.9.0
     ethers: 5.7.2
     long: ^5.2.3
+    tsc-alias: ^1.8.8
   languageName: unknown
   linkType: soft
 
@@ -8293,7 +8294,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^3.5.2":
+"chokidar@npm:^3.5.2, chokidar@npm:^3.5.3":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
   dependencies:
@@ -8589,6 +8590,13 @@ __metadata:
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
   checksum: ab8c07884e42c3a8dbc5dd9592c606176c7eb5c1ca5ff274bcf907039b2c41de3626f684ea75ccf4d361ba004bbaff1f577d5384c155f3871e456bdf27becf9e
+  languageName: node
+  linkType: hard
+
+"commander@npm:^9.0.0":
+  version: 9.5.0
+  resolution: "commander@npm:9.5.0"
+  checksum: c7a3e27aa59e913b54a1bafd366b88650bc41d6651f0cbe258d4ff09d43d6a7394232a4dadd0bf518b3e696fdf595db1028a0d82c785b88bd61f8a440cecfade
   languageName: node
   linkType: hard
 
@@ -11115,7 +11123,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globby@npm:^11.0.3, globby@npm:^11.1.0":
+"globby@npm:^11.0.3, globby@npm:^11.0.4, globby@npm:^11.1.0":
   version: 11.1.0
   resolution: "globby@npm:11.1.0"
   dependencies:
@@ -13896,6 +13904,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mylas@npm:^2.1.9":
+  version: 2.1.13
+  resolution: "mylas@npm:2.1.13"
+  checksum: f861d092137a9ac268cba88042392a5dc2a290eed5c8543954eae849d85e5961332211161d2c08c3644ad893f20dbe9de89b07f5dc027f1f92f13f2d38f4b81f
+  languageName: node
+  linkType: hard
+
 "n3@npm:1.17.1":
   version: 1.17.1
   resolution: "n3@npm:1.17.1"
@@ -14768,6 +14783,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"plimit-lit@npm:^1.2.6":
+  version: 1.6.1
+  resolution: "plimit-lit@npm:1.6.1"
+  dependencies:
+    queue-lit: ^1.5.1
+  checksum: 5f18f1ea7254832bdc663c303420c804b5bc8070c670c88161171f0ebacaf46ce7ca12147ddf52bc22d927bb37bfbac6ed6fa478c93cb4be16b62c5fad16dd5f
+  languageName: node
+  linkType: hard
+
 "pony-cause@npm:^2.1.10":
   version: 2.1.10
   resolution: "pony-cause@npm:2.1.10"
@@ -15064,6 +15088,13 @@ __metadata:
   version: 0.2.1
   resolution: "querystring-es3@npm:0.2.1"
   checksum: 691e8d6b8b157e7cd49ae8e83fcf86de39ab3ba948c25abaa94fba84c0986c641aa2f597770848c64abce290ed17a39c9df6df737dfa7e87c3b63acc7d225d61
+  languageName: node
+  linkType: hard
+
+"queue-lit@npm:^1.5.1":
+  version: 1.5.2
+  resolution: "queue-lit@npm:1.5.2"
+  checksum: 8dd45c79bd25b33b0c7d587391eb0b4acc4deb797bf92fef62b2d8e7c03b64083f5304f09d52a18267d34d020cc67ccde97a88185b67590eeccb194938ff1f98
   languageName: node
   linkType: hard
 
@@ -17007,6 +17038,22 @@ __metadata:
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
   checksum: fde256c9073969e234526e2cfead42591b9a2aec5222bac154b0de2fa9e4ceb30efcd717ee8bc785a56f3a119bdd5aa27b333d9dbec94ed254bd26f8944c67ac
+  languageName: node
+  linkType: hard
+
+"tsc-alias@npm:^1.8.8":
+  version: 1.8.8
+  resolution: "tsc-alias@npm:1.8.8"
+  dependencies:
+    chokidar: ^3.5.3
+    commander: ^9.0.0
+    globby: ^11.0.4
+    mylas: ^2.1.9
+    normalize-path: ^3.0.0
+    plimit-lit: ^1.2.6
+  bin:
+    tsc-alias: dist/bin/index.js
+  checksum: 204852f75ce516c991813c371e4b3cda8767c50b6ad12b5c1b5f0227eb7e69fef559775fc829ba744b37dfd9930a1632dbabd62366a474fa0e174b2625ccb54f
   languageName: node
   linkType: hard
 
