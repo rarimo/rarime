@@ -32,11 +32,13 @@
     "@cosmjs/amino": "^0.32.2",
     "@cosmjs/proto-signing": "^0.32.2",
     "@ethersproject/providers": "5.7.2",
+    "@rarimo/client": "^2.0.0",
     "compare-versions": "^6.1.0",
     "ethers": "5.7.2",
     "long": "^5.2.3"
   },
   "devDependencies": {
+    "@keplr-wallet/types": "^0.12.72",
     "@typechain/ethers-v5": "11.1.1",
     "cosmjs-types": "^0.9.0",
     "tsc-alias": "^1.8.8",
