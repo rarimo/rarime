@@ -1,18 +1,21 @@
 /* eslint-disable camelcase */
 
 import type { TransactionRequest } from '@ethersproject/providers';
-import { utils } from 'ethers';
+import { providers, utils } from 'ethers';
 
 import { FetcherError } from '@/helpers/error-helper';
 import { sleep } from '@/helpers/promise';
 import { CORE_POLLING_INTERVAL } from '@/zkp/consts';
 import type {
-  RarimoChainInfo,
+  ChainZkpInfo,
   StateInfo,
   Operation,
   OperationProof,
   UpdateStateDetails,
+  StateProof,
+  OperationResponse,
 } from '@/zkp/types';
+import { StateV2__factory } from '@/zkp/types';
 import { LightweightStateV2__factory } from '@/zkp/types/contracts';
 
 export const loadDataFromRarimoCore = async <T>(
@@ -87,7 +90,7 @@ export const getUpdateStateDetails = async (
 
 export const getUpdateStateTx = async (
   accountId: string,
-  chainInfo: RarimoChainInfo,
+  chainInfo: ChainZkpInfo,
   state: StateInfo,
   operation: Operation,
   rarimoCoreUrl: string,
@@ -105,9 +108,104 @@ export const getUpdateStateTx = async (
     proof,
   ]);
   return {
-    to: chainInfo.stateContractAddress,
+    to: chainInfo.targetStateContractAddress,
     from: accountId,
-    chainId: chainInfo.id,
+    chainId: chainInfo.targetChainId,
     data: txData,
   };
+};
+
+export const getGISTProof = async ({
+  rpcUrl,
+  contractAddress,
+  userId,
+  rootHash,
+}: {
+  rpcUrl: string;
+  contractAddress: string;
+  userId: string;
+  rootHash?: string;
+}): Promise<StateProof> => {
+  const rawProvider = new providers.JsonRpcProvider(rpcUrl);
+
+  const contractInstance = StateV2__factory.connect(
+    contractAddress,
+    rawProvider,
+  );
+
+  console.log('contractInstance', contractInstance);
+
+  const data = rootHash
+    ? await contractInstance.getGISTProofByRoot(userId, rootHash)
+    : await contractInstance.getGISTProof(userId);
+
+  console.log('data', data);
+
+  return {
+    root: BigInt(data.root.toString()),
+    existence: data.existence,
+    siblings: data.siblings?.map((sibling) => BigInt(sibling.toString())),
+    index: BigInt(data.index.toString()),
+    value: BigInt(data.value.toString()),
+    auxExistence: data.auxExistence,
+    auxIndex: BigInt(data.auxIndex.toString()),
+    auxValue: BigInt(data.auxValue.toString()),
+  };
+};
+
+// getRarimoGISTRoot returns the latest GIST root from the Rarimo state contract
+export const getRarimoGISTRoot = async (
+  chainInfo: ChainZkpInfo,
+): Promise<bigint> => {
+  const rawProvider = new providers.JsonRpcProvider(
+    chainInfo.targetRpcUrl,
+    'any',
+  );
+
+  const contractInstance = StateV2__factory.connect(
+    chainInfo.targetStateContractAddress,
+    rawProvider,
+  );
+
+  const root = await contractInstance.getGISTRoot();
+
+  return BigInt(root.toString());
+};
+
+// getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
+export const getCurrentChainGISTRoot = async (
+  chainInfo: ChainZkpInfo,
+): Promise<bigint> => {
+  const provider = new providers.JsonRpcProvider(chainInfo.targetRpcUrl, 'any');
+
+  const contractInstance = LightweightStateV2__factory.connect(
+    chainInfo.targetStateContractAddress,
+    provider,
+  );
+  const root = await contractInstance.getGISTRoot();
+  return BigInt(root.toString());
+};
+
+// checkIfStateSynced returns true if the GIST root from the Rarimo state contract matches the GIST root from the current chain
+export const checkIfStateSynced = async (
+  chainInfo: ChainZkpInfo,
+): Promise<boolean> => {
+  /*
+    NOTE: for now we assume that the state must be synced if the GIST roots don't match
+          some more sophisticated logic could be added here in the future
+   */
+  const rarimoGISTRoot = await getRarimoGISTRoot(chainInfo);
+
+  const currentChainGISTRoot = await getCurrentChainGISTRoot(chainInfo);
+  return rarimoGISTRoot === currentChainGISTRoot;
+};
+
+export const getCoreOperationByIndex = async (
+  chainInfo: ChainZkpInfo,
+  index: string,
+) => {
+  return loadDataFromRarimoCore<OperationResponse>(
+    `/rarimo/rarimo-core/rarimocore/operation/${index}`,
+    chainInfo.rarimoApiUrl,
+  );
 };

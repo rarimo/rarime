@@ -1,22 +1,20 @@
 import { DID } from '@iden3/js-iden3-core';
 import { divider, heading, panel, text } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
+import {
+  checkIfStateSynced,
+  getCoreOperationByIndex,
+  CircuitId,
+  loadDataFromRarimoCore,
+} from '@rarimo/rarime-connector';
 import type {
   RPCMethods,
   SnapRequestParams,
   SnapRequestsResponses,
+  GetStateInfoResponse,
+  MerkleProof,
 } from '@rarimo/rarime-connector';
-import { CircuitId } from '@rarimo/rarime-connector';
-import type { GetStateInfoResponse, MerkleProof } from '@rarimo/zkp-iden3';
-import {
-  ZkpGen,
-  Identity,
-  checkIfStateSynced,
-  getCoreOperationByIndex,
-  getRarimoCoreUrl,
-  loadDataFromRarimoCore,
-  parseDidV2,
-} from '@rarimo/zkp-iden3';
+import { ZkpGen, Identity, parseDidV2 } from '@rarimo/zkp-iden3';
 
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
@@ -135,15 +133,13 @@ export const createProof = async ({
   const chainInfo = await getProviderChainInfo();
 
   const zkpGen = new ZkpGen(identity, createProofRequest, vc, {
-    chainId: chainInfo.id,
+    chainInfo,
     loadingCircuitCb: getSnapFileBytes,
   });
 
   // ================ LOAD STATE DETAILS  =====================
 
-  const rarimoCoreUrl = getRarimoCoreUrl(chainInfo.id);
-
-  const isSynced = await checkIfStateSynced(chainInfo.id);
+  const isSynced = await checkIfStateSynced(chainInfo);
 
   const did = parseDidV2(issuerDid);
 
@@ -152,17 +148,17 @@ export const createProof = async ({
   const issuerHexId = `0x0${issuerId.bigInt().toString(16)}`;
 
   const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
-    chainInfo.id,
     `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
+    chainInfo.rarimoApiUrl,
   );
   const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
-    chainInfo.id,
     `/rarimo/rarimo-core/identity/state/${issuerHexId}/proof`,
+    chainInfo.rarimoApiUrl,
     stateData.state.createdAtBlock,
   );
 
   const operation = await getCoreOperationByIndex(
-    chainInfo.id,
+    chainInfo,
     stateData.state.lastUpdateOperationIndex,
   );
 
@@ -175,7 +171,7 @@ export const createProof = async ({
 
   return {
     chainInfo,
-    rarimoCoreUrl,
+    rarimoCoreUrl: chainInfo.rarimoApiUrl,
     isSynced,
 
     issuerHexId,

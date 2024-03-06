@@ -63,10 +63,10 @@ export const saveCredentials = async ({
 
   const identity = await Identity.create(identityStorage.privateKeyHex);
 
-  const currentChain = await getProviderChainInfo();
+  const chainInfo = await getProviderChainInfo();
 
   const authProof = new AuthZkp(identity, offer, {
-    chainId: currentChain.id,
+    chainInfo,
     loadingCircuitCb: getSnapFileBytes,
   });
 

@@ -9,6 +9,21 @@ declare global {
   }
 }
 
+// TODO: remove
+export type RarimoNetworkType = 'mainnet' | 'beta';
+
+export type ChainZkpInfo = {
+  targetChainId: number;
+  targetRpcUrl: string;
+  targetStateContractAddress: string;
+
+  rarimoApiUrl: string;
+  rarimoEvmRpcApiUrl: string;
+  rarimoStateContractAddress: string;
+
+  rarimoNetworkType: RarimoNetworkType;
+};
+
 export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
   Pick<W3CCredential, 'issuer'>;
 
@@ -114,22 +129,13 @@ export type Operation = {
   timestamp: string;
 };
 
-export type RarimoNetworkType = 'mainnet' | 'beta';
-
-export type RarimoChainInfo = {
-  id: number;
-  rpcUrl: string;
-  stateContractAddress: string;
-  rarimoNetworkType: RarimoNetworkType;
-};
-
 export type OperationProof = {
   path: string[];
   signature: string;
 };
 
 export type ZKPProofSnapResponse = {
-  chainInfo: RarimoChainInfo;
+  chainInfo: ChainZkpInfo;
   rarimoCoreUrl: string;
   isSynced: boolean;
 
@@ -150,4 +156,27 @@ export type CreateProofRequest = {
   circuitId: CircuitId;
   challenge?: string; // bigint string
   query: ProofQuery;
+};
+
+export type StateProof = {
+  root: bigint;
+  existence: boolean;
+  siblings: bigint[];
+  index: bigint;
+  value: bigint;
+  auxExistence: boolean;
+  auxIndex: bigint;
+  auxValue: bigint;
+};
+
+export type MerkleProof = {
+  proof: string[];
+};
+
+export type GetStateInfoResponse = {
+  state: StateInfo;
+};
+
+export type OperationResponse = {
+  operation: Operation;
 };

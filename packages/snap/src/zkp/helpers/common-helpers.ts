@@ -1,10 +1,18 @@
-import { getChainInfo } from '@rarimo/zkp-iden3';
+import type { ChainZkpInfo } from '@rarimo/rarime-connector';
 import { providers } from 'ethers';
 
-import { HOSTNAMES_WHITELIST } from '@/config';
-import type { ChainInfo } from '@/types';
+import { HOSTNAMES_WHITELIST, SUPPORTED_CHAINS } from '@/config';
 
-export const getProviderChainInfo = async (): Promise<ChainInfo> => {
+export const getChainInfo = (chainId: number): ChainZkpInfo => {
+  const chainInfo = SUPPORTED_CHAINS[chainId];
+  if (!chainInfo) {
+    throw new Error(`ChainId ${chainId} not supported`);
+  }
+
+  return chainInfo;
+};
+
+export const getProviderChainInfo = async (): Promise<ChainZkpInfo> => {
   const provider = new providers.Web3Provider(
     ethereum as any as providers.ExternalProvider,
   );
