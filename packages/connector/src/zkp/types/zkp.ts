@@ -83,6 +83,7 @@ export type StateInfo = {
   index: string;
   hash: string;
   createdAtTimestamp: string;
+  createdAtBlock: string;
   lastUpdateOperationIndex: string;
 };
 
