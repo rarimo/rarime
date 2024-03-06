@@ -7,23 +7,26 @@ import type {
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
 import { CircuitId } from '@rarimo/rarime-connector';
+import type { GetStateInfoResponse, MerkleProof } from '@rarimo/zkp-iden3';
+import {
+  ZkpGen,
+  Identity,
+  checkIfStateSynced,
+  getCoreOperationByIndex,
+  getRarimoCoreUrl,
+  loadDataFromRarimoCore,
+  parseDidV2,
+} from '@rarimo/zkp-iden3';
 
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import type { TextField } from '@/types';
 import { isValidCreateProofRequest } from '@/typia-generated';
 import {
-  checkIfStateSynced,
-  getCoreOperationByIndex,
-  getProviderChainInfo,
-  getRarimoCoreUrl,
-  loadDataFromRarimoCore,
-  parseDidV2,
+  getSnapFileBytes,
   VCManager,
+  getProviderChainInfo,
 } from '@/zkp/helpers';
-import { Identity } from '@/zkp/identity';
-import type { GetStateInfoResponse, MerkleProof } from '@/zkp/types';
-import { ZkpGen } from '@/zkp/zkp-gen';
 
 export const createProof = async ({
   request,
@@ -129,15 +132,18 @@ export const createProof = async ({
 
   const identity = await Identity.create(identityStorage.privateKeyHex);
 
-  const zkpGen = new ZkpGen(identity, createProofRequest, vc);
+  const chainInfo = await getProviderChainInfo();
+
+  const zkpGen = new ZkpGen(identity, createProofRequest, vc, {
+    chainId: chainInfo.id,
+    loadingCircuitCb: getSnapFileBytes,
+  });
 
   // ================ LOAD STATE DETAILS  =====================
 
-  const chainInfo = await getProviderChainInfo();
-
   const rarimoCoreUrl = getRarimoCoreUrl(chainInfo.id);
 
-  const isSynced = await checkIfStateSynced();
+  const isSynced = await checkIfStateSynced(chainInfo.id);
 
   const did = parseDidV2(issuerDid);
 
@@ -146,14 +152,17 @@ export const createProof = async ({
   const issuerHexId = `0x0${issuerId.bigInt().toString(16)}`;
 
   const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
+    chainInfo.id,
     `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
   );
   const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
+    chainInfo.id,
     `/rarimo/rarimo-core/identity/state/${issuerHexId}/proof`,
     stateData.state.createdAtBlock,
   );
 
   const operation = await getCoreOperationByIndex(
+    chainInfo.id,
     stateData.state.lastUpdateOperationIndex,
   );
 

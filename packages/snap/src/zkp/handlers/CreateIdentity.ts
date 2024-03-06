@@ -5,12 +5,12 @@ import type {
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
+import { Identity, isDidSupported } from '@rarimo/zkp-iden3';
 import { utils } from 'ethers';
 
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
-import { genPkHexFromEntropy, isDidSupported } from '@/zkp/helpers';
-import { Identity } from '@/zkp/identity';
+import { genPkHexFromEntropy } from '@/zkp/helpers';
 
 export const createIdentity = async ({
   request,

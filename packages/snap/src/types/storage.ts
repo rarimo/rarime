@@ -1,7 +1,7 @@
 import type { ChainInfo } from '@rarimo/rarime-connector';
+import type { W3CCredential } from '@rarimo/zkp-iden3';
 
 import type { StorageKeys } from '@/enums';
-import type { W3CCredential } from '@/zkp/types';
 
 export type StorageMap = {
   [StorageKeys.identity]: {

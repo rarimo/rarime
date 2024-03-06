@@ -2,11 +2,14 @@ import type {
   RPCMethods,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
+import { checkIfStateSynced } from '@rarimo/zkp-iden3';
 
-import { checkIfStateSynced } from '@/zkp/helpers';
+import { getProviderChainInfo } from '@/zkp/helpers';
 
 export const checkStateContractSync = async (): Promise<
   SnapRequestsResponses[RPCMethods.CheckStateContractSync]
 > => {
-  return checkIfStateSynced();
+  const chainInfo = await getProviderChainInfo();
+
+  return checkIfStateSynced(chainInfo.id);
 };

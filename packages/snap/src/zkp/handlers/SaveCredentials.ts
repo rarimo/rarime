@@ -5,13 +5,16 @@ import type {
   SnapRequestParams,
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
+import { AuthZkp, Identity } from '@rarimo/zkp-iden3';
 
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import { isValidSaveCredentialsOfferRequest } from '@/typia-generated';
-import { AuthZkp } from '@/zkp/auth-zkp';
-import { VCManager } from '@/zkp/helpers';
-import { Identity } from '@/zkp/identity';
+import {
+  getProviderChainInfo,
+  getSnapFileBytes,
+  VCManager,
+} from '@/zkp/helpers';
 
 export const saveCredentials = async ({
   request,
@@ -60,7 +63,12 @@ export const saveCredentials = async ({
 
   const identity = await Identity.create(identityStorage.privateKeyHex);
 
-  const authProof = new AuthZkp(identity, offer);
+  const currentChain = await getProviderChainInfo();
+
+  const authProof = new AuthZkp(identity, offer, {
+    chainId: currentChain.id,
+    loadingCircuitCb: getSnapFileBytes,
+  });
 
   const credentials = await authProof.getVerifiableCredentials();
 
