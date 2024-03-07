@@ -10,7 +10,6 @@ module.exports = {
     '**/src/typia-generated/*.ts',
     '**/*.js',
     '**/scripts/**/*.js',
-    '**/src/**/*.test.ts',
     '**/src/**/types/**/contracts/**/*.ts',
     '**/src/**/types/**/graphql/**/*.ts',
   ],

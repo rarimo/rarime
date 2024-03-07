@@ -5725,7 +5725,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/rarime-connector@workspace:*, @rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
+"@rarimo/rarime-connector@workspace:^, @rarimo/rarime-connector@workspace:packages/connector":
   version: 0.0.0-use.local
   resolution: "@rarimo/rarime-connector@workspace:packages/connector"
   dependencies:
@@ -5778,8 +5778,8 @@ __metadata:
     "@metamask/snaps-utils": "npm:^6.0.0"
     "@noble/hashes": "npm:^1.3.3"
     "@noble/secp256k1": "npm:1.7.1"
-    "@rarimo/rarime-connector": "workspace:*"
-    "@rarimo/zkp-iden3": "workspace:*"
+    "@rarimo/rarime-connector": "workspace:^"
+    "@rarimo/zkp-iden3": "workspace:^"
     "@types/intl": "npm:1.2.0"
     "@types/lodash": "npm:^4.14.202"
     "@types/uuid": "npm:9.0.2"
@@ -5818,7 +5818,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rarimo/zkp-iden3@workspace:*, @rarimo/zkp-iden3@workspace:packages/zkp-iden3":
+"@rarimo/zkp-iden3@workspace:^, @rarimo/zkp-iden3@workspace:packages/zkp-iden3":
   version: 0.0.0-use.local
   resolution: "@rarimo/zkp-iden3@workspace:packages/zkp-iden3"
   dependencies:

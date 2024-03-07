@@ -26,8 +26,8 @@ jobs:
           werf version
           docker version
           echo $GITHUB_REPOSITORY
-          echo $GITHUB_SHA
+          echo $GITHUB_REF_NAME
       - name: Run Build
         run: |
-          . $(werf ci-env github --as-file) 
-          werf export web --tag ghcr.io/$GITHUB_REPOSITORY:$GITHUB_SHA
+          . $(werf ci-env github --as-file)
+          werf export web --tag ghcr.io/$GITHUB_REPOSITORY:$GITHUB_REF_NAME

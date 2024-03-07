@@ -10,28 +10,16 @@ git:
       install:
         - package.json
         - yarn.lock
-      setup: 
+      setup:
         - "**/*"
-shell: 
+shell:
   beforeInstall:
     - apk --no-cache --update --virtual build-dependencies add python3 make g++
-  install: 
+  install:
     - cd /app
     #- yarn autoclean --init
     #- yarn autoclean --force
     - yarn install
-  setup: 
+  setup:
     - cd /app
     - yarn build
-
----
-image: web
-from: nginx:alpine
-git:
-  - add: /nginx.conf
-    to: /etc/nginx/nginx.conf
-import:
-  - image: builder
-    add: /app/packages/site/public
-    to: /usr/share/nginx/html
-    after: setup

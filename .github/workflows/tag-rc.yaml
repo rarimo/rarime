@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-      - '^\d+\.\d+\.\d+$'
+      - '^\d+\.\d+\.\d+-rc\.\d+$'
 
 jobs:
   converge:
@@ -48,6 +48,6 @@ jobs:
           yarn build
           yarn lint
           yarn test
-          yarn publish-stable
+          yarn publish-rc
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
