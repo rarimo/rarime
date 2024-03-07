@@ -5746,7 +5746,6 @@ __metadata:
     "@leapwallet/buffer-boba": ^0.1.8
     "@leapwallet/parser-parfait": ^0.7.0
     "@metamask/auto-changelog": ^3.4.4
-    "@metamask/key-tree": ^9.0.0
     "@metamask/snaps-cli": ^5.0.0
     "@metamask/snaps-jest": ^5.0.0
     "@metamask/snaps-sdk": ^2.0.0

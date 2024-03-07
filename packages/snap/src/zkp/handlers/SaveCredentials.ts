@@ -7,6 +7,7 @@ import type {
 } from '@rarimo/rarime-connector';
 import { AuthZkp, Identity } from '@rarimo/zkp-iden3';
 
+import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import { isValidSaveCredentialsOfferRequest } from '@/typia-generated';
@@ -61,13 +62,23 @@ export const saveCredentials = async ({
 
   const vcManager = await VCManager.create();
 
-  const identity = await Identity.create(identityStorage.privateKeyHex);
+  const identity = await Identity.create(
+    {
+      schemaHashHex: config.AUTH_BJJ_CREDENTIAL_HASH,
+      idType: config.ID_TYPE,
+    },
+    identityStorage.privateKeyHex,
+  );
 
   const chainInfo = await getProviderChainInfo();
 
   const authProof = new AuthZkp(identity, offer, {
     chainInfo,
     loadingCircuitCb: getSnapFileBytes,
+    circuitsUrls: {
+      wasmUrl: config.CIRCUIT_AUTH_WASM_URL,
+      keyUrl: config.CIRCUIT_AUTH_FINAL_KEY_URL,
+    },
   });
 
   const credentials = await authProof.getVerifiableCredentials();

@@ -4,11 +4,6 @@ export type CreateIdentityRequestParams = {
   privateKeyHex?: string;
 };
 
-export type CheckCredentialExistenceRequestParams = {
-  claimOffer?: SaveCredentialsRequestParams;
-  proofRequest?: CreateProofRequestParams;
-};
-
 export type SaveCredentialsRequestParams = {
   body: {
     Credentials: [
@@ -25,6 +20,11 @@ export type SaveCredentialsRequestParams = {
   to: string;
   typ?: string;
   type: string;
+};
+
+export type CheckCredentialExistenceRequestParams = {
+  claimOffer?: SaveCredentialsRequestParams;
+  proofRequest?: CreateProofRequestParams;
 };
 
 export type RemoveCredentialsRequestParams = {

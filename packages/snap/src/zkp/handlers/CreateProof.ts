@@ -16,6 +16,7 @@ import type {
 } from '@rarimo/rarime-connector';
 import { ZkpGen, Identity, parseDidV2 } from '@rarimo/zkp-iden3';
 
+import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import type { TextField } from '@/types';
@@ -128,13 +129,37 @@ export const createProof = async ({
     throw new Error('User rejected request');
   }
 
-  const identity = await Identity.create(identityStorage.privateKeyHex);
+  const identity = await Identity.create(
+    {
+      schemaHashHex: config.AUTH_BJJ_CREDENTIAL_HASH,
+      idType: config.ID_TYPE,
+    },
+    identityStorage.privateKeyHex,
+  );
 
   const chainInfo = await getProviderChainInfo();
 
   const zkpGen = new ZkpGen(identity, createProofRequest, vc, {
     chainInfo,
     loadingCircuitCb: getSnapFileBytes,
+    circuitsUrls: {
+      [CircuitId.AtomicQuerySigV2]: {
+        wasmUrl: config.CIRCUIT_SIG_V2_WASM_URL,
+        keyUrl: config.CIRCUIT_SIG_V2_FINAL_KEY_URL,
+      },
+      [CircuitId.AtomicQueryMTPV2]: {
+        wasmUrl: config.CIRCUIT_MTP_V2_WASM_URL,
+        keyUrl: config.CIRCUIT_MTP_V2_FINAL_KEY_URL,
+      },
+      [CircuitId.AtomicQuerySigV2OnChain]: {
+        wasmUrl: config.CIRCUIT_SIG_V2_ON_CHAIN_WASM_URL,
+        keyUrl: config.CIRCUIT_SIG_V2_ON_CHAIN_FINAL_KEY_URL,
+      },
+      [CircuitId.AtomicQueryMTPV2OnChain]: {
+        wasmUrl: config.CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL,
+        keyUrl: config.CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL,
+      },
+    },
   });
 
   // ================ LOAD STATE DETAILS  =====================

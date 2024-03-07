@@ -11,6 +11,7 @@ import type { DocumentNode } from 'graphql/language';
 import VerifiableRuntimeComposite from '../../../ceramic/composites/VerifiableCredentials-runtime.json';
 import VerifiableRuntimeCompositeV2 from '../../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
 
+import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import { CeramicProvider } from '@/zkp/helpers/ceramic-helpers';
@@ -501,7 +502,13 @@ export const migrateVCsToLastCeramicModel = async () => {
 
   const entropyKeyHex = await genPkHexFromEntropy();
 
-  const entropyIdentity = await Identity.create(entropyKeyHex);
+  const entropyIdentity = await Identity.create(
+    {
+      idType: config.ID_TYPE,
+      schemaHashHex: config.AUTH_BJJ_CREDENTIAL_HASH,
+    },
+    entropyKeyHex,
+  );
 
   const identityStorage = await snapStorage.getItem(StorageKeys.identity);
 

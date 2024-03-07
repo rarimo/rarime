@@ -8,6 +8,7 @@ import type {
 import { Identity, isDidSupported } from '@rarimo/zkp-iden3';
 import { utils } from 'ethers';
 
+import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import { genPkHexFromEntropy } from '@/zkp/helpers';
@@ -60,6 +61,10 @@ export const createIdentity = async ({
   }
 
   const identity = await Identity.create(
+    {
+      schemaHashHex: config.AUTH_BJJ_CREDENTIAL_HASH,
+      idType: config.ID_TYPE,
+    },
     params?.privateKeyHex || (await genPkHexFromEntropy()),
   );
 
