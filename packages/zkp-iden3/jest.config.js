@@ -1,3 +1,18 @@
+const baseConfig = require('./jest.config');
+const fs = require('fs');
+const config = JSON.parse(fs.readFileSync(`${__dirname}/.swcrc`, 'utf-8'));
+
 module.exports = {
-  ...require('../../jest.config.base.js'),
+  ...baseConfig,
+  roots: ['<rootDir>/src'],
+  testMatch: [
+    '**/__tests__/**/*.+(ts|tsx|js)',
+    '**/?(*.)+(spec|tests|test).+(ts|tsx|js)',
+  ],
+  transform: {
+    '^.+\\.(t|j)sx?$': ['@swc/jest', { ...config, swcrc: false, exclude: [] }],
+  },
+  moduleNameMapper: {
+    '^@/(.*)': '<rootDir>/src/$1',
+  },
 };

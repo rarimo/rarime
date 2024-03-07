@@ -133,13 +133,9 @@ export const getGISTProof = async ({
     rawProvider,
   );
 
-  console.log('contractInstance', contractInstance);
-
   const data = rootHash
     ? await contractInstance.getGISTProofByRoot(userId, rootHash)
     : await contractInstance.getGISTProof(userId);
-
-  console.log('data', data);
 
   return {
     root: BigInt(data.root.toString()),
