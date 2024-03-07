@@ -1,18 +1,21 @@
-import type { Signature } from '@iden3/js-crypto'
-import { Hex } from '@iden3/js-crypto'
-import { fromLittleEndian } from '@iden3/js-iden3-core'
-import type { ZKProof } from '@iden3/js-jwz'
-import { proving } from '@iden3/js-jwz'
-import type { ChainZkpInfo, CreateProofRequest } from '@rarimo/rarime-connector'
-import { CircuitId, getGISTProof } from '@rarimo/rarime-connector'
+import type { Signature } from '@iden3/js-crypto';
+import { Hex } from '@iden3/js-crypto';
+import { fromLittleEndian } from '@iden3/js-iden3-core';
+import type { ZKProof } from '@iden3/js-jwz';
+import { proving } from '@iden3/js-jwz';
+import type {
+  ChainZkpInfo,
+  CreateProofRequest,
+} from '@rarimo/rarime-connector';
+import { CircuitId, getGISTProof } from '@rarimo/rarime-connector';
 
 import {
   defaultMTLevels,
   defaultMTLevelsClaimsMerklization,
   defaultMTLevelsOnChain,
   defaultValueArraySize,
-} from '@/const'
-import { type CircuitClaim, type Query } from '@/helpers'
+} from '@/const';
+import { type CircuitClaim, type Query } from '@/helpers';
 import {
   buildTreeState,
   getFileBytes,
@@ -23,57 +26,57 @@ import {
   prepareSiblingsStr,
   toCircuitsQuery,
   toGISTProof,
-} from '@/helpers'
-import type { Identity } from '@/instances/identity'
+} from '@/helpers';
+import type { Identity } from '@/instances/identity';
 import type {
   ClaimNonRevStatus,
   GISTProof,
   NodeAuxValue,
   W3CCredential,
-} from '@/types'
+} from '@/types';
 
 type Config = {
-  loadingCircuitCb?: (path: string) => Promise<Uint8Array>
-  chainInfo: ChainZkpInfo
-  circuitsUrls: Record<CircuitId, { wasmUrl: string; keyUrl: string }>
-}
+  loadingCircuitCb?: (path: string) => Promise<Uint8Array>;
+  chainInfo: ChainZkpInfo;
+  circuitsUrls: Record<CircuitId, { wasmUrl: string; keyUrl: string }>;
+};
 
 export class ZkpGen {
-  config: Config
+  config: Config;
 
-  identity: Identity = {} as Identity
+  identity: Identity = {} as Identity;
 
-  verifiableCredential: W3CCredential = {} as W3CCredential
+  verifiableCredential: W3CCredential = {} as W3CCredential;
 
-  subjectProof: ZKProof = {} as ZKProof
+  subjectProof: ZKProof = {} as ZKProof;
 
-  proofRequest: CreateProofRequest = {} as CreateProofRequest
+  proofRequest: CreateProofRequest = {} as CreateProofRequest;
 
-  circuitClaimData: CircuitClaim = {} as CircuitClaim
+  circuitClaimData: CircuitClaim = {} as CircuitClaim;
 
-  query: Query = {} as Query
+  query: Query = {} as Query;
 
-  nodeAuxIssuerAuthNonRev: NodeAuxValue = {} as NodeAuxValue
+  nodeAuxIssuerAuthNonRev: NodeAuxValue = {} as NodeAuxValue;
 
-  nodeAuxNonRev: NodeAuxValue = {} as NodeAuxValue
+  nodeAuxNonRev: NodeAuxValue = {} as NodeAuxValue;
 
-  nodAuxJSONLD: NodeAuxValue = {} as NodeAuxValue
+  nodAuxJSONLD: NodeAuxValue = {} as NodeAuxValue;
 
-  nonRevProof: ClaimNonRevStatus = {} as ClaimNonRevStatus
+  nonRevProof: ClaimNonRevStatus = {} as ClaimNonRevStatus;
 
-  value: string[] = []
+  value: string[] = [];
 
-  timestamp?: number
+  timestamp?: number;
 
-  gistProof?: GISTProof
+  gistProof?: GISTProof;
 
-  challenge?: bigint
+  challenge?: bigint;
 
-  signatureChallenge?: Signature
+  signatureChallenge?: Signature;
 
-  globalNodeAux?: NodeAuxValue
+  globalNodeAux?: NodeAuxValue;
 
-  nodeAuxAuth?: NodeAuxValue
+  nodeAuxAuth?: NodeAuxValue;
 
   constructor(
     identity: Identity,
@@ -81,28 +84,28 @@ export class ZkpGen {
     verifiableCredential: W3CCredential,
     config: Config,
   ) {
-    this.identity = identity
-    this.verifiableCredential = verifiableCredential
-    this.proofRequest = proofRequest
-    this.config = config
+    this.identity = identity;
+    this.verifiableCredential = verifiableCredential;
+    this.proofRequest = proofRequest;
+    this.config = config;
   }
 
   async generateProof(coreStateHash: string, operationGistHash: string) {
     const preparedCredential = await getPreparedCredential(
       this.verifiableCredential,
-    )
+    );
 
     this.circuitClaimData = await newCircuitClaimData(
       preparedCredential.credential,
       preparedCredential.credentialCoreClaim,
       coreStateHash,
-    )
+    );
 
     this.query = await toCircuitsQuery(
       this.proofRequest.query,
       preparedCredential.credential,
       preparedCredential.credentialCoreClaim,
-    )
+    );
 
     this.nonRevProof = {
       proof: preparedCredential.revStatus.mtp,
@@ -112,19 +115,19 @@ export class ZkpGen {
         preparedCredential.revStatus.issuer.revocationTreeRoot!,
         preparedCredential.revStatus.issuer.rootOfRoots!,
       ),
-    }
+    };
 
-    this.timestamp = Math.floor(Date.now() / 1000)
+    this.timestamp = Math.floor(Date.now() / 1000);
 
     this.nodeAuxIssuerAuthNonRev = getNodeAuxValue(
       this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
-    )
-    this.nodeAuxNonRev = getNodeAuxValue(this.nonRevProof.proof)
-    this.nodAuxJSONLD = getNodeAuxValue(this.query.valueProof!.mtp)
+    );
+    this.nodeAuxNonRev = getNodeAuxValue(this.nonRevProof.proof);
+    this.nodAuxJSONLD = getNodeAuxValue(this.query.valueProof!.mtp);
     this.value = prepareCircuitArrayValues(
       this.query.values,
       defaultValueArraySize,
-    ).map(a => a.toString())
+    ).map((a) => a.toString());
 
     if (
       this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
@@ -135,36 +138,36 @@ export class ZkpGen {
         contractAddress: this.config.chainInfo.rarimoStateContractAddress,
         userId: this.identity.identityIdBigIntString,
         rootHash: operationGistHash,
-      })
-      this.gistProof = toGISTProof(gistInfo)
+      });
+      this.gistProof = toGISTProof(gistInfo);
 
       const challenge = fromLittleEndian(
         Hex.decodeString(this.proofRequest.accountAddress!.substring(2)),
-      ).toString()
-      this.challenge = BigInt(this.proofRequest.challenge ?? challenge)
+      ).toString();
+      this.challenge = BigInt(this.proofRequest.challenge ?? challenge);
 
       this.signatureChallenge = this.identity.privateKey.signPoseidon(
         this.challenge,
-      )
+      );
 
-      this.globalNodeAux = getNodeAuxValue(this.gistProof.proof)
-      this.nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof)
+      this.globalNodeAux = getNodeAuxValue(this.gistProof.proof);
+      this.nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
     }
 
-    const circuiInfo = this.getCircuitInfo()
+    const circuiInfo = this.getCircuitInfo();
 
     const [wasm, provingKey] = await Promise.all([
       getFileBytes(circuiInfo.wasm, this.config.loadingCircuitCb),
       getFileBytes(circuiInfo.finalKey, this.config.loadingCircuitCb),
-    ])
+    ]);
 
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
       new TextEncoder().encode(circuiInfo.generateInputFn()),
       provingKey,
       wasm,
-    )
+    );
 
-    return this.subjectProof
+    return this.subjectProof;
   }
 
   getCircuitInfo() {
@@ -193,14 +196,15 @@ export class ZkpGen {
           this.config.circuitsUrls[CircuitId.AtomicQueryMTPV2OnChain].keyUrl,
         generateInputFn: this.generateQueryMTPV2OnChainInputs.bind(this),
       },
-    }[this.proofRequest.circuitId]
+    }[this.proofRequest.circuitId];
 
-    if (!circuits)
+    if (!circuits) {
       throw new Error(
         `circuit with id ${this.proofRequest.circuitId} is not supported by issuer`,
-      )
+      );
+    }
 
-    return circuits
+    return circuits;
   }
 
   generateQuerySigV2OnChainInputs() {
@@ -313,7 +317,7 @@ export class ZkpGen {
       slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
-    })
+    });
   }
 
   generateQuerySigV2Inputs() {
@@ -395,7 +399,7 @@ export class ZkpGen {
       slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
-    })
+    });
   }
 
   generateQueryMTPV2Inputs() {
@@ -461,7 +465,7 @@ export class ZkpGen {
       slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
-    })
+    });
   }
 
   generateQueryMTPV2OnChainInputs() {
@@ -558,6 +562,6 @@ export class ZkpGen {
       slotIndex: this.query.slotIndex,
       operator: this.query.operator,
       value: this.value,
-    })
+    });
   }
 }

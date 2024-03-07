@@ -1,83 +1,83 @@
-import type { Claim as CoreClaim, Id } from '@iden3/js-iden3-core'
-import { Proof } from '@iden3/js-merkletree'
+import type { Claim as CoreClaim, Id } from '@iden3/js-iden3-core';
+import { Proof } from '@iden3/js-merkletree';
 
-import type { ProofType } from '@/enums'
+import type { ProofType } from '@/enums';
 import type {
   BJJSignatureProof,
   CredentialStatus,
   State,
   TreeState,
-} from '@/types'
+} from '@/types';
 
 export class IssuerData {
-  id!: string
+  id!: string;
 
-  state!: State
+  state!: State;
 
-  authCoreClaim?: string
+  authCoreClaim?: string;
 
-  mtp?: Proof
+  mtp?: Proof;
 
-  credentialStatus?: CredentialStatus
+  credentialStatus?: CredentialStatus;
 
-  updateUrl!: string
+  updateUrl!: string;
 }
 
 export class Iden3SparseMerkleTreeProof {
-  type!: ProofType
+  type!: ProofType;
 
-  issuerData!: IssuerData
+  issuerData!: IssuerData;
 
-  mtp!: Proof
+  mtp!: Proof;
 
-  coreClaim!: string
+  coreClaim!: string;
 
-  id!: string
+  id!: string;
 }
 
 export class BJJSignatureProof2021 {
-  type!: ProofType
+  type!: ProofType;
 
-  issuerData!: IssuerData
+  issuerData!: IssuerData;
 
-  signature!: string
+  signature!: string;
 
-  coreClaim!: string
+  coreClaim!: string;
 }
 
 export class CircuitClaim {
-  issuerId!: Id
+  issuerId!: Id;
 
-  claim!: CoreClaim
+  claim!: CoreClaim;
 
-  signatureProof!: BJJSignatureProof
+  signatureProof!: BJJSignatureProof;
 
   incProof!: {
-    proof: Proof
-    treeState: TreeState
-  }
+    proof: Proof;
+    treeState: TreeState;
+  };
 }
 
 export class ValueProof {
-  path: bigint
+  path: bigint;
 
-  value?: bigint
+  value?: bigint;
 
-  mtp: Proof
+  mtp: Proof;
 
   constructor() {
-    this.path = BigInt(0)
-    this.value = BigInt(0)
-    this.mtp = new Proof()
+    this.path = BigInt(0);
+    this.value = BigInt(0);
+    this.mtp = new Proof();
   }
 }
 
 export class Query {
-  slotIndex!: number
+  slotIndex!: number;
 
-  values!: bigint[]
+  values!: bigint[];
 
-  operator!: number
+  operator!: number;
 
-  valueProof?: ValueProof
+  valueProof?: ValueProof;
 }

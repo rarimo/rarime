@@ -1,10 +1,10 @@
 export class FetcherError extends Error {
-  public name = 'FetcherError'
+  public name = 'FetcherError';
 
-  public response: Response
+  public response: Response;
 
   constructor(resp: Response) {
-    super()
-    this.response = resp
+    super();
+    this.response = resp;
   }
 }

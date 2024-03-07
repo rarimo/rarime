@@ -11,20 +11,12 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "strict": true,
-    "lib": [
-      "es6",
-      "dom",
-      "es2017"
-    ],
+    "lib": ["es6", "dom", "es2017"],
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules/**"
-  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules/**"],
   "compileOnSave": false
 }

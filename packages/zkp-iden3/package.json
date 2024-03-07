@@ -9,19 +9,6 @@
   },
   "license": "(MIT-0 OR Apache-2.0)",
   "sideEffects": false,
-  "typesVersions": {
-    ">=4.2": {
-      "*": [
-        "./dist/types/*"
-      ]
-    }
-  },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "browser": "./dist/esm/index.js",
-  "node": "./dist/cjs/index.js",
-  "unpkg": "./dist/index.js",
-  "types": "index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
@@ -34,17 +21,26 @@
       "default": "./dist/assets/**/*"
     }
   },
+  "main": "./dist/cjs/index.js",
+  "unpkg": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "browser": "./dist/esm/index.js",
+  "types": "index.d.ts",
+  "typesVersions": {
+    ">=4.2": {
+      "*": [
+        "./dist/types/*"
+      ]
+    }
+  },
   "scripts": {
     "build": "yarn clean && yarn build:types && yarn build:cjs && yarn build:esm && node ./postbuild.js",
-    "build:types": "tsc -p tsconfig.build.json --outDir ./dist/types --declaration --emitDeclarationOnly",
     "build:cjs": "npx swc src -d ./dist/cjs --config-file ./.swcrc -C module.type=commonjs",
     "build:esm": "npx swc src -d ./dist/esm --config-file ./.swcrc -C module.type=es6 isModule=true",
+    "build:types": "tsc -p tsconfig.build.json --outDir ./dist/types --declaration --emitDeclarationOnly",
     "clean": "rm -rf dist",
     "test": "yarn jest --verbose",
     "typecheck": "tsc --noEmit"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "dependencies": {
     "@apollo/client": "^3.8.7",
@@ -95,6 +91,10 @@
     "@types/node": "^18.14.2",
     "tsc-alias": "^1.8.2"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "node": "./dist/cjs/index.js",
   "typedocOptions": {
     "entryPoints": [
       "src/index.ts"

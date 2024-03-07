@@ -16,18 +16,18 @@
     "packages/*"
   ],
   "scripts": {
+    "apply-version": "node scripts/versions.js $0 && yarn build:connector && yarn workspace @rarimo/rarime preversion",
     "build": "yarn workspaces foreach --parallel --topological --verbose run build",
     "build:connector": "yarn workspace @rarimo/rarime-connector build",
+    "postinstall": "patch-package",
     "lint": "yarn lint:eslint && yarn lint:misc --check",
     "lint:eslint": "eslint . --cache --ext js,ts",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",
     "lint:misc": "prettier '**/*.json' '**/*.md' '!**/CHANGELOG.md' '**/*.yml' --ignore-path .gitignore",
-    "start": "yarn build:connector && yarn workspaces foreach --parallel --interlaced --verbose run start",
-    "test": "echo \"TODO\"",
-    "postinstall": "patch-package",
+    "publish": "yarn workspaces foreach --no-private exec yarn npm publish",
     "rsc": "node scripts/release-sanity-check.js",
-    "apply-version": "node scripts/versions.js $0 && yarn build:connector && yarn workspace @rarimo/rarime preversion",
-    "publish": "yarn workspaces foreach --no-private exec yarn npm publish"
+    "start": "yarn build:connector && yarn workspaces foreach --parallel --interlaced --verbose run start",
+    "test": "echo \"TODO\""
   },
   "devDependencies": {
     "@metamask/eslint-config": "^12.0.0",

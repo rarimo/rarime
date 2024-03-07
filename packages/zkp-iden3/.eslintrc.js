@@ -6,7 +6,7 @@ module.exports = {
     'dist/',
     '**/*.js',
     '**/scripts/**/*.js',
-    '**/src/**/*.test.ts',
+    '**/*.test.ts',
     '**/src/**/types/**/contracts/**/*.ts',
     '**/src/**/types/**/graphql/**/*.ts',
   ],

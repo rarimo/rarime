@@ -1,1 +1,1 @@
-export * from './proof'
+export * from './proof';

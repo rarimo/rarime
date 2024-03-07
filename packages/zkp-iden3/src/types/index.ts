@@ -1,2 +1,2 @@
-export * from './credential-types'
-export * from './proof-types'
+export * from './credential-types';
+export * from './proof-types';

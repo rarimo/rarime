@@ -1,32 +1,36 @@
-import type { Claim } from '@iden3/js-iden3-core'
+import type { Claim } from '@iden3/js-iden3-core';
 
-import { ProofType } from '@/enums'
-import { getCoreClaimFromProof } from '@/helpers/proof-helpers'
-import type { CredentialStatus, RevocationStatus, W3CCredential } from '@/types'
+import { ProofType } from '@/enums';
+import { getCoreClaimFromProof } from '@/helpers/proof-helpers';
+import type {
+  CredentialStatus,
+  RevocationStatus,
+  W3CCredential,
+} from '@/types';
 
 export const getRevocationStatus = async (
   credStatus: CredentialStatus,
 ): Promise<RevocationStatus> => {
-  const data = await fetch(credStatus.id)
+  const data = await fetch(credStatus.id);
 
-  return await data.json()
-}
+  return await data.json();
+};
 
 export const findNonRevokedCredential = async (
   creds: W3CCredential[],
 ): Promise<{
-  cred: W3CCredential
-  revStatus: RevocationStatus
+  cred: W3CCredential;
+  revStatus: RevocationStatus;
 }> => {
   for (const cred of creds) {
-    const revStatus = await getRevocationStatus(cred.credentialStatus)
+    const revStatus = await getRevocationStatus(cred.credentialStatus);
     if (revStatus.mtp.existence) {
-      continue
+      continue;
     }
-    return { cred, revStatus }
+    return { cred, revStatus };
   }
-  throw new Error('all claims are revoked')
-}
+  throw new Error('all claims are revoked');
+};
 
 const getCoreClaimFromCredential = async (
   credential: W3CCredential,
@@ -34,12 +38,12 @@ const getCoreClaimFromCredential = async (
   const coreClaimFromSigProof = getCoreClaimFromProof(
     credential.proof!,
     ProofType.BJJSignature,
-  )
+  );
 
   const coreClaimFromMtpProof = getCoreClaimFromProof(
     credential.proof!,
     ProofType.Iden3SparseMerkleTreeProof,
-  )
+  );
 
   if (
     coreClaimFromMtpProof &&
@@ -48,31 +52,31 @@ const getCoreClaimFromCredential = async (
   ) {
     throw new Error(
       'core claim representations is set in both proofs but they are not equal',
-    )
+    );
   }
 
   if (!coreClaimFromMtpProof && !coreClaimFromSigProof) {
-    throw new Error('core claim is not set in credential proofs')
+    throw new Error('core claim is not set in credential proofs');
   }
 
-  const coreClaim = coreClaimFromMtpProof ?? coreClaimFromSigProof!
+  const coreClaim = coreClaimFromMtpProof ?? coreClaimFromSigProof!;
 
-  return coreClaim
-}
+  return coreClaim;
+};
 
 export const getPreparedCredential = async (credential: W3CCredential) => {
   const { cred: nonRevokedCred, revStatus } = await findNonRevokedCredential([
     credential,
-  ])
+  ]);
 
-  const credCoreClaim = await getCoreClaimFromCredential(nonRevokedCred)
+  const credCoreClaim = await getCoreClaimFromCredential(nonRevokedCred);
 
   return {
     credential: nonRevokedCred,
     revStatus,
     credentialCoreClaim: credCoreClaim,
-  }
-}
+  };
+};
 
 export const loadDataByUrl = async (
   url: string,
@@ -82,12 +86,12 @@ export const loadDataByUrl = async (
     endianSwappedCoreStateHash
       ? `${url}?state=${endianSwappedCoreStateHash}`
       : url,
-  )
+  );
 
   if (!response.ok) {
-    const message = `An error has occured: ${response.status}`
-    throw new Error(message)
+    const message = `An error has occured: ${response.status}`;
+    throw new Error(message);
   }
 
-  return await response.json()
-}
+  return await response.json();
+};
