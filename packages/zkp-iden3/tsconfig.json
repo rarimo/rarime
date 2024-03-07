@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "rootDir": "src",
+    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "types": [
+      "@types/node",
+      "@types/jest"
+    ],
+//    "declaration": true,
+//    "esModuleInterop": true,
+//    "resolveJsonModule": true,
+//    "strict": true,
+//    "noUnusedLocals": true,
+//    "noUnusedParameters": true,
+//    "noImplicitReturns": true,
+//    "noFallthroughCasesInSwitch": true,
+//    "importHelpers": true,
+    "skipLibCheck": true,
+//    "allowSyntheticDefaultImports": true,
+//    "sourceMap": true,
+//    "newLine": "lf",
+//    "useDefineForClassFields": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

@@ -59,20 +59,5 @@
   "packageManager": "yarn@3.2.1",
   "engines": {
     "node": ">=16.0.0"
-  },
-  "resolutions": {
-    "rarimo-js-sdk-monorepo-root": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk",
-    "@rarimo/bridge": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/bridge",
-    "@rarimo/client": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/client",
-    "@rarimo/nft-checkout": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/nft-checkout",
-    "@rarimo/provider": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/provider",
-    "@rarimo/providers-evm": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/providers-evm",
-    "@rarimo/providers-near": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/providers-near",
-    "@rarimo/providers-solana": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/providers-solana",
-    "@rarimo/react-nft-checkout": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/react-nft-checkout",
-    "@rarimo/react-provider": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/react-provider",
-    "@rarimo/shared": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/shared",
-    "@rarimo/swap": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/swap",
-    "@rarimo/zkp-iden3": "portal:/Users/lukachisama/Documents/RARIMO/js-sdk/packages/zkp-iden3"
   }
 }
