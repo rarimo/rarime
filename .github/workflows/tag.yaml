@@ -3,7 +3,7 @@ name: Publish Stable to NPM
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   publish:
