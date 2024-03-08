@@ -1,6 +1,12 @@
 ceramic-prepare-vc.mjs
 snap.config.ts
 snap.config.js
-assets/circuits/credentialAtomicQuerySigV2/
-assets/circuits/credentialAtomicQuerySigV2OnChain/
-assets/circuits/credentialAtomicQueryMTPV2/
+assets/circuits/credentialAtomicQueryMTPV2/circuit.wasm
+assets/circuits/credentialAtomicQueryMTPV2/circuit_final.zkey
+assets/circuits/credentialAtomicQueryMTPV2/verification_key.json
+assets/circuits/credentialAtomicQuerySigV2/circuit.wasm
+assets/circuits/credentialAtomicQuerySigV2/circuit_final.zkey
+assets/circuits/credentialAtomicQuerySigV2/verification_key.json
+assets/circuits/credentialAtomicQuerySigV2OnChain/circuit.wasm
+assets/circuits/credentialAtomicQuerySigV2OnChain/circuit_final.zkey
+assets/circuits/credentialAtomicQuerySigV2OnChain/verification_key.json
