@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/zkp-iden3",
-  "version": "2.1.0-rc.6",
+  "version": "2.1.0-rc.7",
   "description": "Tools that generate zero-knowledge proofs for the Iden3 protocol.",
   "repository": {
     "type": "git",
