@@ -10,8 +10,8 @@
   "files": [
     "dist/",
     "images/",
-    "assets/circuits/auth",
-    "assets/circuits/credentialAtomicQueryMTPV2OnChain",
+    "assets/circuits/auth/",
+    "assets/circuits/credentialAtomicQueryMTPV2OnChain/",
     "snap.manifest.json",
     "README.md"
   ],
