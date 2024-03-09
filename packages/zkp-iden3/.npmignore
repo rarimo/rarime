@@ -1,6 +1,6 @@
 src/**/*.test.ts
 jest.config.ts
-jest.config.js
+../../jest.config.js
 tsconfig.json
 tsconfig.build.json
 postbuild.js
