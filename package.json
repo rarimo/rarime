@@ -60,5 +60,9 @@
   "packageManager": "yarn@4.1.1",
   "engines": {
     "node": ">=16.0.0"
+  },
+  "gitHooks": {
+    "pre-commit": "yarn lint",
+    "pre-push": "yarn test && yarn rsc"
   }
 }
