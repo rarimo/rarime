@@ -7,8 +7,6 @@ import type {
   DirectSignResponse,
   OfflineDirectSigner,
 } from '@cosmjs/proto-signing';
-import type { RarimoClient } from '@rarimo/client';
-import { makeRarimoClient, makeWallet } from '@rarimo/client';
 import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { BigNumber } from 'ethers';
 
@@ -152,37 +150,6 @@ export class RarimeWallet
     });
   }
 }
-
-export const getRarimoClient = async (
-  injectedWallet: RarimeWallet,
-): Promise<RarimoClient> => {
-  const chainInfo = CHAINS[injectedWallet.chainId];
-
-  const client = makeRarimoClient({
-    rpcUrl: chainInfo.rpc!,
-    apiUrl: chainInfo.rest!,
-    prefix: 'rarimo',
-    chainName: chainInfo.chainName,
-    chainIconUrl: chainInfo.chainSymbolImageUrl,
-    currency: {
-      denom: chainInfo.stakeCurrency!.coinDenom,
-      minDenom: chainInfo.stakeCurrency!.coinMinimalDenom,
-      decimals: chainInfo.stakeCurrency!.coinDecimals,
-    },
-    gasPrice: {
-      amount: 0,
-      steps: {
-        low: chainInfo.feeCurrencies[0].gasPriceStep!.low,
-        average: chainInfo.feeCurrencies[0].gasPriceStep!.average,
-        high: chainInfo.feeCurrencies[0].gasPriceStep!.high,
-      },
-    },
-  });
-
-  await client.connect(makeWallet(injectedWallet));
-
-  return client;
-};
 
 // export const createWallet = (chainId: string) => {};
 

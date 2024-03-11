@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime-connector",
-  "version": "2.1.0-rc.10",
+  "version": "2.1.0-rc.11",
   "description": "Facilitates interaction between a DApp and RariMe MetaMask snap",
   "repository": {
     "type": "git",
@@ -46,7 +46,6 @@
     "@cosmjs/amino": "^0.32.2",
     "@cosmjs/proto-signing": "^0.32.2",
     "@ethersproject/providers": "5.7.2",
-    "@rarimo/client": "^2.0.0",
     "compare-versions": "^6.1.0",
     "ethers": "5.7.2",
     "long": "^5.2.3"
