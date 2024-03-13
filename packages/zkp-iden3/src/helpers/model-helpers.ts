@@ -1,4 +1,4 @@
-import type { Claim as CoreClaim, Id } from '@iden3/js-iden3-core';
+import type { Claim, Id } from '@iden3/js-iden3-core';
 import { Proof } from '@iden3/js-merkletree';
 
 import type { ProofType } from '@/enums';
@@ -48,7 +48,7 @@ export class BJJSignatureProof2021 {
 export class CircuitClaim {
   issuerId!: Id;
 
-  claim!: CoreClaim;
+  claim!: Claim;
 
   signatureProof!: BJJSignatureProof;
 

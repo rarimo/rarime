@@ -13,9 +13,10 @@ import {
   Merklizer,
   Path,
 } from '@iden3/js-jsonld-merklization';
-import type { NodeAux } from '@iden3/js-merkletree';
 import { Hash, Proof, ZERO_HASH } from '@iden3/js-merkletree';
+import type { NodeAux, ProofJSON } from '@iden3/js-merkletree';
 import type { ProofQuery } from '@rarimo/rarime-connector';
+import get from 'lodash/get';
 
 import { QueryOperators } from '@/const';
 import { ProofType } from '@/enums';
@@ -42,6 +43,15 @@ import type {
   TreeState,
   W3CCredential,
 } from '@/types';
+
+export const proofFromJson = (proofJson: ProofJSON) => {
+  const preparedProofJson = {
+    ...proofJson,
+    nodeAux: get(proofJson, 'nodeAux') || get(proofJson, 'node_aux'),
+  };
+
+  return Proof.fromJSON(preparedProofJson);
+};
 
 export const extractProof = (proof: {
   [key: string]: any;
@@ -184,7 +194,7 @@ export const newCircuitClaimData = async (
     );
 
     circuitClaim.incProof = {
-      proof: data.mtp,
+      proof: proofFromJson(data.mtp),
       treeState: buildTreeState(
         data.issuer.state,
         data.issuer.claimsTreeRoot,
@@ -229,7 +239,7 @@ export const newCircuitClaimData = async (
     circuitClaim.signatureProof = {
       signature,
       issuerAuthIncProof: {
-        proof: issuerAuthClaimIncMtp.mtp,
+        proof: proofFromJson(issuerAuthClaimIncMtp.mtp),
         treeState: buildTreeState(
           issuerAuthClaimIncMtp.issuer.state!,
           issuerAuthClaimIncMtp.issuer.claimsTreeRoot!,
@@ -527,9 +537,9 @@ export const prepareCircuitArrayValues = (
   return arr;
 };
 
-export const getNodeAuxValue = (p: Proof | undefined): NodeAuxValue => {
+export const getNodeAuxValue = (proof: Proof): NodeAuxValue => {
   // proof of inclusion
-  if (p?.existence) {
+  if (proof?.existence) {
     return {
       key: ZERO_HASH,
       value: ZERO_HASH,
@@ -538,13 +548,17 @@ export const getNodeAuxValue = (p: Proof | undefined): NodeAuxValue => {
   }
 
   // proof of non-inclusion (NodeAux exists)
-  if (p?.nodeAux?.value !== undefined && p?.nodeAux?.key !== undefined) {
+  if (
+    proof?.nodeAux?.value !== undefined &&
+    proof?.nodeAux?.key !== undefined
+  ) {
     return {
-      key: p.nodeAux.key,
-      value: p.nodeAux.value,
+      key: proof.nodeAux.key,
+      value: proof.nodeAux.value,
       noAux: '0',
     };
   }
+
   // proof of non-inclusion (NodeAux does not exist)
   return {
     key: ZERO_HASH,

@@ -10,6 +10,7 @@
     "lib": ["ESNext", "DOM"],
     "types": ["@types/node", "@types/jest"],
     "skipLibCheck": true,
+    "noImplicitAny": true,
     "paths": {
       "@/*": ["src/*"]
     }

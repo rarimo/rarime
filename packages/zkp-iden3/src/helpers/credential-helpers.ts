@@ -1,7 +1,7 @@
 import type { Claim } from '@iden3/js-iden3-core';
 
 import { ProofType } from '@/enums';
-import { getCoreClaimFromProof } from '@/helpers/proof-helpers';
+import { getCoreClaimFromProof, proofFromJson } from '@/helpers/proof-helpers';
 import type {
   CredentialStatus,
   RevocationStatus,
@@ -11,9 +11,18 @@ import type {
 export const getRevocationStatus = async (
   credStatus: CredentialStatus,
 ): Promise<RevocationStatus> => {
-  const data = await fetch(credStatus.id);
+  const response = await fetch(credStatus.id);
 
-  return await data.json();
+  const data = await response.json();
+
+  const { issuer } = data;
+
+  const mtp = proofFromJson(data.mtp);
+
+  return {
+    mtp,
+    issuer,
+  };
 };
 
 export const findNonRevokedCredential = async (
@@ -24,9 +33,11 @@ export const findNonRevokedCredential = async (
 }> => {
   for (const cred of creds) {
     const revStatus = await getRevocationStatus(cred.credentialStatus);
+
     if (revStatus.mtp.existence) {
       continue;
     }
+
     return { cred, revStatus };
   }
   throw new Error('all claims are revoked');

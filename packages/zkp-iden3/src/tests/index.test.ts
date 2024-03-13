@@ -15,31 +15,9 @@ import { parseDidV2 } from '../helpers';
 
 import { AuthZkp, Identity, ZkpGen } from '../instances';
 
-const PK = 'c5f1c3e6db9204b037841005c183ee605e69683ca1fec67ac87db86f6639724b';
-
-const userDid = 'did:iden3:readonly:tQJ8hwYwVr6M7JDVZLMrSjpi9DDistyDaBofjB6XY';
-
+const issuerApi = 'https://issuer.polygon.robotornot.mainnet-beta.rarimo.com';
 const AUTH_BJJ_CREDENTIAL_HASH = 'cca3371a6cb1b715004407e325bd993c';
 const ID_TYPE = Uint8Array.from([1, 0]);
-
-const offer: SaveCredentialsRequestParams = {
-  body: {
-    Credentials: [
-      {
-        description: 'urn:uuid:6dff4518-5177-4f39-af58-9c156d9b6309',
-        id: '3dc7608e-dbce-11ee-b1f8-220bd8de42d4',
-      },
-    ],
-    url: 'https://issuer.polygon.robotornot.mainnet-beta.rarimo.com/v1/agent',
-  },
-  from: 'did:iden3:readonly:tLd8sbb1xTSvi2wtRF4TUVcfDUr8ppYMohLqjhGQT',
-  id: 'c4960a88-73ae-44b2-b6d5-e8326bd41521',
-  threadID: 'c4960a88-73ae-44b2-b6d5-e8326bd41521',
-  to: 'did:iden3:readonly:tQJ8hwYwVr6M7JDVZLMrSjpi9DDistyDaBofjB6XY',
-  typ: 'application/iden3comm-plain-json',
-  type: 'https://iden3-communication.io/credentials/1.0/offer',
-};
-
 const chainInfo: ChainZkpInfo = {
   targetChainId: 11155111,
   targetRpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
@@ -51,8 +29,13 @@ const chainInfo: ChainZkpInfo = {
 
   rarimoNetworkType: 'beta',
 };
-
 const MINUTE = 60 * 1000;
+
+// ===============================================================================================
+
+const PK = '9a5305fa4c55cbf517c99693a7ec6766203c88feab50c944c00feec051d5dab7';
+
+let offer: SaveCredentialsRequestParams;
 
 describe('zkp flow', () => {
   let vcs: W3CCredential[];
@@ -72,10 +55,24 @@ describe('zkp flow', () => {
     async () => {
       const identity = await getIdentity();
 
-      expect(identity.didString).toBe(userDid);
+      expect(identity.didString).not.toBeNull();
     },
     MINUTE,
   );
+
+  it('should get offer', async () => {
+    const identity = await getIdentity();
+
+    const CLAIM_TYPE = 'urn:uuid:6dff4518-5177-4f39-af58-9c156d9b6309';
+
+    const response = await fetch(
+      `${issuerApi}/v1/credentials/${identity.didString}/${CLAIM_TYPE}`,
+    );
+
+    offer = await response.json();
+
+    expect(offer.to.toLowerCase()).toEqual(identity.didString.toLowerCase());
+  });
 
   it(
     'should get VC',
