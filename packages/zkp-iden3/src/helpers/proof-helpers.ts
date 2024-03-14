@@ -20,10 +20,6 @@ import get from 'lodash/get';
 
 import { QueryOperators } from '@/const';
 import { ProofType } from '@/enums';
-import {
-  getRevocationStatus,
-  loadDataByUrl,
-} from '@/helpers/credential-helpers';
 import { parseDidV2 } from '@/helpers/identity-helpers';
 import {
   BJJSignatureProof2021,
@@ -33,6 +29,7 @@ import {
   ValueProof,
 } from '@/helpers/model-helpers';
 import type {
+  CredentialStatus,
   GISTProof,
   JSONSchema,
   MTProof,
@@ -44,7 +41,7 @@ import type {
   W3CCredential,
 } from '@/types';
 
-export const proofFromJson = (proofJson: ProofJSON) => {
+const proofFromJson = (proofJson: ProofJSON) => {
   const preparedProofJson = {
     ...proofJson,
     nodeAux: get(proofJson, 'nodeAux') || get(proofJson, 'node_aux'),
@@ -53,9 +50,30 @@ export const proofFromJson = (proofJson: ProofJSON) => {
   return Proof.fromJSON(preparedProofJson);
 };
 
-export const extractProof = (proof: {
-  [key: string]: any;
-}): { claim: Claim; proofType: ProofType } => {
+const getRevocationStatus = async (
+  credStatus: CredentialStatus,
+): Promise<RevocationStatus> => {
+  const response = await fetch(credStatus.id);
+
+  const data = await response.json();
+
+  const { issuer } = data;
+
+  const mtp = proofFromJson(data.mtp);
+
+  return {
+    mtp,
+    issuer,
+  };
+};
+
+// TODO: why `defaultProofType` returns Iden3SparseMerkleTreeProof | BJJSignatureProof2021, but `ifs` aint works
+const extractProof = (
+  proof:
+    | Iden3SparseMerkleTreeProof
+    | BJJSignatureProof2021
+    | Record<string, unknown>,
+): { claim: Claim; proofType: ProofType } => {
   if (proof instanceof Iden3SparseMerkleTreeProof) {
     return {
       claim: new Claim().fromHex(proof.coreClaim),
@@ -71,16 +89,21 @@ export const extractProof = (proof: {
   }
 
   if (typeof proof === 'object') {
-    const defaultProofType = proof.type;
+    // BJJSignature2021 | Iden3SparseMerkleTreeProof
+    const defaultProofType = get(proof, 'type', '') as string;
+
     if (!defaultProofType) {
       throw new TypeError('proof type is not specified');
     }
-    const coreClaimHex = proof.coreClaim;
+
+    const coreClaimHex = get(proof, 'coreClaim', '') as string;
+
     if (!coreClaimHex) {
       throw new TypeError(
         `coreClaim field is not defined in proof type ${defaultProofType}`,
       );
     }
+
     return {
       claim: new Claim().fromHex(coreClaimHex),
       proofType: defaultProofType as ProofType,
@@ -90,67 +113,78 @@ export const extractProof = (proof: {
   throw new TypeError('proof format is not supported');
 };
 
-export const getCoreClaimFromProof = (
-  credentialProof: object | any[],
-  proofType: ProofType,
-): Claim | null => {
-  if (Array.isArray(credentialProof)) {
-    for (const proof of credentialProof) {
-      const { claim, proofType: extractedProofType } = extractProof(proof);
-      if (proofType === extractedProofType) {
-        return claim;
-      }
-    }
-  } else if (typeof credentialProof === 'object') {
-    const { claim, proofType: extractedProofType } =
-      extractProof(credentialProof);
-    if (extractedProofType === proofType) {
-      return claim;
-    }
-  }
-  return null;
+const convertEndianSwappedCoreStateHashHex = (hash: string) => {
+  const convertedStateHash = fromLittleEndian(
+    Hex.decodeString(hash.slice(2)),
+  ).toString(16);
+
+  return convertedStateHash?.length < 64
+    ? `0x0${convertedStateHash}`
+    : `0x${convertedStateHash}`;
 };
 
-export const getBJJSignature2021Proof = (
-  credentialProof: object | any[],
-): BJJSignatureProof2021 | null => {
-  const proofType: ProofType = ProofType.BJJSignature;
-  if (Array.isArray(credentialProof)) {
-    for (const proof of credentialProof) {
-      const { proofType: extractedProofType } = extractProof(proof);
-      if (proofType === extractedProofType) {
-        return proof as BJJSignatureProof2021;
-      }
-    }
-  } else if (typeof credentialProof === 'object') {
-    const { proofType: extractedProofType } = extractProof(credentialProof);
-    if (extractedProofType === proofType) {
-      return credentialProof as BJJSignatureProof2021;
-    }
+const parseRequest = async (req?: {
+  [key: string]: unknown;
+}): Promise<QueryWithFieldName> => {
+  if (!req) {
+    const query = new Query();
+    query.operator = QueryOperators.$eq;
+    return { query, fieldName: '' };
   }
-  return null;
+
+  const entries = Object.entries(req);
+  if (entries.length > 1) {
+    throw new TypeError(`multiple requests  not supported`);
+  }
+
+  const [fieldName, fieldReq] = entries[0];
+
+  const fieldReqEntries = Object.entries<any>(fieldReq);
+
+  if (fieldReqEntries.length > 1) {
+    throw new TypeError(`multiple predicates for one field not supported`);
+  }
+
+  const isSelectiveDisclosure = fieldReqEntries.length === 0;
+  const query = new Query();
+
+  if (isSelectiveDisclosure) {
+    return { query, fieldName, isSelectiveDisclosure };
+  }
+
+  let operator = 0;
+  const values: bigint[] = new Array<bigint>(64).fill(BigInt(0));
+  const [kv, value] = fieldReqEntries[0];
+  const key = kv as keyof typeof QueryOperators;
+  if (!QueryOperators[key]) {
+    throw new TypeError(`operator is not supported by lib`);
+  }
+  operator = QueryOperators[key];
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index++) {
+      values[index] = BigInt(value[index]);
+    }
+  } else {
+    values[0] = BigInt(value);
+  }
+
+  query.operator = operator;
+  query.values = values;
+
+  return { query, fieldName };
 };
 
-export const getIden3SparseMerkleTreeProof = (
-  credentialProof: object | any[],
-): Iden3SparseMerkleTreeProof | null => {
-  const proofType: ProofType = ProofType.Iden3SparseMerkleTreeProof;
-  if (Array.isArray(credentialProof)) {
-    for (const proof of credentialProof) {
-      const { proofType: extractedProofType } = extractProof(proof);
-      if (proofType === extractedProofType) {
-        return proof as Iden3SparseMerkleTreeProof;
-      }
-    }
-  } else if (typeof credentialProof === 'object') {
-    const { proofType: extractedProofType } = extractProof(credentialProof);
-    if (extractedProofType === proofType) {
-      return credentialProof as Iden3SparseMerkleTreeProof;
-    }
-  }
-  return null;
+const merklize = async (credential: W3CCredential): Promise<Merklizer> => {
+  const crdntl = { ...credential };
+  delete crdntl.proof;
+  return await Merklizer.merklizeJSONLD(JSON.stringify(crdntl));
 };
 
+// ------------------------------------------------
+
+// ==========================================================================
+// helpers used in other files
+// ==========================================================================
 export const buildTreeState = (
   state: string,
   claimsTreeRoot: string,
@@ -163,14 +197,95 @@ export const buildTreeState = (
   rootOfRoots: Hash.fromHex(rootOfRoots),
 });
 
-export const convertEndianSwappedCoreStateHashHex = (hash: string) => {
-  const convertedStateHash = fromLittleEndian(
-    Hex.decodeString(hash.slice(2)),
-  ).toString(16);
+export const getPreparedCredential = async (credential: W3CCredential) => {
+  const findNonRevokedCredential = async (
+    creds: W3CCredential[],
+  ): Promise<{
+    cred: W3CCredential;
+    revStatus: RevocationStatus;
+  }> => {
+    for (const cred of creds) {
+      const revStatus = await getRevocationStatus(cred.credentialStatus);
 
-  return convertedStateHash?.length < 64
-    ? `0x0${convertedStateHash}`
-    : `0x${convertedStateHash}`;
+      if (revStatus.mtp.existence) {
+        continue;
+      }
+
+      console.log('found revoked');
+
+      return { cred, revStatus };
+    }
+    throw new Error('all claims are revoked');
+  };
+
+  const getCoreClaimFromCredential = async (
+    cred: W3CCredential,
+  ): Promise<Claim> => {
+    const getCoreClaimFromProof = (
+      credentialProof: Pick<W3CCredential, 'proof'>,
+      proofType: ProofType,
+    ): Claim | null => {
+      if (Array.isArray(credentialProof)) {
+        for (const proof of credentialProof) {
+          const { claim, proofType: extractedProofType } = extractProof(proof);
+          if (proofType === extractedProofType) {
+            return claim;
+          }
+        }
+      } else if (typeof credentialProof === 'object') {
+        const { claim, proofType: extractedProofType } =
+          extractProof(credentialProof);
+        if (extractedProofType === proofType) {
+          return claim;
+        }
+      }
+      return null;
+    };
+
+    if (!cred.proof) {
+      throw new TypeError('proof is not set in credential');
+    }
+
+    const coreClaimFromSigProof = getCoreClaimFromProof(
+      cred.proof,
+      ProofType.BJJSignature,
+    );
+
+    const coreClaimFromMtpProof = getCoreClaimFromProof(
+      cred.proof,
+      ProofType.Iden3SparseMerkleTreeProof,
+    );
+
+    if (
+      coreClaimFromMtpProof &&
+      coreClaimFromSigProof &&
+      coreClaimFromMtpProof.hex() !== coreClaimFromSigProof.hex()
+    ) {
+      throw new Error(
+        'core claim representations is set in both proofs but they are not equal',
+      );
+    }
+
+    if (!coreClaimFromMtpProof && !coreClaimFromSigProof) {
+      throw new Error('core claim is not set in credential proofs');
+    }
+
+    const coreClaim = coreClaimFromMtpProof ?? coreClaimFromSigProof!;
+
+    return coreClaim;
+  };
+
+  const { cred: nonRevokedCred, revStatus } = await findNonRevokedCredential([
+    credential,
+  ]);
+
+  const credCoreClaim = await getCoreClaimFromCredential(nonRevokedCred);
+
+  return {
+    credential: nonRevokedCred,
+    revStatus,
+    credentialCoreClaim: credCoreClaim,
+  };
 };
 
 export const newCircuitClaimData = async (
@@ -178,6 +293,64 @@ export const newCircuitClaimData = async (
   coreClaim: Claim,
   coreStateHash: string,
 ): Promise<CircuitClaim> => {
+  const getBJJSignature2021Proof = (
+    credentialProof: object | any[],
+  ): BJJSignatureProof2021 | null => {
+    const proofType: ProofType = ProofType.BJJSignature;
+    if (Array.isArray(credentialProof)) {
+      for (const proof of credentialProof) {
+        const { proofType: extractedProofType } = extractProof(proof);
+        if (proofType === extractedProofType) {
+          return proof as BJJSignatureProof2021;
+        }
+      }
+    } else if (typeof credentialProof === 'object') {
+      const { proofType: extractedProofType } = extractProof(credentialProof);
+      if (extractedProofType === proofType) {
+        return credentialProof as BJJSignatureProof2021;
+      }
+    }
+    return null;
+  };
+
+  const getIden3SparseMerkleTreeProof = (
+    credentialProof: object | any[],
+  ): Iden3SparseMerkleTreeProof | null => {
+    const proofType: ProofType = ProofType.Iden3SparseMerkleTreeProof;
+    if (Array.isArray(credentialProof)) {
+      for (const proof of credentialProof) {
+        const { proofType: extractedProofType } = extractProof(proof);
+        if (proofType === extractedProofType) {
+          return proof as Iden3SparseMerkleTreeProof;
+        }
+      }
+    } else if (typeof credentialProof === 'object') {
+      const { proofType: extractedProofType } = extractProof(credentialProof);
+      if (extractedProofType === proofType) {
+        return credentialProof as Iden3SparseMerkleTreeProof;
+      }
+    }
+    return null;
+  };
+
+  const loadDataByUrl = async (
+    url: string,
+    endianSwappedCoreStateHash?: string,
+  ) => {
+    const response = await fetch(
+      endianSwappedCoreStateHash
+        ? `${url}?state=${endianSwappedCoreStateHash}`
+        : url,
+    );
+
+    if (!response.ok) {
+      const message = `An error has occured: ${response.status}`;
+      throw new Error(message);
+    }
+
+    return await response.json();
+  };
+
   const circuitClaim = new CircuitClaim();
   circuitClaim.claim = coreClaim;
 
@@ -271,252 +444,191 @@ export const prepareSiblingsStr = (
   );
 };
 
-export const parseRequest = async (req?: {
-  [key: string]: any;
-}): Promise<QueryWithFieldName> => {
-  if (!req) {
-    const query = new Query();
-    query.operator = QueryOperators.$eq;
-    return { query, fieldName: '' };
-  }
-
-  const entries = Object.entries(req);
-  if (entries.length > 1) {
-    throw new TypeError(`multiple requests  not supported`);
-  }
-
-  const [fieldName, fieldReq] = entries[0];
-
-  const fieldReqEntries = Object.entries<any>(fieldReq);
-
-  if (fieldReqEntries.length > 1) {
-    throw new TypeError(`multiple predicates for one field not supported`);
-  }
-
-  const isSelectiveDisclosure = fieldReqEntries.length === 0;
-  const query = new Query();
-
-  if (isSelectiveDisclosure) {
-    return { query, fieldName, isSelectiveDisclosure };
-  }
-
-  let operator = 0;
-  const values: bigint[] = new Array<bigint>(64).fill(BigInt(0));
-  const [kv, value] = fieldReqEntries[0];
-  const key = kv as keyof typeof QueryOperators;
-  if (!QueryOperators[key]) {
-    throw new TypeError(`operator is not supported by lib`);
-  }
-  operator = QueryOperators[key];
-  if (Array.isArray(value)) {
-    for (let index = 0; index < value.length; index++) {
-      values[index] = BigInt(value[index]);
-    }
-  } else {
-    values[0] = BigInt(value);
-  }
-
-  query.operator = operator;
-  query.values = values;
-
-  return { query, fieldName };
-};
-
-export const merklize = async (
-  credential: W3CCredential,
-): Promise<Merklizer> => {
-  const crdntl = { ...credential };
-  delete crdntl.proof;
-  return await Merklizer.merklizeJSONLD(JSON.stringify(crdntl));
-};
-
-export const prepareMerklizedQuery = async (
-  query: ProofQuery,
-  credential: W3CCredential,
-): Promise<Query> => {
-  const parsedQuery = await parseRequest(query.credentialSubject);
-
-  const loader = getDocumentLoader();
-  let schema: object;
-  try {
-    schema = (await loader(credential['@context'][2])).document;
-  } catch (e) {
-    throw new TypeError(
-      `can't load credential schema ${credential['@context'][2]}`,
-    );
-  }
-
-  let path: Path = new Path();
-  if (parsedQuery.fieldName) {
-    path = await Path.getContextPathKey(
-      JSON.stringify(schema),
-      credential.type[1],
-      parsedQuery.fieldName,
-    );
-  }
-  path.prepend(['https://www.w3.org/2018/credentials#credentialSubject']);
-
-  const mk = await merklize(credential);
-  const { proof, value: mtValue } = await mk.proof(path);
-
-  const pathKey = await path.mtEntry();
-  parsedQuery.query.valueProof = new ValueProof();
-  parsedQuery.query.valueProof.mtp = proof;
-  parsedQuery.query.valueProof.path = pathKey;
-  parsedQuery.query.valueProof.mtp = proof;
-  const mtEntry = await mtValue?.mtEntry();
-  parsedQuery.query.valueProof.value = mtEntry;
-
-  // for merklized credentials slotIndex in query must be equal to zero
-  // and not a position of merklization root.
-  // it has no influence on check in the off-chain circuits, but it aligns with onchain verification standard
-  parsedQuery.query.slotIndex = 0;
-
-  if (!parsedQuery.fieldName || parsedQuery.isSelectiveDisclosure) {
-    const resultQuery = parsedQuery.query;
-    resultQuery.operator = QueryOperators.$eq;
-    resultQuery.values = [mtEntry!];
-    return resultQuery;
-  }
-
-  return parsedQuery.query;
-};
-
-export const getFieldSlotIndex = (
-  field: string,
-  schemaBytes: Uint8Array,
-): number => {
-  const schema: JSONSchema = JSON.parse(new TextDecoder().decode(schemaBytes));
-  if (!schema?.$metadata?.serialization) {
-    throw new TypeError('serialization info is not set');
-  }
-
-  switch (field) {
-    case schema.$metadata?.serialization?.indexDataSlotA:
-      return 2;
-    case schema.$metadata?.serialization?.indexDataSlotB:
-      return 3;
-    case schema.$metadata?.serialization?.valueDataSlotA:
-      return 6;
-    case schema.$metadata?.serialization?.valueDataSlotB:
-      return 7;
-    default:
-      throw new TypeError(`field ${field} not specified in serialization info`);
-  }
-};
-
-export const stringByPath = (
-  obj: { [key: string]: any },
-  path: string,
-): string => {
-  const parts = path.split('.');
-
-  let value = obj;
-  for (let index = 0; index < parts.length; index++) {
-    const key = parts[index];
-    if (!key) {
-      throw new TypeError('path is empty');
-    }
-    value = value[key];
-    if (value === undefined) {
-      throw new TypeError('path not found');
-    }
-  }
-  return value.toString();
-};
-
-export const buildQueryPath = async (
-  contextURL: string,
-  contextType: string,
-  field: string,
-): Promise<Path> => {
-  let resp;
-  try {
-    resp = await (await fetch(contextURL)).json();
-  } catch (error) {
-    throw new TypeError(`context not found: ${JSON.stringify(error)}`);
-  }
-
-  const path = await Path.getContextPathKey(
-    JSON.stringify(resp),
-    contextType,
-    field,
-  );
-  path.prepend(['https://www.w3.org/2018/credentials#credentialSubject']);
-  return path;
-};
-
-export const verifiablePresentationFromCred = async (
-  w3cCred: W3CCredential,
-  requestObj: ProofQuery,
-  field: string,
-): Promise<MtValue | undefined> => {
-  const mz = await merklize(w3cCred);
-
-  const contextType = stringByPath(requestObj, 'type');
-
-  const contextURL = stringByPath(requestObj, 'context');
-
-  const path = await buildQueryPath(contextURL, contextType, field);
-
-  const { value } = await mz.proof(path);
-
-  return value;
-};
-
-export const prepareNonMerklizedQuery = async (
-  query: ProofQuery,
-  credential: W3CCredential,
-): Promise<Query> => {
-  const loader = getDocumentLoader();
-
-  let schema: object;
-  try {
-    schema = (await loader(credential.credentialSchema.id)).document;
-  } catch (e) {
-    throw new TypeError(
-      `can't load credential schema ${credential['@context'][2]}`,
-    );
-  }
-
-  if (
-    query.credentialSubject &&
-    Object.keys(query.credentialSubject).length > 1
-  ) {
-    throw new TypeError('multiple requests are not supported');
-  }
-
-  const parsedQuery = await parseRequest(query.credentialSubject);
-  parsedQuery.query.slotIndex = getFieldSlotIndex(
-    parsedQuery.fieldName,
-    new TextEncoder().encode(JSON.stringify(schema)),
-  );
-
-  if (parsedQuery.isSelectiveDisclosure) {
-    const mzValue = await verifiablePresentationFromCred(
-      credential,
-      query,
-      parsedQuery.fieldName,
-    );
-    const resultQuery = parsedQuery.query;
-    resultQuery.operator = QueryOperators.$eq;
-    resultQuery.values = [await mzValue!.mtEntry()];
-    return resultQuery;
-  }
-
-  return parsedQuery.query;
-};
-
 export const toCircuitsQuery = async (
   query: ProofQuery,
   credential: W3CCredential,
   coreClaim: Claim,
 ): Promise<Query> => {
+  const prepareNonMerklizedQuery = async (): Promise<Query> => {
+    const stringByPath = (
+      obj: { [key: string]: unknown },
+      path: string,
+    ): string => {
+      const parts = path.split('.');
+
+      let value = obj;
+      for (let index = 0; index < parts.length; index++) {
+        const key = parts[index];
+        if (!key) {
+          throw new TypeError('path is empty');
+        }
+        value = value[key];
+        if (value === undefined) {
+          throw new TypeError('path not found');
+        }
+      }
+      return value.toString();
+    };
+
+    const buildQueryPath = async (
+      contextURL: string,
+      contextType: string,
+      field: string,
+    ): Promise<Path> => {
+      let resp;
+      try {
+        resp = await (await fetch(contextURL)).json();
+      } catch (error) {
+        throw new TypeError(`context not found: ${JSON.stringify(error)}`);
+      }
+
+      const path = await Path.getContextPathKey(
+        JSON.stringify(resp),
+        contextType,
+        field,
+      );
+      path.prepend(['https://www.w3.org/2018/credentials#credentialSubject']);
+      return path;
+    };
+
+    const verifiablePresentationFromCred = async (
+      w3cCred: W3CCredential,
+      requestObj: ProofQuery,
+      field: string,
+    ): Promise<MtValue | undefined> => {
+      const mz = await merklize(w3cCred);
+
+      const contextType = stringByPath(requestObj, 'type');
+
+      const contextURL = stringByPath(requestObj, 'context');
+
+      const path = await buildQueryPath(contextURL, contextType, field);
+
+      const { value } = await mz.proof(path);
+
+      return value;
+    };
+
+    const getFieldSlotIndex = (
+      field: string,
+      schemaBytes: Uint8Array,
+    ): number => {
+      const schema: JSONSchema = JSON.parse(
+        new TextDecoder().decode(schemaBytes),
+      );
+      if (!schema?.$metadata?.serialization) {
+        throw new TypeError('serialization info is not set');
+      }
+
+      switch (field) {
+        case schema.$metadata?.serialization?.indexDataSlotA:
+          return 2;
+        case schema.$metadata?.serialization?.indexDataSlotB:
+          return 3;
+        case schema.$metadata?.serialization?.valueDataSlotA:
+          return 6;
+        case schema.$metadata?.serialization?.valueDataSlotB:
+          return 7;
+        default:
+          throw new TypeError(
+            `field ${field} not specified in serialization info`,
+          );
+      }
+    };
+
+    const loader = getDocumentLoader();
+
+    let schema: object;
+    try {
+      schema = (await loader(credential.credentialSchema.id)).document;
+    } catch (e) {
+      throw new TypeError(
+        `can't load credential schema ${credential['@context'][2]}`,
+      );
+    }
+
+    if (
+      query.credentialSubject &&
+      Object.keys(query.credentialSubject).length > 1
+    ) {
+      throw new TypeError('multiple requests are not supported');
+    }
+
+    const parsedQuery = await parseRequest(query.credentialSubject);
+    parsedQuery.query.slotIndex = getFieldSlotIndex(
+      parsedQuery.fieldName,
+      new TextEncoder().encode(JSON.stringify(schema)),
+    );
+
+    if (parsedQuery.isSelectiveDisclosure) {
+      const mzValue = await verifiablePresentationFromCred(
+        credential,
+        query,
+        parsedQuery.fieldName,
+      );
+      const resultQuery = parsedQuery.query;
+      resultQuery.operator = QueryOperators.$eq;
+      resultQuery.values = [await mzValue!.mtEntry()];
+      return resultQuery;
+    }
+
+    return parsedQuery.query;
+  };
+
+  const prepareMerklizedQuery = async (): Promise<Query> => {
+    const parsedQuery = await parseRequest(query.credentialSubject);
+
+    const loader = getDocumentLoader();
+    let schema: object;
+    try {
+      schema = (await loader(credential['@context'][2])).document;
+    } catch (e) {
+      throw new TypeError(
+        `can't load credential schema ${credential['@context'][2]}`,
+      );
+    }
+
+    let path: Path = new Path();
+    if (parsedQuery.fieldName) {
+      path = await Path.getContextPathKey(
+        JSON.stringify(schema),
+        credential.type[1],
+        parsedQuery.fieldName,
+      );
+    }
+    path.prepend(['https://www.w3.org/2018/credentials#credentialSubject']);
+
+    const mk = await merklize(credential);
+    const { proof, value: mtValue } = await mk.proof(path);
+
+    const pathKey = await path.mtEntry();
+    parsedQuery.query.valueProof = new ValueProof();
+    parsedQuery.query.valueProof.mtp = proof;
+    parsedQuery.query.valueProof.path = pathKey;
+    parsedQuery.query.valueProof.mtp = proof;
+    const mtEntry = await mtValue?.mtEntry();
+    parsedQuery.query.valueProof.value = mtEntry;
+
+    // for merklized credentials slotIndex in query must be equal to zero
+    // and not a position of merklization root.
+    // it has no influence on check in the off-chain circuits, but it aligns with onchain verification standard
+    parsedQuery.query.slotIndex = 0;
+
+    if (!parsedQuery.fieldName || parsedQuery.isSelectiveDisclosure) {
+      const resultQuery = parsedQuery.query;
+      resultQuery.operator = QueryOperators.$eq;
+      resultQuery.values = [mtEntry!];
+      return resultQuery;
+    }
+
+    return parsedQuery.query;
+  };
+
   const mtPosition = coreClaim.getMerklizedPosition();
 
   return mtPosition === MerklizedRootPosition.None
-    ? prepareNonMerklizedQuery(query, credential)
-    : prepareMerklizedQuery(query, credential);
+    ? prepareNonMerklizedQuery()
+    : prepareMerklizedQuery();
 };
 
 export const prepareCircuitArrayValues = (
@@ -567,19 +679,19 @@ export const getNodeAuxValue = (proof: Proof): NodeAuxValue => {
   };
 };
 
-const newProofFromData = (
-  existence: boolean,
-  allSiblings: Hash[],
-  nodeAux?: NodeAux,
-): Proof => {
-  return new Proof({
-    existence,
-    nodeAux,
-    siblings: allSiblings,
-  });
-};
-
 export const toGISTProof = (smtProof: StateProof): GISTProof => {
+  const newProofFromData = (
+    existence: boolean,
+    allSiblings: Hash[],
+    nodeAux?: NodeAux,
+  ): Proof => {
+    return new Proof({
+      existence,
+      nodeAux,
+      siblings: allSiblings,
+    });
+  };
+
   let existence = false;
   let nodeAux;
 

@@ -90,7 +90,10 @@ export class ZkpGen {
     this.config = config;
   }
 
-  async generateProof(coreStateHash: string, operationGistHash: string) {
+  async generateProof(
+    coreStateHash: string,
+    operationGistHash: string,
+  ): Promise<ZKProof> {
     const preparedCredential = await getPreparedCredential(
       this.verifiableCredential,
     );
