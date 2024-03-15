@@ -74,16 +74,6 @@ export type W3CCredential = {
   proof?: [BJJSignatureProofRaw, Iden3SparseMerkleTreeProofRaw];
 };
 
-export type RevocationStatus = {
-  mtp: Proof;
-  issuer: {
-    state: string;
-    rootOfRoots: string;
-    claimsTreeRoot: string;
-    revocationTreeRoot: string;
-  };
-};
-
 export type State = {
   txId?: string;
   blockTimestamp?: number;
@@ -98,13 +88,13 @@ export type State = {
 export type TreeState = {
   state: Hash;
   rootOfRoots: Hash;
-  claimsRoot: Hash;
-  revocationRoot: Hash;
+  claimsTreeRoot: Hash;
+  revocationTreeRoot: Hash;
 };
 
-export type ClaimNonRevStatus = {
-  treeState: TreeState;
-  proof: Proof;
+export type RevocationStatus = {
+  mtp: Proof;
+  issuer: TreeState;
 };
 
 export type QueryWithFieldName = {

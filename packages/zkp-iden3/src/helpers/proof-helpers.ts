@@ -52,8 +52,8 @@ export const buildTreeState = (
   rootOfRoots: string,
 ): TreeState => ({
   state: Hash.fromHex(state),
-  claimsRoot: Hash.fromHex(claimsTreeRoot),
-  revocationRoot: Hash.fromHex(revocationTreeRoot),
+  claimsTreeRoot: Hash.fromHex(claimsTreeRoot),
+  revocationTreeRoot: Hash.fromHex(revocationTreeRoot),
   rootOfRoots: Hash.fromHex(rootOfRoots),
 });
 
@@ -71,9 +71,16 @@ const getRevocationStatus = async (
 
   const mtp = proofFromJson(data.mtp);
 
+  const issuer = buildTreeState(
+    data.issuer.state,
+    data.issuer.claimsTreeRoot,
+    data.issuer.revocationTreeRoot,
+    data.issuer.rootOfRoots,
+  );
+
   return {
     mtp,
-    issuer: data.issuer,
+    issuer,
   };
 };
 
@@ -212,15 +219,6 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
   return {
     credential,
     revStatus,
-    claimNonRevStatus: {
-      proof: revStatus.mtp,
-      treeState: buildTreeState(
-        revStatus.issuer.state,
-        revStatus.issuer.claimsTreeRoot,
-        revStatus.issuer.revocationTreeRoot,
-        revStatus.issuer.rootOfRoots,
-      ),
-    },
     mtpProofCoreClaim,
     sigProofCoreClaim,
   };
@@ -255,12 +253,7 @@ export const formatRawClaimToCircuitClaim = async (
       // incProof === smtProf
       incProof: {
         proof: revStatus.mtp,
-        treeState: buildTreeState(
-          revStatus.issuer.state,
-          revStatus.issuer.claimsTreeRoot,
-          revStatus.issuer.revocationTreeRoot,
-          revStatus.issuer.rootOfRoots,
-        ),
+        treeState: revStatus.issuer,
       },
     };
   }
@@ -299,21 +292,11 @@ export const formatRawClaimToCircuitClaim = async (
         issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
         issuerAuthNonRevProof: {
           proof: revStatus.mtp,
-          treeState: buildTreeState(
-            revStatus.issuer.state,
-            revStatus.issuer.claimsTreeRoot,
-            revStatus.issuer.revocationTreeRoot,
-            revStatus.issuer.rootOfRoots,
-          ),
+          treeState: revStatus.issuer,
         },
         issuerAuthIncProof: {
           proof: issuerAuthClaimIncMtp.mtp,
-          treeState: buildTreeState(
-            issuerAuthClaimIncMtp.issuer.state,
-            issuerAuthClaimIncMtp.issuer.claimsTreeRoot,
-            issuerAuthClaimIncMtp.issuer.revocationTreeRoot,
-            issuerAuthClaimIncMtp.issuer.rootOfRoots,
-          ),
+          treeState: issuerAuthClaimIncMtp.issuer,
         },
       },
     };
