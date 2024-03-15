@@ -21,18 +21,19 @@ import get from 'lodash/get';
 import { QueryOperators } from '@/const';
 import { ProofType } from '@/enums';
 import { parseDidV2 } from '@/helpers/identity-helpers';
-import { Query, ValueProof } from '@/helpers/model-helpers';
 import type {
+  BJJSignatureProofRaw,
   CircuitClaim,
   GISTProof,
+  Iden3SparseMerkleTreeProofRaw,
   JSONSchema,
-  MTProof,
   NodeAuxValue,
   QueryWithFieldName,
   RevocationStatus,
   StateProof,
   TreeState,
   W3CCredential,
+  Query,
 } from '@/types';
 
 const proofFromJson = (proofJson: ProofJSON) => {
@@ -80,18 +81,24 @@ const parseRequest = async (req?: {
   [key: string]: unknown;
 }): Promise<QueryWithFieldName> => {
   if (!req) {
-    const query = new Query();
+    const query: Query = {} as Query;
+
     query.operator = QueryOperators.$eq;
+
     return { query, fieldName: '' };
   }
 
   const entries = Object.entries(req);
+
   if (entries.length > 1) {
     throw new TypeError(`multiple requests  not supported`);
   }
 
   const [fieldName, fieldReq] = entries[0];
 
+  // FIXME
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const fieldReqEntries = Object.entries(fieldReq);
 
   if (fieldReqEntries.length > 1) {
@@ -99,7 +106,8 @@ const parseRequest = async (req?: {
   }
 
   const isSelectiveDisclosure = fieldReqEntries.length === 0;
-  const query = new Query();
+
+  const query: Query = {} as Query;
 
   if (isSelectiveDisclosure) {
     return { query, fieldName, isSelectiveDisclosure };
@@ -118,6 +126,9 @@ const parseRequest = async (req?: {
       values[index] = BigInt(value[index]);
     }
   } else {
+    // FIXME
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     values[0] = BigInt(value);
   }
 
@@ -244,15 +255,13 @@ export const newCircuitClaimData = async (
 
   const smtProof = credential.proof?.find(
     (el) => el.type === ProofType.Iden3SparseMerkleTreeProof,
-  );
+  ) as Iden3SparseMerkleTreeProofRaw;
 
   if (smtProof) {
     const revStatus = await getRevocationStatus(
       smtProof.id,
       convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
-
-    console.log('smtProof, data: ', revStatus);
 
     circuitClaim = {
       ...circuitClaim,
@@ -271,7 +280,7 @@ export const newCircuitClaimData = async (
 
   const sigProof = credential.proof?.find(
     (el) => el.type === ProofType.BJJSignature,
-  );
+  ) as BJJSignatureProofRaw;
 
   if (sigProof) {
     const decodedSignature = Hex.decodeString(sigProof.signature);
@@ -282,49 +291,9 @@ export const newCircuitClaimData = async (
       convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
 
-    // console.log({
-    //   issuer: {
-    //     claimsTreeRoot:
-    //       '1a8fbdad9eaf8702e569bc5c1bd988baa14469982744f89a46543bc33043511f',
-    //     revocationTreeRoot:
-    //       'eacc453b6b3d987e92e388666bebf5747ac918c22425fcc2c0207591c5d07822',
-    //     rootOfRoots:
-    //       '7c98f890aa1ab4fb52f7ab80cde62ce3e79bdc32dea4a97dd2b9717786a20f1b',
-    //     state:
-    //       '5ce0bdc7302eacde7da5db124f7ffce064479c7f59945b561b9f1984b308bd22',
-    //   },
-    //   mtp: {
-    //     existence: true,
-    //     siblings: [
-    //       '12093648908151120008052400909983258657552456266206697304620000445575205299483',
-    //       '21207046084208924821615313824986664896343424734449779018426019923028527893512',
-    //       '2650766217307169652346299538052870810256415910274979821667202646242371010646',
-    //       '3940160070763561296886138749041017192490236508112256863100410822822127805105',
-    //       '1488336216580447661974529389680263071193229863568905848735299764005998493025',
-    //       '11818731402331560172832129751709360787097755860909631916313928838796177663844',
-    //       '8184543025293941192968566111354234433242540077051388134300485218432794255114',
-    //       '0',
-    //       '14185129435883483469188834471252788770088609928909097596128219973907887252238',
-    //       '11618884846836233701534192031149078459646746176490461254607602387970783513937',
-    //     ],
-    //   },
-    // });
-
-    console.log('issuerAuthClaimIncMtp', issuerAuthClaimIncMtp);
-
-    const rs: RevocationStatus = await getRevocationStatus(
+    const revStatus: RevocationStatus = await getRevocationStatus(
       sigProof.issuerData.credentialStatus.id,
     );
-
-    const issuerAuthNonRevProof: MTProof = {
-      treeState: buildTreeState(
-        rs.issuer.state!,
-        rs.issuer.claimsTreeRoot!,
-        rs.issuer.revocationTreeRoot!,
-        rs.issuer.rootOfRoots!,
-      ),
-      proof: rs.mtp,
-    };
 
     if (!sigProof.issuerData.mtp) {
       throw new TypeError('issuer auth credential must have a mtp proof');
@@ -341,14 +310,22 @@ export const newCircuitClaimData = async (
       signatureProof: {
         signature,
         issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
-        issuerAuthNonRevProof,
+        issuerAuthNonRevProof: {
+          proof: revStatus.mtp,
+          treeState: buildTreeState(
+            revStatus.issuer.state,
+            revStatus.issuer.claimsTreeRoot,
+            revStatus.issuer.revocationTreeRoot,
+            revStatus.issuer.rootOfRoots,
+          ),
+        },
         issuerAuthIncProof: {
           proof: issuerAuthClaimIncMtp.mtp,
           treeState: buildTreeState(
-            issuerAuthClaimIncMtp.issuer.state!,
-            issuerAuthClaimIncMtp.issuer.claimsTreeRoot!,
-            issuerAuthClaimIncMtp.issuer.revocationTreeRoot!,
-            issuerAuthClaimIncMtp.issuer.rootOfRoots!,
+            issuerAuthClaimIncMtp.issuer.state,
+            issuerAuthClaimIncMtp.issuer.claimsTreeRoot,
+            issuerAuthClaimIncMtp.issuer.revocationTreeRoot,
+            issuerAuthClaimIncMtp.issuer.rootOfRoots,
           ),
         },
       },
@@ -381,7 +358,9 @@ export const toCircuitsQuery = async (
 ): Promise<Query> => {
   const prepareNonMerklizedQuery = async (): Promise<Query> => {
     const stringByPath = (
-      obj: { [key: string]: unknown },
+      // FIXME
+      // eslint-disable-next-line
+      obj: { [key: string]: any },
       path: string,
     ): string => {
       const parts = path.split('.');
@@ -532,12 +511,13 @@ export const toCircuitsQuery = async (
     const { proof, value: mtValue } = await mk.proof(path);
 
     const pathKey = await path.mtEntry();
-    parsedQuery.query.valueProof = new ValueProof();
-    parsedQuery.query.valueProof.mtp = proof;
-    parsedQuery.query.valueProof.path = pathKey;
-    parsedQuery.query.valueProof.mtp = proof;
     const mtEntry = await mtValue?.mtEntry();
-    parsedQuery.query.valueProof.value = mtEntry;
+
+    parsedQuery.query.valueProof = {
+      mtp: proof,
+      path: pathKey,
+      value: mtEntry,
+    };
 
     // for merklized credentials slotIndex in query must be equal to zero
     // and not a position of merklization root.

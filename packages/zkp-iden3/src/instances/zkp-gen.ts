@@ -15,7 +15,6 @@ import {
   defaultMTLevelsOnChain,
   defaultValueArraySize,
 } from '@/const';
-import { type Query } from '@/helpers';
 import {
   buildTreeState,
   getFileBytes,
@@ -34,6 +33,7 @@ import type {
   GISTProof,
   NodeAuxValue,
   W3CCredential,
+  Query,
 } from '@/types';
 
 type Config = {
@@ -131,6 +131,10 @@ export class ZkpGen {
 
     this.timestamp = Math.floor(Date.now() / 1000);
 
+    if (!this.circuitClaimData.signatureProof) {
+      throw new TypeError('circuitClaimData.signatureProof is not defined');
+    }
+
     this.nodeAuxIssuerAuthNonRev = getNodeAuxValue(
       this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
     );
@@ -220,6 +224,10 @@ export class ZkpGen {
   }
 
   generateQuerySigV2OnChainInputs() {
+    if (!this.circuitClaimData.signatureProof) {
+      throw new TypeError('circuitClaimData.signatureProof is not defined');
+    }
+
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
@@ -333,6 +341,10 @@ export class ZkpGen {
   }
 
   generateQuerySigV2Inputs() {
+    if (!this.circuitClaimData.signatureProof) {
+      throw new TypeError('circuitClaimData.signatureProof is not defined');
+    }
+
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
@@ -415,6 +427,10 @@ export class ZkpGen {
   }
 
   generateQueryMTPV2Inputs() {
+    if (!this.circuitClaimData.incProof) {
+      throw new TypeError('circuitClaimData.incProof is not defined');
+    }
+
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
@@ -481,6 +497,10 @@ export class ZkpGen {
   }
 
   generateQueryMTPV2OnChainInputs() {
+    if (!this.circuitClaimData.incProof) {
+      throw new TypeError('circuitClaimData.incProof is not defined');
+    }
+
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */

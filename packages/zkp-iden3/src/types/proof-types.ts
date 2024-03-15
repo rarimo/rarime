@@ -1,9 +1,8 @@
 import type { Signature } from '@iden3/js-crypto';
 import type { Claim, Id } from '@iden3/js-iden3-core';
-import type { Hash, Proof } from '@iden3/js-merkletree';
+import type { Proof, Hash } from '@iden3/js-merkletree';
 
 import type { ProofType } from '@/enums';
-import type { Query } from '@/helpers';
 
 export type CredentialStatus = {
   id: string;
@@ -78,10 +77,10 @@ export type W3CCredential = {
 export type RevocationStatus = {
   mtp: Proof;
   issuer: {
-    state?: string;
-    rootOfRoots?: string;
-    claimsTreeRoot?: string;
-    revocationTreeRoot?: string;
+    state: string;
+    rootOfRoots: string;
+    claimsTreeRoot: string;
+    revocationTreeRoot: string;
   };
 };
 
@@ -103,22 +102,10 @@ export type TreeState = {
   rootOfRoots: Hash;
 };
 
+// FIXME: used for nonRevProof, but names not appropriate
 export type ClaimNonRevStatus = {
   treeState: TreeState;
   proof: Proof;
-};
-
-export type MTProof = {
-  proof: Proof;
-  treeState?: TreeState;
-};
-
-// TODO: mb remove
-export type BJJSignatureProof = {
-  signature: Signature;
-  issuerAuthClaim?: Claim;
-  issuerAuthIncProof: MTProof;
-  issuerAuthNonRevProof: MTProof;
 };
 
 export type QueryWithFieldName = {
@@ -127,20 +114,16 @@ export type QueryWithFieldName = {
   isSelectiveDisclosure?: boolean;
 };
 
-export type SerializationSchema = {
-  indexDataSlotA: string;
-  indexDataSlotB: string;
-  valueDataSlotA: string;
-  valueDataSlotB: string;
-};
-
-export type SchemaMetadata = {
-  uris: { [key: string]: string };
-  serialization?: SerializationSchema;
-};
-
 export type JSONSchema = {
-  $metadata: SchemaMetadata;
+  $metadata: {
+    uris: { [key: string]: string };
+    serialization?: {
+      indexDataSlotA: string;
+      indexDataSlotB: string;
+      valueDataSlotA: string;
+      valueDataSlotB: string;
+    };
+  };
   $schema: string;
   type: string;
 };
@@ -167,14 +150,34 @@ export type GISTProof = {
   proof: Proof;
 };
 
-// refactored models
-
 export type CircuitClaim = {
   issuerId: Id;
   claim: Claim;
-  signatureProof?: BJJSignatureProof;
+  signatureProof?: {
+    signature: Signature;
+    issuerAuthClaim?: Claim;
+    issuerAuthIncProof: {
+      proof: Proof;
+      treeState?: TreeState;
+    };
+    issuerAuthNonRevProof: {
+      proof: Proof;
+      treeState?: TreeState;
+    };
+  };
   incProof?: {
     proof: Proof;
     treeState: TreeState;
+  };
+};
+
+export type Query = {
+  slotIndex: number;
+  values: bigint[];
+  operator: number;
+  valueProof?: {
+    path: bigint;
+    value?: bigint;
+    mtp: Proof;
   };
 };
