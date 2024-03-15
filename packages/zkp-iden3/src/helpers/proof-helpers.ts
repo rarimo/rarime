@@ -45,6 +45,18 @@ const proofFromJson = (proofJson: ProofJSON) => {
   return Proof.fromJSON(preparedProofJson);
 };
 
+export const buildTreeState = (
+  state: string,
+  claimsTreeRoot: string,
+  revocationTreeRoot: string,
+  rootOfRoots: string,
+): TreeState => ({
+  state: Hash.fromHex(state),
+  claimsRoot: Hash.fromHex(claimsTreeRoot),
+  revocationRoot: Hash.fromHex(revocationTreeRoot),
+  rootOfRoots: Hash.fromHex(rootOfRoots),
+});
+
 const getRevocationStatus = async (
   url: string,
   endianSwappedCoreStateHash?: string,
@@ -57,13 +69,11 @@ const getRevocationStatus = async (
 
   const data = await response.json();
 
-  const { issuer } = data;
-
   const mtp = proofFromJson(data.mtp);
 
   return {
     mtp,
-    issuer,
+    issuer: data.issuer,
   };
 };
 
@@ -149,17 +159,6 @@ const merklize = async (credential: W3CCredential): Promise<Merklizer> => {
 // ==========================================================================
 // helpers used in other files
 // ==========================================================================
-export const buildTreeState = (
-  state: string,
-  claimsTreeRoot: string,
-  revocationTreeRoot: string,
-  rootOfRoots: string,
-): TreeState => ({
-  state: Hash.fromHex(state),
-  claimsRoot: Hash.fromHex(claimsTreeRoot),
-  revocationRoot: Hash.fromHex(revocationTreeRoot),
-  rootOfRoots: Hash.fromHex(rootOfRoots),
-});
 
 export const getPreparedCredential = async (credential: W3CCredential) => {
   const revStatus = await getRevocationStatus(credential.credentialStatus.id);
@@ -213,12 +212,21 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
   return {
     credential,
     revStatus,
+    claimNonRevStatus: {
+      proof: revStatus.mtp,
+      treeState: buildTreeState(
+        revStatus.issuer.state,
+        revStatus.issuer.claimsTreeRoot,
+        revStatus.issuer.revocationTreeRoot,
+        revStatus.issuer.rootOfRoots,
+      ),
+    },
     mtpProofCoreClaim,
     sigProofCoreClaim,
   };
 };
 
-export const newCircuitClaimData = async (
+export const formatRawClaimToCircuitClaim = async (
   credential: W3CCredential,
   coreClaim: Claim,
   coreStateHash: string,
@@ -270,7 +278,7 @@ export const newCircuitClaimData = async (
       convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
 
-    const revStatus: RevocationStatus = await getRevocationStatus(
+    const revStatus = await getRevocationStatus(
       sigProof.issuerData.credentialStatus.id,
     );
 
@@ -364,6 +372,7 @@ export const toCircuitsQuery = async (
       field: string,
     ): Promise<Path> => {
       let resp;
+
       try {
         resp = await (await fetch(contextURL)).json();
       } catch (error) {
@@ -427,6 +436,7 @@ export const toCircuitsQuery = async (
     const loader = getDocumentLoader();
 
     let schema: object;
+
     try {
       schema = (await loader(credential.credentialSchema.id)).document;
     } catch (e) {
@@ -443,6 +453,7 @@ export const toCircuitsQuery = async (
     }
 
     const parsedQuery = await parseRequest(query.credentialSubject);
+
     parsedQuery.query.slotIndex = getFieldSlotIndex(
       parsedQuery.fieldName,
       new TextEncoder().encode(JSON.stringify(schema)),

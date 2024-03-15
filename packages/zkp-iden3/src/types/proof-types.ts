@@ -97,12 +97,11 @@ export type State = {
 
 export type TreeState = {
   state: Hash;
+  rootOfRoots: Hash;
   claimsRoot: Hash;
   revocationRoot: Hash;
-  rootOfRoots: Hash;
 };
 
-// FIXME: used for nonRevProof, but names not appropriate
 export type ClaimNonRevStatus = {
   treeState: TreeState;
   proof: Proof;
