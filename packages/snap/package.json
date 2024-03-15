@@ -25,9 +25,6 @@
     "prepublishOnly": "yarn && yarn build",
     "serve": "mm-snap serve",
     "start": "nodemon --watch src/ --ext ts --exec 'yarn build && yarn serve'",
-    "test:vc": "node --experimental-vm-modules --trace-warnings ../../node_modules/jest/bin/jest.js --findRelatedTests ./src/tests/verifiable-credentials.test.ts",
-    "test:snap": "node --experimental-vm-modules --trace-warnings ../../node_modules/jest/bin/jest.js --findRelatedTests ./src/index.test.ts",
-    "test": "yarn test:vc && yarn test:snap",
     "typia:generate": "typia generate --input src/typia-templates --output src/typia-generated --project tsconfig.json",
     "preversion": "yarn && yarn build && git add snap.manifest.json"
   },

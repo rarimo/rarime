@@ -1,6 +1,7 @@
 import { providers } from 'ethers';
+
 import { config, HOSTNAMES_WHITELIST, SUPPORTED_CHAINS } from '../config';
-import { ChainInfo } from '../types';
+import type { ChainInfo } from '../types';
 
 export const getChainInfo = (chainId: number): ChainInfo => {
   const chainInfo = SUPPORTED_CHAINS[chainId];
@@ -13,7 +14,7 @@ export const getChainInfo = (chainId: number): ChainInfo => {
 
 export const getProviderChainInfo = async (): Promise<ChainInfo> => {
   const provider = new providers.Web3Provider(
-    (ethereum as any) as providers.ExternalProvider,
+    ethereum as any as providers.ExternalProvider,
   );
   const network = await provider.getNetwork();
 

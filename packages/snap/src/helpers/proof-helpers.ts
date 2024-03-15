@@ -1,28 +1,39 @@
 /* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/prefer-for-of */
 import { Hex, Signature } from '@iden3/js-crypto';
-import type { ProofQuery } from '@rarimo/rarime-connector';
 import {
   Claim,
   DID,
   fromLittleEndian,
   MerklizedRootPosition,
 } from '@iden3/js-iden3-core';
-import {
-  Hash,
-  newHashFromBigInt,
-  newHashFromHex,
-  NodeAux,
-  Proof,
-  ZERO_HASH,
-} from '@iden3/js-merkletree';
+import type { MtValue } from '@iden3/js-jsonld-merklization';
 import {
   getDocumentLoader,
   Merklizer,
-  MtValue,
   Path,
 } from '@iden3/js-jsonld-merklization';
 import {
+  newHashFromBigInt,
+  newHashFromHex,
+  Proof,
+  ZERO_HASH,
+} from '@iden3/js-merkletree';
+import type { Hash, NodeAux } from '@iden3/js-merkletree';
+import type { ProofQuery } from '@rarimo/rarime-connector';
+
+import { getRevocationStatus, loadDataByUrl } from './credential-helpers';
+import { parseDidV2 } from './identity-helpers';
+import {
+  BJJSignatureProof2021,
+  CircuitClaim,
+  Iden3SparseMerkleTreeProof,
+  Query,
+  ValueProof,
+} from './model-helpers';
+import { QueryOperators } from '../const';
+import { ProofType } from '../enums';
+import type {
   GISTProof,
   JSONSchema,
   MTProof,
@@ -33,17 +44,6 @@ import {
   TreeState,
   W3CCredential,
 } from '../types';
-import { ProofType } from '../enums';
-import { QueryOperators } from '../const';
-import { getRevocationStatus, loadDataByUrl } from './credential-helpers';
-import {
-  BJJSignatureProof2021,
-  CircuitClaim,
-  Iden3SparseMerkleTreeProof,
-  Query,
-  ValueProof,
-} from './model-helpers';
-import { parseDidV2 } from './identity-helpers';
 
 export const extractProof = (proof: {
   [key: string]: any;
@@ -94,9 +94,8 @@ export const getCoreClaimFromProof = (
       }
     }
   } else if (typeof credentialProof === 'object') {
-    const { claim, proofType: extractedProofType } = extractProof(
-      credentialProof,
-    );
+    const { claim, proofType: extractedProofType } =
+      extractProof(credentialProof);
     if (extractedProofType === proofType) {
       return claim;
     }

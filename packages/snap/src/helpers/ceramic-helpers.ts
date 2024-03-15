@@ -1,15 +1,16 @@
+import { ComposeClient } from '@composedb/client';
+import type { RuntimeCompositeDefinition } from '@composedb/types';
+import { Hex } from '@iden3/js-crypto';
 import { DID as CeramicDID } from 'dids';
 import { Ed25519Provider } from 'key-did-provider-ed25519';
 import { getResolver } from 'key-did-resolver';
-import { Hex } from '@iden3/js-crypto';
-import { ComposeClient } from '@composedb/client';
-import type { RuntimeCompositeDefinition } from '@composedb/types';
+
 import { CERAMIC_URL } from '../config';
 
 export class CeramicProvider {
   private readonly pkHex: string;
 
-  private _compose: ComposeClient;
+  private readonly _compose: ComposeClient;
 
   constructor(pkHex: string, composeClient: ComposeClient) {
     this.pkHex = pkHex;

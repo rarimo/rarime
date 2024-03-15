@@ -7,11 +7,12 @@ import {
   idenState,
   SchemaHash,
 } from '@iden3/js-iden3-core';
-import { hashElems, InMemoryDB, Merkletree, Proof } from '@iden3/js-merkletree';
+import type { Proof } from '@iden3/js-merkletree';
+import { hashElems, InMemoryDB, Merkletree } from '@iden3/js-merkletree';
 
-import { initPrivateKey, prepareSiblingsStr } from './helpers';
 import { config } from './config';
 import { defaultMTLevels } from './const';
+import { initPrivateKey, prepareSiblingsStr } from './helpers';
 
 export type TreeState = {
   state: string;

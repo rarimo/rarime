@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/check-tag-names */
-import { Proof } from '@iden3/js-merkletree';
+import type { Proof } from '@iden3/js-merkletree';
 
 export type { SaveCredentialsRequestParams } from '@rarimo/rarime-connector';
 

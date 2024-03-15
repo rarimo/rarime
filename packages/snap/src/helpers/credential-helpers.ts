@@ -1,41 +1,44 @@
-import { Claim } from '@iden3/js-iden3-core';
-import { sha256 } from 'ethers/lib/utils';
-import { DocumentNode } from 'graphql/language';
+import type { Claim } from '@iden3/js-iden3-core';
 import type {
   CreateProofRequestParams,
   ProofQuery,
 } from '@rarimo/rarime-connector';
+import { sha256 } from 'ethers/lib/utils';
+import type { DocumentNode } from 'graphql/language';
+
+import { CeramicProvider } from './ceramic-helpers';
+import { genPkHexFromEntropy } from './identity-helpers';
+import { getCoreClaimFromProof } from './proof-helpers';
+import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
+import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
 import { ProofType, StorageKeys } from '../enums';
-import {
+import { Identity } from '../identity';
+import { getItemFromStore, setItemInStore } from '../rpc';
+import type {
   SaveCredentialsRequestParams,
-  ClearVc,
   ClearVcMutation,
   ClearVcMutationVariables,
-  CreateVc,
   CreateVcMutationVariables,
   CredentialStatus,
-  GetAllVerifiableCredentials,
   GetAllVerifiableCredentialsQuery,
   GetAllVerifiableCredentialsQueryVariables,
-  GetVerifiableCredentialsByClaimId,
   GetVerifiableCredentialsByClaimIdQuery,
   GetVerifiableCredentialsByClaimIdQueryVariables,
-  GetVerifiableCredentialsByQueryHash,
   GetVerifiableCredentialsByQueryHashQuery,
   GetVerifiableCredentialsByQueryHashQueryVariables,
   RevocationStatus,
   W3CCredential,
   GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables,
   GetVerifiableCredentialsByClaimIdAndQueryHashQuery,
+} from '../types';
+import {
+  ClearVc,
+  CreateVc,
+  GetAllVerifiableCredentials,
+  GetVerifiableCredentialsByClaimId,
+  GetVerifiableCredentialsByQueryHash,
   GetVerifiableCredentialsByClaimIdAndQueryHash,
 } from '../types';
-import { getItemFromStore, setItemInStore } from '../rpc';
-import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
-import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
-import { Identity } from '../identity';
-import { getCoreClaimFromProof } from './proof-helpers';
-import { CeramicProvider } from './ceramic-helpers';
-import { genPkHexFromEntropy } from './identity-helpers';
 
 const _SALT = 'pu?)Rx829U3ot.iB)D+z9Iyh';
 
@@ -64,7 +67,7 @@ const loadAllCredentialsListPages = async <
   Res extends
     | GetAllVerifiableCredentialsQuery
     | GetVerifiableCredentialsByClaimIdQuery
-    | GetVerifiableCredentialsByQueryHashQuery
+    | GetVerifiableCredentialsByQueryHashQuery,
 >(
   request: DocumentNode,
   variables: V,
@@ -125,7 +128,7 @@ export const getAuthenticatedCeramicProvider = async (
 export class VCManager {
   ceramicProvider: CeramicProvider;
 
-  private saltedEntropy: string;
+  private readonly saltedEntropy: string;
 
   constructor(ceramicProvider: CeramicProvider, saltedEntropy: string) {
     this.ceramicProvider = ceramicProvider;
@@ -413,11 +416,8 @@ export class VCManager {
   public async encryptAndSaveVC(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
-    const {
-      hashedOwnerDid,
-      hashedQueryHash,
-      hashedClaimId,
-    } = await this.getPreparedVCFields(credential);
+    const { hashedOwnerDid, hashedQueryHash, hashedClaimId } =
+      await this.getPreparedVCFields(credential);
 
     const encryptedVC = await this.ceramicProvider.encrypt(credential);
 
@@ -535,21 +535,20 @@ export const migrateVCsToLastCeramicModel = async () => {
 
       const ceramicVCs = await vcManager.getAllDecryptedVCs();
 
-      const vcs = [...storeCredentials, ...ceramicVCs, ...oldKeyHexVCs].reduce(
-        (acc, vc) => {
-          const isVcExist = Boolean(
-            acc.find((el) => {
-              const elId = getClaimIdFromVCId(el.id);
-              const vcId = getClaimIdFromVCId(vc.id);
+      const vcs = [...storeCredentials, ...ceramicVCs, ...oldKeyHexVCs].reduce<
+        W3CCredential[]
+      >((acc, vc) => {
+        const isVcExist = Boolean(
+          acc.find((el) => {
+            const elId = getClaimIdFromVCId(el.id);
+            const vcId = getClaimIdFromVCId(vc.id);
 
-              return elId === vcId;
-            }),
-          );
+            return elId === vcId;
+          }),
+        );
 
-          return [...acc, ...(isVcExist ? [] : [vc])];
-        },
-        [] as W3CCredential[],
-      );
+        return [...acc, ...(isVcExist ? [] : [vc])];
+      }, []);
 
       await Promise.all(
         vcs.map(async (vc) => {

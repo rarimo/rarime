@@ -1,17 +1,7 @@
 /* eslint-disable camelcase */
+import type { TransactionRequest } from '@ethersproject/providers';
 import { providers, utils } from 'ethers';
 
-import { TransactionRequest } from '@ethersproject/providers';
-import {
-  ChainInfo,
-  StateInfo,
-  OperationResponse,
-  LightweightStateV2__factory,
-  OperationProof,
-  StateProof,
-  StateV2__factory,
-} from '../types';
-import { ILightweightStateV2 } from '../types/contracts/LightweightStateV2';
 import {
   getChainInfo,
   getProviderChainInfo,
@@ -20,6 +10,15 @@ import {
   getRarimoStateContractAddress,
 } from './common-helpers';
 import { FetcherError } from './error-helper';
+import type {
+  ChainInfo,
+  StateInfo,
+  OperationResponse,
+  OperationProof,
+  StateProof,
+} from '../types';
+import { LightweightStateV2__factory, StateV2__factory } from '../types';
+import type { ILightweightStateV2 } from '../types/contracts/LightweightStateV2';
 
 export const getGISTProof = async ({
   rpcUrl,
@@ -83,7 +82,7 @@ export const getRarimoGISTRoot = async ({
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
 export const getCurrentChainGISTRoot = async (): Promise<bigint> => {
   const provider = new providers.Web3Provider(
-    (ethereum as any) as providers.ExternalProvider,
+    ethereum as any as providers.ExternalProvider,
   );
   const network = await provider.getNetwork();
   const chainInfo = getChainInfo(network.chainId);
