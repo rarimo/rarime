@@ -103,20 +103,31 @@ export class ZkpGen {
     coreStateHash: string,
     operationGistHash: string,
   ): Promise<ZKProof> {
+    // first thing first we need to get sig coreClaim and mpt coreClaim,
+    // because coreClaim - is a set of data, where user's details is encoded,
+    // and we proof exactly this data
     const preparedCredential = await getPreparedCredential(
       this.verifiableCredential,
     );
 
+    const coreClaim = {
+      [CircuitId.AtomicQuerySigV2OnChain]: preparedCredential.sigProofCoreClaim,
+      [CircuitId.AtomicQuerySigV2]: preparedCredential.sigProofCoreClaim,
+
+      [CircuitId.AtomicQueryMTPV2]: preparedCredential.mtpProofCoreClaim,
+      [CircuitId.AtomicQueryMTPV2OnChain]: preparedCredential.mtpProofCoreClaim,
+    }[this.proofRequest.circuitId];
+
     this.circuitClaimData = await newCircuitClaimData(
       preparedCredential.credential,
-      preparedCredential.credentialCoreClaim,
+      coreClaim,
       coreStateHash,
     );
 
     this.query = await toCircuitsQuery(
       this.proofRequest.query,
       preparedCredential.credential,
-      preparedCredential.credentialCoreClaim,
+      coreClaim,
     );
 
     this.nonRevProof = {

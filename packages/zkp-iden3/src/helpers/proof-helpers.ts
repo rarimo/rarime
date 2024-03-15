@@ -162,80 +162,59 @@ export const buildTreeState = (
 });
 
 export const getPreparedCredential = async (credential: W3CCredential) => {
-  const findNonRevokedCredential = async (
-    creds: W3CCredential[],
-  ): Promise<{
-    cred: W3CCredential;
-    revStatus: RevocationStatus;
-  }> => {
-    for (const cred of creds) {
-      const revStatus = await getRevocationStatus(cred.credentialStatus.id);
+  const revStatus = await getRevocationStatus(credential.credentialStatus.id);
 
-      if (revStatus.mtp.existence) {
-        continue;
-      }
+  if (revStatus.mtp.existence) {
+    throw new TypeError('credential is revoked');
+  }
 
-      return { cred, revStatus };
-    }
-    throw new Error('all claims are revoked');
-  };
+  if (!credential.proof?.length) {
+    throw new TypeError('proof is not set in credential');
+  }
 
-  const getCoreClaimFromCredential = async (
-    cred: W3CCredential,
-  ): Promise<Claim> => {
-    if (!cred.proof?.length) {
-      throw new TypeError('proof is not set in credential');
-    }
+  const sigProof = credential.proof?.find(
+    (el) => el.type === ProofType.BJJSignature,
+  );
 
-    const sigProof = cred.proof?.find(
-      (el) => el.type === ProofType.BJJSignature,
+  if (!sigProof) {
+    throw new TypeError(
+      `${ProofType.BJJSignature} proof is not set in credential`,
     );
+  }
 
-    if (!sigProof) {
-      throw new TypeError('BJJSignature proof is not set in credential');
-    }
+  const sigProofCoreClaim = new Claim().fromHex(sigProof.coreClaim);
 
-    const coreClaimFromSigProof = new Claim().fromHex(sigProof.coreClaim);
+  const mtpProof = credential.proof?.find(
+    (el) => el.type === ProofType.Iden3SparseMerkleTreeProof,
+  );
 
-    const mtpProof = cred.proof?.find(
-      (el) => el.type === ProofType.Iden3SparseMerkleTreeProof,
+  if (!mtpProof) {
+    throw new TypeError(
+      `${ProofType.Iden3SparseMerkleTreeProof} proof is not set in credential`,
     );
+  }
 
-    if (!mtpProof) {
-      throw new TypeError(
-        'Iden3SparseMerkleTreeProof proof is not set in credential',
-      );
-    }
+  const mtpProofCoreClaim = new Claim().fromHex(mtpProof?.coreClaim);
 
-    const coreClaimFromMtpProof = new Claim().fromHex(mtpProof?.coreClaim);
+  if (
+    mtpProofCoreClaim &&
+    sigProofCoreClaim &&
+    mtpProofCoreClaim.hex() !== sigProofCoreClaim.hex()
+  ) {
+    throw new TypeError(
+      'core claim representations is set in both proofs but they are not equal',
+    );
+  }
 
-    if (
-      coreClaimFromMtpProof &&
-      coreClaimFromSigProof &&
-      coreClaimFromMtpProof.hex() !== coreClaimFromSigProof.hex()
-    ) {
-      throw new Error(
-        'core claim representations is set in both proofs but they are not equal',
-      );
-    }
-
-    if (!coreClaimFromMtpProof && !coreClaimFromSigProof) {
-      throw new Error('core claim is not set in credential proofs');
-    }
-
-    return coreClaimFromMtpProof ?? coreClaimFromSigProof!;
-  };
-
-  const { cred: nonRevokedCred, revStatus } = await findNonRevokedCredential([
-    credential,
-  ]);
-
-  const credCoreClaim = await getCoreClaimFromCredential(nonRevokedCred);
+  if (!mtpProofCoreClaim && !sigProofCoreClaim) {
+    throw new TypeError('core claim is not set in proofs');
+  }
 
   return {
-    credential: nonRevokedCred,
+    credential,
     revStatus,
-    credentialCoreClaim: credCoreClaim,
+    mtpProofCoreClaim,
+    sigProofCoreClaim,
   };
 };
 
