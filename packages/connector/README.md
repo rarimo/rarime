@@ -10,7 +10,7 @@ Connector has an exposed function for installing the snap.
 async function enableSnap(
   snapOrigin?: string,
   version?: string,
-): Promise<MetamaskSnap>
+): Promise<MetamaskSnap>;
 ```
 
 After snap installation, this function returns `MetamaskSnap` object that can be used to retrieve snap connector.
@@ -35,49 +35,57 @@ isSnapInstalled(snapOrigin?: string, version?: string): Promise<boolean>
 ```
 
 ## Connector Methods
+
 ### Create an identity
+
 To create an identity you need to call this method:
+
 ```typescript
 createIdentity(): Promise<string>
 ```
+
 Returns DID.
 
 ### Get identity
+
 Returns DID in string and BigInt string formats. Throws error if the DID wasn't initialised yet.
 
 ```typescript
-const {
-  identityIdString,
-  identityIdBigIntString,
-} = await connector.getIdentity()
+const { identityIdString, identityIdBigIntString } =
+  await connector.getIdentity();
 ```
 
 or
-```typescript
-const privateKeyHex = '0x...'
 
-const {
-  identityIdString,
-  identityIdBigIntString,
-} = await connector.getIdentity({
-  privateKeyHex,
-})
+```typescript
+const privateKeyHex = '0x...';
+
+const { identityIdString, identityIdBigIntString } =
+  await connector.getIdentity({
+    privateKeyHex,
+  });
 ```
 
 Returns DID.
 
 ### Export identity
+
 To export your identity you need to call this method:
+
 ```typescript
 ExportIdentity(): Promise<string>
 ```
+
 Show Your identity private key in metamask dialog.
 
 ### Save Verifiable Credentials
+
 To save Verifiable Credentials you need to call this method with params:
+
 ```typescript
 saveCredentials(params: SaveCredentialsRequestParams): Promise<W3CCredential[]>
 ```
+
 ```typescript
 type SaveCredentialsRequestParams = {
   body: {
@@ -99,6 +107,7 @@ type SaveCredentialsRequestParams = {
 ```
 
 Returns saved Verifiable Credentials
+
 ```typescript
 type W3CCredential = {
   id: string;
@@ -127,12 +136,14 @@ type CredentialSchema = {
 ```
 
 ### Create a proof
+
 Make sure you are on the correct network before creating a proof!
 To create a proof you need to call this method with params:
 
 ```typescript
 createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>
 ```
+
 ```typescript
 type CreateProofRequestParams = {
   id?: number;
@@ -158,6 +169,7 @@ type ProofQuery = {
 ```
 
 Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
+
 ```typescript
 type ZKPProofResponse = {
   updateStateTx?: TransactionRequest; // ethers TransactionRequest
@@ -196,7 +208,8 @@ checkStateContractSync(): Promise<boolean>
 Returns true if the lightweight state contract on current chain doesn't need to be synced with the state contract on Rarimo chain.
 
 ### Get Verifiable Credentials
-* Only supported domains
+
+- Only supported domains
 
 ```typescript
 getCredentials(): Promise<W3CCredential[]>
@@ -234,6 +247,7 @@ type CredentialSchema = {
 ## Snap connector usage examples
 
 ### Create a proof
+
 ```javascript
 const connector = await snap.getConnector();
 
@@ -252,18 +266,21 @@ const proof = connector.createProof({
   },
 });
 ```
+
 where:
+
 - **circuitId**: type of proof
 - **accountAddress**(optional): Metamask user address for on-chain proofs
 - **challenge**(optional): text that will be signed
 - **query**
-	- **allowedIssuers**: types of issuers allowed
-		- **\***: all types of Issuers are allowed
-	- **context**: URL for getting the vocabulary for the credential
-	- **type**: type of credentials allowed
-	- **credentialSubject**: query request to a query circuit
+  - **allowedIssuers**: types of issuers allowed
+    - **\***: all types of Issuers are allowed
+  - **context**: URL for getting the vocabulary for the credential
+  - **type**: type of credentials allowed
+  - **credentialSubject**: query request to a query circuit
 
 ### Save Verifiable Credentials
+
 ```javascript
 const connector = await snap.getConnector();
 
@@ -285,7 +302,9 @@ const vc = connector.saveCredentials({
   type: 'https://iden3-communication.io/credentials/1.0/offer',
 });
 ```
+
 where:
+
 - **id**: request identifier
 - **thid**: ID of the message thread
 - **from**: identifier of the person from whom the offer was received
@@ -293,22 +312,27 @@ where:
 - **typ**: media type of the message. In our case, it is the type of the protocol of the packed message application/iden3comm-plain-json
 - **type**: type of iden3comm protocol message
 - **body**
-	- **credentials[0]**
-		- **description**: description of the schema
-		- **id**: credential id
-	- **url**: URL to which requested information is sent and response is received
+  - **credentials[0]**
+    - **description**: description of the schema
+    - **id**: credential id
+  - **url**: URL to which requested information is sent and response is received
 
 ### Remove Verifiable Credentials
+
 ```javascript
 await connector.removeCredentials({
-  ids: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
-  });
+  ids: [
+    'https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68',
+  ],
+});
 ```
 
 where:
+
 - **ids**: list of credential IDs to remove, e.g. `W3CCredential.id`
 
 ### Send proof to custom verifier contract
+
 ```javascript
 const connector = await snap.getConnector();
 
@@ -342,8 +366,8 @@ const data = contractInterface.encodeFunctionData('proveIdentity', [
     issuerId: proofData.statesMerkleData.issuerId,
     issuerState: proofData.statesMerkleData.state.hash,
     createdAtTimestamp: proofData.statesMerkleData.state.createdAtTimestamp,
-    merkleProof: proofData.statesMerkleData.merkleProof.map((el) =>
-      utils.arrayify(el), // utils from ethers
+    merkleProof: proofData.statesMerkleData.merkleProof.map(
+      (el) => utils.arrayify(el), // utils from ethers
     ),
   },
   proofData.zkpProof.pub_signals.map((el) => BigInt(el)),
@@ -361,5 +385,4 @@ const verifyTx = await signer.sendTransaction({
 });
 
 await verifyTx.wait();
-
 ```

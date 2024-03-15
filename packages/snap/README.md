@@ -1,47 +1,55 @@
 # RariMe
 
-RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.
+RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and Zero-Knowledge Proof technology.
 
 ## Methods
+
 ### Create an identity
+
 To create an identity you need to call this method:
+
 ```javascript
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
   params: {
-  snapId: 'snapId',
+    snapId: 'snapId',
     request: { method: 'create_identity' },
   },
 });
 ```
 
 ### Get identity
+
 Returns DID and DID in big int string format if they are exists, otherwise method throws error.
 
 ```javascript
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
   params: {
-  snapId: 'snapId',
+    snapId: 'snapId',
     request: { method: 'get_identity' },
   },
 });
 ```
 
 ### Export identity
+
 To export an identity you need to call this method:
+
 ```javascript
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
   params: {
-  snapId: 'snapId',
+    snapId: 'snapId',
     request: { method: 'export_identity' },
   },
 });
 ```
 
 ### Save Verifiable Credentials
+
 To save Verifiable Credentials you need to call this method with params:
+
 ```javascript
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
@@ -70,7 +78,9 @@ await window.ethereum.request({
   },
 });
 ```
+
 where:
+
 - **id**: request identifier
 - **thid**: ID of the message thread
 - **from**: identifier of the person from whom the offer was received
@@ -78,12 +88,13 @@ where:
 - **typ**: media type of the message. In our case, it is the type of the protocol of the packed message application/iden3comm-plain-json
 - **type**: type of iden3comm protocol message
 - **body**
-	- **credentials[0]**
-		- **description**: description of the schema
-		- **id**: credential id
-	- **url**: URL to which requested information is sent and response is received
+  - **credentials[0]**
+    - **description**: description of the schema
+    - **id**: credential id
+  - **url**: URL to which requested information is sent and response is received
 
 ### Remove Verifiable Credentials
+
 ```javascript
 return await window.ethereum.request({
   method: 'wallet_invokeSnap',
@@ -91,18 +102,22 @@ return await window.ethereum.request({
     request: {
       method: 'remove_credentials',
       params: {
-        ids: ['https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68']
-      }
+        ids: [
+          'https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68',
+        ],
+      },
     },
     snapId: 'local:http://localhost:8081',
   },
-})
+});
 ```
 
 where:
+
 - **ids**: list of claim ids to remove, e. g. `W3CCredential.id`
 
 ### Create a proof
+
 Make sure you are on the correct network before creating a proof!
 Returns ZKProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
 To create a proof you need to call this method with params:
@@ -133,17 +148,19 @@ await window.ethereum.request({
   },
 });
 ```
+
 where:
+
 - **circuitId**: type of proof
 - **accountAddress**(optional): Metamask user address for onchain proofs
 - **issuerDid**: did of the issuer trusted by the verifier
 - **challenge**(optional): text that will be signed
 - **query**
-	- **allowedIssuers**: types of issuers allowed
-		- **\***: all types of Issuers are allowed
-	- **context**: URL for getting the vocabulary for the credential
-	- **type**: type of credentials allowed
-	- **credentialSubject**: query request to a query circuit
+  - **allowedIssuers**: types of issuers allowed
+    - **\***: all types of Issuers are allowed
+  - **context**: URL for getting the vocabulary for the credential
+  - **type**: type of credentials allowed
+  - **credentialSubject**: query request to a query circuit
 
 ### Check state contract
 
@@ -153,16 +170,17 @@ Returns `true` if the state contract on current chain need to be synced:
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
   params: {
-  snapId: 'snapId',
+    snapId: 'snapId',
     request: {
-      method: 'check_state_contract_sync'
+      method: 'check_state_contract_sync',
     },
   },
 });
 ```
 
 ### Get Verifiable Credentials
-* Only supported domains
+
+- Only supported domains
 
 Return a list of Verifiable Credentials:
 
@@ -170,14 +188,13 @@ Return a list of Verifiable Credentials:
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
   params: {
-  snapId: 'snapId',
+    snapId: 'snapId',
     request: {
-      method: 'get_credentials'
+      method: 'get_credentials',
     },
   },
 });
 ```
-
 
 ## Testing
 
@@ -191,15 +208,17 @@ to run the tests in `src/index.test.ts`.
 ## Prepare ceramic json files and deploy (example)
 
 ### Prerequisites
+
 First things first, follow steps on Ceramic composeDB [guide](https://developers.ceramic.network/docs/composedb/set-up-your-environment#setup) to prepare environment and get `CERAMIC_URL` with `DID_PRIVATE_KEY` variables.
 
-
 ### Run script to prepare json files
+
 ```bash
 CERAMIC_URL=http://... DID_PRIVATE_KEY=fbb8731ecc9c36542f9caf9d9e3535c8... yarn workspace @rarimo/rarime ceramic:prepare-vc
 ```
 
 ### Run Graphql server locally
+
 ```bash
 CERAMIC_URL=http://... DID_PRIVATE_KEY=fbb8731ecc9c36542f9caf9d9e3535c8... yarn workspace @rarimo/rarime ceramic:graphql-server
 ```
