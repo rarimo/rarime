@@ -45,19 +45,6 @@ export class BJJSignatureProof2021 {
   coreClaim!: string;
 }
 
-export class CircuitClaim {
-  issuerId!: Id;
-
-  claim!: Claim;
-
-  signatureProof!: BJJSignatureProof;
-
-  incProof!: {
-    proof: Proof;
-    treeState: TreeState;
-  };
-}
-
 export class ValueProof {
   path: bigint;
 

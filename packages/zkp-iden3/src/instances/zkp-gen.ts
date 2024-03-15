@@ -15,7 +15,7 @@ import {
   defaultMTLevelsOnChain,
   defaultValueArraySize,
 } from '@/const';
-import { type CircuitClaim, type Query } from '@/helpers';
+import { type Query } from '@/helpers';
 import {
   buildTreeState,
   getFileBytes,
@@ -29,6 +29,7 @@ import {
 } from '@/helpers';
 import type { Identity } from '@/instances/identity';
 import type {
+  CircuitClaim,
   ClaimNonRevStatus,
   GISTProof,
   NodeAuxValue,
@@ -50,13 +51,15 @@ export class ZkpGen {
 
   subjectProof: ZKProof = {} as ZKProof;
 
+  // used in inputs generation
+
+  // common
+
   proofRequest: CreateProofRequest = {} as CreateProofRequest;
 
   circuitClaimData: CircuitClaim = {} as CircuitClaim;
 
   query: Query = {} as Query;
-
-  nodeAuxIssuerAuthNonRev: NodeAuxValue = {} as NodeAuxValue;
 
   nodeAuxNonRev: NodeAuxValue = {} as NodeAuxValue;
 
@@ -67,6 +70,12 @@ export class ZkpGen {
   value: string[] = [];
 
   timestamp?: number;
+
+  // used in sig proofs only
+
+  nodeAuxIssuerAuthNonRev: NodeAuxValue = {} as NodeAuxValue;
+
+  // used on chain proofs only
 
   gistProof?: GISTProof;
 

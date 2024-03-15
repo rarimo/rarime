@@ -1,7 +1,8 @@
 import type { Signature } from '@iden3/js-crypto';
-import type { Claim } from '@iden3/js-iden3-core';
+import type { Claim, Id } from '@iden3/js-iden3-core';
 import type { Hash, Proof } from '@iden3/js-merkletree';
 
+import type { ProofType } from '@/enums';
 import type { Query } from '@/helpers';
 
 export type CredentialStatus = {
@@ -11,9 +12,51 @@ export type CredentialStatus = {
   statusIssuer?: CredentialStatus;
 };
 
-export type CredentialSchema = {
+export type BJJSignatureProofRaw = {
+  type: ProofType.BJJSignature;
+  issuerData: {
+    id: string;
+    updateUrl: string;
+    state: {
+      claimsTreeRoot: string;
+      value: string;
+    };
+    authCoreClaim: string;
+    mtp: {
+      existence: boolean;
+      siblings: string[];
+    };
+    credentialStatus: {
+      id: string;
+      revocationNonce: number;
+      type: string;
+    };
+  };
+  coreClaim: string;
+  signature: string;
+};
+
+export type Iden3SparseMerkleTreeProofRaw = {
   id: string;
-  type: string;
+  type: ProofType.Iden3SparseMerkleTreeProof;
+  issuerData: {
+    id: string;
+    updateUrl: string;
+    state: {
+      txId: string;
+      blockTimestamp: number;
+      blockNumber: number;
+      rootOfRoots: string;
+      claimsTreeRoot: string;
+      revocationTreeRoot: string;
+      value: string;
+    };
+  };
+  coreClaim: string;
+  mtp: {
+    existence: boolean;
+    siblings: string[];
+  };
 };
 
 export type W3CCredential = {
@@ -25,66 +68,21 @@ export type W3CCredential = {
   credentialSubject: { [key: string]: object | string | number };
   credentialStatus: CredentialStatus;
   issuer: string;
-  credentialSchema: CredentialSchema;
-  proof?: [
-    {
-      type: 'BJJSignature2021';
-      issuerData: {
-        id: string;
-        updateUrl: string;
-        state: {
-          claimsTreeRoot: string;
-          value: string;
-        };
-        authCoreClaim: string;
-        mtp: {
-          existence: boolean;
-          siblings: string[];
-        };
-        credentialStatus: {
-          id: string;
-          revocationNonce: number;
-          type: string;
-        };
-      };
-      coreClaim: string;
-      signature: string;
-    },
-    {
-      id: string;
-      type: 'Iden3SparseMerkleTreeProof';
-      issuerData: {
-        id: string;
-        updateUrl: string;
-        state: {
-          txId: string;
-          blockTimestamp: number;
-          blockNumber: number;
-          rootOfRoots: string;
-          claimsTreeRoot: string;
-          revocationTreeRoot: string;
-          value: string;
-        };
-      };
-      coreClaim: string;
-      mtp: {
-        existence: boolean;
-        siblings: string[];
-      };
-    },
-  ];
-};
-
-export type Issuer = {
-  state?: string;
-  rootOfRoots?: string;
-  claimsTreeRoot?: string;
-  revocationTreeRoot?: string;
+  credentialSchema: {
+    id: string;
+    type: string;
+  };
+  proof?: [BJJSignatureProofRaw, Iden3SparseMerkleTreeProofRaw];
 };
 
 export type RevocationStatus = {
   mtp: Proof;
-  issuer: Issuer;
+  issuer: {
+    state?: string;
+    rootOfRoots?: string;
+    claimsTreeRoot?: string;
+    revocationTreeRoot?: string;
+  };
 };
 
 export type State = {
@@ -115,6 +113,7 @@ export type MTProof = {
   treeState?: TreeState;
 };
 
+// TODO: mb remove
 export type BJJSignatureProof = {
   signature: Signature;
   issuerAuthClaim?: Claim;
@@ -166,4 +165,16 @@ export type StateProof = {
 export type GISTProof = {
   root: Hash;
   proof: Proof;
+};
+
+// refactored models
+
+export type CircuitClaim = {
+  issuerId: Id;
+  claim: Claim;
+  signatureProof?: BJJSignatureProof;
+  incProof?: {
+    proof: Proof;
+    treeState: TreeState;
+  };
 };

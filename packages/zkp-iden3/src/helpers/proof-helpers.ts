@@ -13,23 +13,17 @@ import {
   Merklizer,
   Path,
 } from '@iden3/js-jsonld-merklization';
-import { Hash, Proof, ZERO_HASH } from '@iden3/js-merkletree';
 import type { NodeAux, ProofJSON } from '@iden3/js-merkletree';
+import { Hash, Proof, ZERO_HASH } from '@iden3/js-merkletree';
 import type { ProofQuery } from '@rarimo/rarime-connector';
 import get from 'lodash/get';
 
 import { QueryOperators } from '@/const';
 import { ProofType } from '@/enums';
 import { parseDidV2 } from '@/helpers/identity-helpers';
-import {
-  BJJSignatureProof2021,
-  CircuitClaim,
-  Iden3SparseMerkleTreeProof,
-  Query,
-  ValueProof,
-} from '@/helpers/model-helpers';
+import { Query, ValueProof } from '@/helpers/model-helpers';
 import type {
-  CredentialStatus,
+  CircuitClaim,
   GISTProof,
   JSONSchema,
   MTProof,
@@ -51,9 +45,14 @@ const proofFromJson = (proofJson: ProofJSON) => {
 };
 
 const getRevocationStatus = async (
-  credStatus: CredentialStatus,
+  url: string,
+  endianSwappedCoreStateHash?: string,
 ): Promise<RevocationStatus> => {
-  const response = await fetch(credStatus.id);
+  const response = await fetch(
+    endianSwappedCoreStateHash
+      ? `${url}?state=${endianSwappedCoreStateHash}`
+      : url,
+  );
 
   const data = await response.json();
 
@@ -65,52 +64,6 @@ const getRevocationStatus = async (
     mtp,
     issuer,
   };
-};
-
-// TODO: why `defaultProofType` returns Iden3SparseMerkleTreeProof | BJJSignatureProof2021, but `ifs` aint works
-const extractProof = (
-  proof:
-    | Iden3SparseMerkleTreeProof
-    | BJJSignatureProof2021
-    | Record<string, unknown>,
-): { claim: Claim; proofType: ProofType } => {
-  if (proof instanceof Iden3SparseMerkleTreeProof) {
-    return {
-      claim: new Claim().fromHex(proof.coreClaim),
-      proofType: ProofType.Iden3SparseMerkleTreeProof,
-    };
-  }
-
-  if (proof instanceof BJJSignatureProof2021) {
-    return {
-      claim: new Claim().fromHex(proof.coreClaim),
-      proofType: ProofType.BJJSignature,
-    };
-  }
-
-  if (typeof proof === 'object') {
-    // BJJSignature2021 | Iden3SparseMerkleTreeProof
-    const defaultProofType = get(proof, 'type', '') as string;
-
-    if (!defaultProofType) {
-      throw new TypeError('proof type is not specified');
-    }
-
-    const coreClaimHex = get(proof, 'coreClaim', '') as string;
-
-    if (!coreClaimHex) {
-      throw new TypeError(
-        `coreClaim field is not defined in proof type ${defaultProofType}`,
-      );
-    }
-
-    return {
-      claim: new Claim().fromHex(coreClaimHex),
-      proofType: defaultProofType as ProofType,
-    };
-  }
-
-  throw new TypeError('proof format is not supported');
 };
 
 const convertEndianSwappedCoreStateHashHex = (hash: string) => {
@@ -205,13 +158,11 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
     revStatus: RevocationStatus;
   }> => {
     for (const cred of creds) {
-      const revStatus = await getRevocationStatus(cred.credentialStatus);
+      const revStatus = await getRevocationStatus(cred.credentialStatus.id);
 
       if (revStatus.mtp.existence) {
         continue;
       }
-
-      console.log('found revoked');
 
       return { cred, revStatus };
     }
@@ -221,40 +172,31 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
   const getCoreClaimFromCredential = async (
     cred: W3CCredential,
   ): Promise<Claim> => {
-    const getCoreClaimFromProof = (
-      credentialProof: Pick<W3CCredential, 'proof'>,
-      proofType: ProofType,
-    ): Claim | null => {
-      if (Array.isArray(credentialProof)) {
-        for (const proof of credentialProof) {
-          const { claim, proofType: extractedProofType } = extractProof(proof);
-          if (proofType === extractedProofType) {
-            return claim;
-          }
-        }
-      } else if (typeof credentialProof === 'object') {
-        const { claim, proofType: extractedProofType } =
-          extractProof(credentialProof);
-        if (extractedProofType === proofType) {
-          return claim;
-        }
-      }
-      return null;
-    };
-
-    if (!cred.proof) {
+    if (!cred.proof?.length) {
       throw new TypeError('proof is not set in credential');
     }
 
-    const coreClaimFromSigProof = getCoreClaimFromProof(
-      cred.proof,
-      ProofType.BJJSignature,
+    const sigProof = cred.proof?.find(
+      (el) => el.type === ProofType.BJJSignature,
     );
 
-    const coreClaimFromMtpProof = getCoreClaimFromProof(
-      cred.proof,
-      ProofType.Iden3SparseMerkleTreeProof,
+    if (!sigProof) {
+      throw new TypeError('BJJSignature proof is not set in credential');
+    }
+
+    const coreClaimFromSigProof = new Claim().fromHex(sigProof.coreClaim);
+
+    const mtpProof = cred.proof?.find(
+      (el) => el.type === ProofType.Iden3SparseMerkleTreeProof,
     );
+
+    if (!mtpProof) {
+      throw new TypeError(
+        'Iden3SparseMerkleTreeProof proof is not set in credential',
+      );
+    }
+
+    const coreClaimFromMtpProof = new Claim().fromHex(mtpProof?.coreClaim);
 
     if (
       coreClaimFromMtpProof &&
@@ -270,9 +212,7 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
       throw new Error('core claim is not set in credential proofs');
     }
 
-    const coreClaim = coreClaimFromMtpProof ?? coreClaimFromSigProof!;
-
-    return coreClaim;
+    return coreClaimFromMtpProof ?? coreClaimFromSigProof!;
   };
 
   const { cred: nonRevokedCred, revStatus } = await findNonRevokedCredential([
@@ -293,101 +233,87 @@ export const newCircuitClaimData = async (
   coreClaim: Claim,
   coreStateHash: string,
 ): Promise<CircuitClaim> => {
-  const getBJJSignature2021Proof = (
-    credentialProof: object | any[],
-  ): BJJSignatureProof2021 | null => {
-    const proofType: ProofType = ProofType.BJJSignature;
-    if (Array.isArray(credentialProof)) {
-      for (const proof of credentialProof) {
-        const { proofType: extractedProofType } = extractProof(proof);
-        if (proofType === extractedProofType) {
-          return proof as BJJSignatureProof2021;
-        }
-      }
-    } else if (typeof credentialProof === 'object') {
-      const { proofType: extractedProofType } = extractProof(credentialProof);
-      if (extractedProofType === proofType) {
-        return credentialProof as BJJSignatureProof2021;
-      }
-    }
-    return null;
-  };
-
-  const getIden3SparseMerkleTreeProof = (
-    credentialProof: object | any[],
-  ): Iden3SparseMerkleTreeProof | null => {
-    const proofType: ProofType = ProofType.Iden3SparseMerkleTreeProof;
-    if (Array.isArray(credentialProof)) {
-      for (const proof of credentialProof) {
-        const { proofType: extractedProofType } = extractProof(proof);
-        if (proofType === extractedProofType) {
-          return proof as Iden3SparseMerkleTreeProof;
-        }
-      }
-    } else if (typeof credentialProof === 'object') {
-      const { proofType: extractedProofType } = extractProof(credentialProof);
-      if (extractedProofType === proofType) {
-        return credentialProof as Iden3SparseMerkleTreeProof;
-      }
-    }
-    return null;
-  };
-
-  const loadDataByUrl = async (
-    url: string,
-    endianSwappedCoreStateHash?: string,
-  ) => {
-    const response = await fetch(
-      endianSwappedCoreStateHash
-        ? `${url}?state=${endianSwappedCoreStateHash}`
-        : url,
-    );
-
-    if (!response.ok) {
-      const message = `An error has occured: ${response.status}`;
-      throw new Error(message);
-    }
-
-    return await response.json();
-  };
-
-  const circuitClaim = new CircuitClaim();
-  circuitClaim.claim = coreClaim;
+  let circuitClaim: CircuitClaim;
 
   const issuerDid = parseDidV2(credential.issuer);
 
-  circuitClaim.issuerId = DID.idFromDID(issuerDid);
+  circuitClaim = {
+    claim: coreClaim,
+    issuerId: DID.idFromDID(issuerDid),
+  };
 
-  const smtProof = getIden3SparseMerkleTreeProof(credential.proof!);
+  const smtProof = credential.proof?.find(
+    (el) => el.type === ProofType.Iden3SparseMerkleTreeProof,
+  );
 
   if (smtProof) {
-    const data = await loadDataByUrl(
+    const revStatus = await getRevocationStatus(
       smtProof.id,
       convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
 
-    circuitClaim.incProof = {
-      proof: proofFromJson(data.mtp),
-      treeState: buildTreeState(
-        data.issuer.state,
-        data.issuer.claimsTreeRoot,
-        data.issuer.revocationTreeRoot,
-        data.issuer.rootOfRoots,
-      ),
+    console.log('smtProof, data: ', revStatus);
+
+    circuitClaim = {
+      ...circuitClaim,
+      // incProof === smtProf
+      incProof: {
+        proof: revStatus.mtp,
+        treeState: buildTreeState(
+          revStatus.issuer.state,
+          revStatus.issuer.claimsTreeRoot,
+          revStatus.issuer.revocationTreeRoot,
+          revStatus.issuer.rootOfRoots,
+        ),
+      },
     };
   }
 
-  const sigProof = getBJJSignature2021Proof(credential.proof!);
+  const sigProof = credential.proof?.find(
+    (el) => el.type === ProofType.BJJSignature,
+  );
 
   if (sigProof) {
     const decodedSignature = Hex.decodeString(sigProof.signature);
     const signature = Signature.newFromCompressed(decodedSignature);
-    const issuerAuthClaimIncMtp = await loadDataByUrl(
+
+    const issuerAuthClaimIncMtp = await getRevocationStatus(
       sigProof.issuerData.updateUrl,
       convertEndianSwappedCoreStateHashHex(coreStateHash),
     );
+
+    // console.log({
+    //   issuer: {
+    //     claimsTreeRoot:
+    //       '1a8fbdad9eaf8702e569bc5c1bd988baa14469982744f89a46543bc33043511f',
+    //     revocationTreeRoot:
+    //       'eacc453b6b3d987e92e388666bebf5747ac918c22425fcc2c0207591c5d07822',
+    //     rootOfRoots:
+    //       '7c98f890aa1ab4fb52f7ab80cde62ce3e79bdc32dea4a97dd2b9717786a20f1b',
+    //     state:
+    //       '5ce0bdc7302eacde7da5db124f7ffce064479c7f59945b561b9f1984b308bd22',
+    //   },
+    //   mtp: {
+    //     existence: true,
+    //     siblings: [
+    //       '12093648908151120008052400909983258657552456266206697304620000445575205299483',
+    //       '21207046084208924821615313824986664896343424734449779018426019923028527893512',
+    //       '2650766217307169652346299538052870810256415910274979821667202646242371010646',
+    //       '3940160070763561296886138749041017192490236508112256863100410822822127805105',
+    //       '1488336216580447661974529389680263071193229863568905848735299764005998493025',
+    //       '11818731402331560172832129751709360787097755860909631916313928838796177663844',
+    //       '8184543025293941192968566111354234433242540077051388134300485218432794255114',
+    //       '0',
+    //       '14185129435883483469188834471252788770088609928909097596128219973907887252238',
+    //       '11618884846836233701534192031149078459646746176490461254607602387970783513937',
+    //     ],
+    //   },
+    // });
+
+    console.log('issuerAuthClaimIncMtp', issuerAuthClaimIncMtp);
+
     const rs: RevocationStatus = await getRevocationStatus(
-      sigProof.issuerData.credentialStatus!,
+      sigProof.issuerData.credentialStatus.id,
     );
 
     const issuerAuthNonRevProof: MTProof = {
@@ -399,6 +325,7 @@ export const newCircuitClaimData = async (
       ),
       proof: rs.mtp,
     };
+
     if (!sigProof.issuerData.mtp) {
       throw new TypeError('issuer auth credential must have a mtp proof');
     }
@@ -409,19 +336,22 @@ export const newCircuitClaimData = async (
       );
     }
 
-    circuitClaim.signatureProof = {
-      signature,
-      issuerAuthIncProof: {
-        proof: proofFromJson(issuerAuthClaimIncMtp.mtp),
-        treeState: buildTreeState(
-          issuerAuthClaimIncMtp.issuer.state!,
-          issuerAuthClaimIncMtp.issuer.claimsTreeRoot!,
-          issuerAuthClaimIncMtp.issuer.revocationTreeRoot!,
-          issuerAuthClaimIncMtp.issuer.rootOfRoots!,
-        ),
+    circuitClaim = {
+      ...circuitClaim,
+      signatureProof: {
+        signature,
+        issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
+        issuerAuthNonRevProof,
+        issuerAuthIncProof: {
+          proof: issuerAuthClaimIncMtp.mtp,
+          treeState: buildTreeState(
+            issuerAuthClaimIncMtp.issuer.state!,
+            issuerAuthClaimIncMtp.issuer.claimsTreeRoot!,
+            issuerAuthClaimIncMtp.issuer.revocationTreeRoot!,
+            issuerAuthClaimIncMtp.issuer.rootOfRoots!,
+          ),
+        },
       },
-      issuerAuthClaim: new Claim().fromHex(sigProof.issuerData.authCoreClaim),
-      issuerAuthNonRevProof,
     };
   }
 
