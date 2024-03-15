@@ -8,20 +8,23 @@ Tools that generate zero-knowledge proofs for the Iden3 protocol.
 ![checks](https://badgen.net/github/checks/rarimo/rarime/main)
 
 ## Introduction
+
 `@rarimo/zkp-iden3` is a library that provides strict set of tools to work with `iden3` protocol. It allows to create an identity, get Verifiable Credentials and generate a proof and verify it.
 
 ## Getting Started
 
 ### Installation
+
 ```
 yarn add @rarimo/zkp-iden3
 ```
 
 ### Creating Identity
-```ts
-import { Identity } from '@rarimo/zkp-iden3'
 
-const PK = 'your_private_key'
+```ts
+import { Identity } from '@rarimo/zkp-iden3';
+
+const PK = 'your_private_key';
 const AUTH_BJJ_CREDENTIAL_HASH = 'cca3371a6cb1b715004407e325bd993c';
 const ID_TYPE = Uint8Array.from([1, 0]);
 
@@ -31,13 +34,15 @@ const identity = Identity.create(
     schemaHashHex: AUTH_BJJ_CREDENTIAL_HASH,
   },
   PK,
-)
+);
 ```
 
 ### Generate Auth Proof and getting VerifiableCredentials
+
 Note, that you should already have a `ClaimOffer`, which `issuer` issued to you.
+
 ```ts
-import { AuthZkp } from '@rarimo/zkp-iden3'
+import { AuthZkp } from '@rarimo/zkp-iden3';
 
 const chainInfo: ChainZkpInfo = {
   targetChainId: 11155111,
@@ -65,6 +70,7 @@ vcs = await authProof.getVerifiableCredentials(); // W3CCredential[]
 ```
 
 ### Generate Proof
+
 ```ts
 // const isSynced = await checkIfStateSynced(chainInfo)
 
@@ -144,6 +150,7 @@ const zkpProof = await zkpGen.generateProof(
 ```
 
 ## Known Issues
+
 Just because `iden3` libraries is developed for node, you need to follow next steps in your client:
 
 First thing first, add the following packages to your project, because it marked as `peerDependencies`:
@@ -153,16 +160,36 @@ yarn add util ejc snarkjs @iden3/js-iden3-core @iden3/js-jwz @iden3/js-crypto @i
 ```
 
 Then, ddd this aliases to your client app build config, especially if you are using ViteJs
+
 ```ts
 [
   { find: 'util', replacement: '[path/to/node_modules]/util/util.js' },
   { find: 'ejc', replacement: '[path/to/node_modules]/ejs/ejs.min.js' },
-  { find: 'snarkjs', replacement: '[path/to/node_modules]/snarkjs/build/snarkjs.min.js' },
-  { find: '@iden3/js-iden3-core', replacement: "[path/to/node_modules]/@iden3/js-iden3-core/dist/browser/esm/index.js" },
-  { find: '@iden3/js-jwz', replacement: "[path/to/node_modules]/@iden3/js-jwz/dist/browser/esm/index.js" },
-  { find: '@iden3/js-crypto', replacement: "[path/to/node_modules]/@iden3/js-crypto/dist/browser/esm/index.js" },
-  { find: '@iden3/js-jsonld-merklization', replacement: "[path/to/node_modules]/@iden3/js-jsonld-merklization/dist/browser/esm/index.js" }
-]
+  {
+    find: 'snarkjs',
+    replacement: '[path/to/node_modules]/snarkjs/build/snarkjs.min.js',
+  },
+  {
+    find: '@iden3/js-iden3-core',
+    replacement:
+      '[path/to/node_modules]/@iden3/js-iden3-core/dist/browser/esm/index.js',
+  },
+  {
+    find: '@iden3/js-jwz',
+    replacement:
+      '[path/to/node_modules]/@iden3/js-jwz/dist/browser/esm/index.js',
+  },
+  {
+    find: '@iden3/js-crypto',
+    replacement:
+      '[path/to/node_modules]/@iden3/js-crypto/dist/browser/esm/index.js',
+  },
+  {
+    find: '@iden3/js-jsonld-merklization',
+    replacement:
+      '[path/to/node_modules]/@iden3/js-jsonld-merklization/dist/browser/esm/index.js',
+  },
+];
 ```
 
 ## License

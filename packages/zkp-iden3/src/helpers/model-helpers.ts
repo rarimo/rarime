@@ -1,13 +1,7 @@
-import type { Claim, Id } from '@iden3/js-iden3-core';
 import { Proof } from '@iden3/js-merkletree';
 
 import type { ProofType } from '@/enums';
-import type {
-  BJJSignatureProof,
-  CredentialStatus,
-  State,
-  TreeState,
-} from '@/types';
+import type { CredentialStatus, State } from '@/types';
 
 export class IssuerData {
   id!: string;

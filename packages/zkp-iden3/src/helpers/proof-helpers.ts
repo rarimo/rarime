@@ -92,7 +92,7 @@ const parseRequest = async (req?: {
 
   const [fieldName, fieldReq] = entries[0];
 
-  const fieldReqEntries = Object.entries<any>(fieldReq);
+  const fieldReqEntries = Object.entries(fieldReq);
 
   if (fieldReqEntries.length > 1) {
     throw new TypeError(`multiple predicates for one field not supported`);
