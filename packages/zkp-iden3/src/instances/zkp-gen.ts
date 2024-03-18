@@ -247,6 +247,7 @@ export class ZkpGen {
     return circuits;
   }
 
+  // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQuerySigV2OnChain.go#L48
   generateQuerySigV2OnChainInputs() {
     if (!this.circuitClaim.signatureProof) {
       throw new TypeError('circuitClaimData.signatureProof is not defined');
@@ -361,6 +362,7 @@ export class ZkpGen {
     });
   }
 
+  // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQuerySigV2.go#L35
   generateQuerySigV2Inputs() {
     if (!this.circuitClaim.signatureProof) {
       throw new TypeError('circuitClaimData.signatureProof is not defined');
@@ -444,6 +446,7 @@ export class ZkpGen {
     });
   }
 
+  // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQueryMTPV2.go#L34
   generateQueryMTPV2Inputs() {
     if (!this.circuitClaim.incProof) {
       throw new TypeError('circuitClaimData.incProof is not defined');
@@ -511,6 +514,7 @@ export class ZkpGen {
     });
   }
 
+  // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQueryMTPV2OnChain.go#L46
   generateQueryMTPV2OnChainInputs() {
     if (!this.circuitClaim.incProof) {
       throw new TypeError('circuitClaimData.incProof is not defined');
