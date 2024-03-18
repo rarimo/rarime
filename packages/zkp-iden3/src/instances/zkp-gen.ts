@@ -88,7 +88,7 @@ export class ZkpGen {
     coreStateHash: string,
     operationGistHash: string,
   ): Promise<ZKProof> {
-    // first thing first we need to get sig coreClaim and mpt coreClaim,
+    // first thing first we need to get sig coreClaim and MTP coreClaim,
     // because coreClaim - is a set of data, where user's details is encoded,
     // and we proof exactly this data
     const { revStatus, coreClaim } = await checkVCAndGetCoreClaim(
@@ -105,7 +105,7 @@ export class ZkpGen {
     );
 
     this.commonInputsDetails = {
-      // If we here, that means proof is not in revocation tree,
+      // If we here, that means claim's revocation nonce is not in the revocation tree,
       // it could be named as "non revocation proof" (nonRevProof, ...etc)
       // We need it to populate inputs later, so let's save it
       claimNonRevStatus: revStatus,
@@ -176,8 +176,9 @@ export class ZkpGen {
       throw new TypeError('circuitClaimData.signatureProof is not defined');
     }
 
-    // preparedCredential.revStatus - says, that proof is not a part of revocation tree
-    // and we need to prepare aux data, to prove it
+    // preparedCredential.revStatus - says,
+    // that claim's revocation nonce is not in the revocation tree.
+    // And we need to prepare aux data, to prove it
     // these aux variables also need to populate inputs later
     const nodeAuxIssuerAuthNonRev = getNodeAuxValue(
       this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthNonRevProof
