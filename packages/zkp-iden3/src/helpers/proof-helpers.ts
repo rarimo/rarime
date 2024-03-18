@@ -167,7 +167,7 @@ const merklize = async (credential: W3CCredential): Promise<Merklizer> => {
 // helpers used in other files
 // ==========================================================================
 
-export const getPreparedCredential = async (credential: W3CCredential) => {
+export const checkVCAndGetClaims = async (credential: W3CCredential) => {
   const revStatus = await getRevocationStatus(credential.credentialStatus.id);
 
   if (revStatus.mtp.existence) {
@@ -217,7 +217,6 @@ export const getPreparedCredential = async (credential: W3CCredential) => {
   }
 
   return {
-    credential,
     revStatus,
     mtpProofCoreClaim,
     sigProofCoreClaim,

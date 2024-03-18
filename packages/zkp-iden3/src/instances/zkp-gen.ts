@@ -18,7 +18,7 @@ import {
 import {
   getFileBytes,
   getNodeAuxValue,
-  getPreparedCredential,
+  checkVCAndGetClaims,
   formatRawClaimToCircuitClaim,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
@@ -105,26 +105,26 @@ export class ZkpGen {
     // first thing first we need to get sig coreClaim and mpt coreClaim,
     // because coreClaim - is a set of data, where user's details is encoded,
     // and we proof exactly this data
-    const preparedCredential = await getPreparedCredential(
-      this.verifiableCredential,
-    );
+    const { revStatus, sigProofCoreClaim, mtpProofCoreClaim } =
+      await checkVCAndGetClaims(this.verifiableCredential);
 
-    // If we here, that means proof ain't in revocation tree, it could be called non revocation proof (nonRevProof, ...etc)
+    // If we here, that means proof ain't in revocation tree,
+    // it could be named as "non revocation proof" (nonRevProof, ...etc)
     // We need it to populate inputs later, so let's save it
-    this.claimNonRevStatus = preparedCredential.revStatus;
+    this.claimNonRevStatus = revStatus;
 
     const coreClaim = {
-      [CircuitId.AtomicQuerySigV2OnChain]: preparedCredential.sigProofCoreClaim,
-      [CircuitId.AtomicQuerySigV2]: preparedCredential.sigProofCoreClaim,
+      [CircuitId.AtomicQuerySigV2OnChain]: sigProofCoreClaim,
+      [CircuitId.AtomicQuerySigV2]: sigProofCoreClaim,
 
-      [CircuitId.AtomicQueryMTPV2]: preparedCredential.mtpProofCoreClaim,
-      [CircuitId.AtomicQueryMTPV2OnChain]: preparedCredential.mtpProofCoreClaim,
+      [CircuitId.AtomicQueryMTPV2]: mtpProofCoreClaim,
+      [CircuitId.AtomicQueryMTPV2OnChain]: mtpProofCoreClaim,
     }[this.proofRequest.circuitId];
 
     // After defining core claim, we need to format it in a way,
     // that it can be used in the circuit, e. g. to @iden3 libs understand it
     this.circuitClaim = await formatRawClaimToCircuitClaim(
-      preparedCredential.credential,
+      this.verifiableCredential,
       coreClaim,
       coreStateHash,
     );
@@ -133,7 +133,7 @@ export class ZkpGen {
     // that it is valid according to scheme in verifiable credential
     this.query = await toCircuitsQuery(
       this.proofRequest.query,
-      preparedCredential.credential,
+      this.verifiableCredential,
       coreClaim,
     );
 
@@ -143,20 +143,31 @@ export class ZkpGen {
       throw new TypeError('circuitClaimData.signatureProof is not defined');
     }
 
+    // preparedCredential.revStatus - says, that proof is not a part of revocation tree
+    // and we need to prepare aux data, to prove it
+    // these aux variables also need to populate inputs later
     this.nodeAuxIssuerAuthNonRev = getNodeAuxValue(
       this.circuitClaim.signatureProof.issuerAuthNonRevProof.proof,
     );
     this.nodeAuxNonRev = getNodeAuxValue(this.claimNonRevStatus.mtp);
     this.nodAuxJSONLD = getNodeAuxValue(this.query.valueProof!.mtp);
+
+    // after we prepared query, here will be a list of values,
+    // which we need to prove later
     this.value = prepareCircuitArrayValues(
       this.query.values,
       defaultValueArraySize,
     ).map((a) => a.toString());
 
+    // https://docs.iden3.io/protocol/spec/#identity-profiles-new
+    // In case if circuit is on chain,
     if (
       this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
       this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
     ) {
+      // Get GIST details from core state contract,
+      // it's necessary, because we replicate state in target network,
+      // and proof should be matched in both state contracts
       const gistInfo = await getGISTProof({
         rpcUrl: this.config.chainInfo.rarimoEvmRpcApiUrl,
         contractAddress: this.config.chainInfo.rarimoStateContractAddress,
@@ -165,6 +176,7 @@ export class ZkpGen {
       });
       this.gistProof = toGISTProof(gistInfo);
 
+      // Used to verify that the provided proof belongs to the existing user session, e.g. account address
       const challenge = fromLittleEndian(
         Hex.decodeString(this.proofRequest.accountAddress!.substring(2)),
       ).toString();
@@ -174,17 +186,21 @@ export class ZkpGen {
         this.challenge,
       );
 
+      // Used to verify that issuer details exist in the global state
       this.globalNodeAux = getNodeAuxValue(this.gistProof.proof);
       this.nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
     }
 
+    // generate inputs according to circuit id
     const circuiInfo = this.getCircuitInfo();
 
+    // get circuit files for proof generating
     const [wasm, provingKey] = await Promise.all([
       getFileBytes(circuiInfo.wasm, this.config.loadingCircuitCb),
       getFileBytes(circuiInfo.finalKey, this.config.loadingCircuitCb),
     ]);
 
+    // generate proof
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
       new TextEncoder().encode(circuiInfo.generateInputFn()),
       provingKey,
