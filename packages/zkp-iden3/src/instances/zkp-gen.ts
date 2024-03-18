@@ -18,7 +18,7 @@ import {
 import {
   getFileBytes,
   getNodeAuxValue,
-  checkVCAndGetClaims,
+  checkVCAndGetCoreClaim,
   formatRawClaimToCircuitClaim,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
@@ -41,50 +41,36 @@ type Config = {
   circuitsUrls: Record<CircuitId, { wasmUrl: string; keyUrl: string }>;
 };
 
+type CommonInputsDetails = {
+  circuitClaim: CircuitClaim;
+  query: Query;
+  nodeAuxNonRev: NodeAuxValue;
+  nodAuxJSONLD: NodeAuxValue;
+  claimNonRevStatus: RevocationStatus;
+  value: string[];
+  timestamp?: number;
+};
+
+type OnChainInputDetails = {
+  gistProof: GISTProof;
+  challenge: bigint;
+  signatureChallenge: Signature;
+  globalNodeAux: NodeAuxValue;
+  nodeAuxAuth: NodeAuxValue;
+};
+
 export class ZkpGen {
   config: Config;
 
-  identity: Identity = {} as Identity;
+  identity: Identity;
 
-  verifiableCredential: W3CCredential = {} as W3CCredential;
+  verifiableCredential: W3CCredential;
 
-  subjectProof: ZKProof = {} as ZKProof;
+  subjectProof?: ZKProof;
 
-  // used in inputs generation
+  proofRequest: CreateProofRequest;
 
-  // common
-
-  proofRequest: CreateProofRequest = {} as CreateProofRequest;
-
-  circuitClaim: CircuitClaim = {} as CircuitClaim;
-
-  query: Query = {} as Query;
-
-  nodeAuxNonRev: NodeAuxValue = {} as NodeAuxValue;
-
-  nodAuxJSONLD: NodeAuxValue = {} as NodeAuxValue;
-
-  claimNonRevStatus: RevocationStatus = {} as RevocationStatus;
-
-  value: string[] = [];
-
-  timestamp?: number;
-
-  // used in sig proofs only
-
-  nodeAuxIssuerAuthNonRev: NodeAuxValue = {} as NodeAuxValue;
-
-  // used on chain proofs only
-
-  gistProof?: GISTProof;
-
-  challenge?: bigint;
-
-  signatureChallenge?: Signature;
-
-  globalNodeAux?: NodeAuxValue;
-
-  nodeAuxAuth?: NodeAuxValue;
+  commonInputsDetails?: CommonInputsDetails;
 
   constructor(
     identity: Identity,
@@ -105,104 +91,73 @@ export class ZkpGen {
     // first thing first we need to get sig coreClaim and mpt coreClaim,
     // because coreClaim - is a set of data, where user's details is encoded,
     // and we proof exactly this data
-    const { revStatus, sigProofCoreClaim, mtpProofCoreClaim } =
-      await checkVCAndGetClaims(this.verifiableCredential);
-
-    // If we here, that means proof ain't in revocation tree,
-    // it could be named as "non revocation proof" (nonRevProof, ...etc)
-    // We need it to populate inputs later, so let's save it
-    this.claimNonRevStatus = revStatus;
-
-    const coreClaim = {
-      [CircuitId.AtomicQuerySigV2OnChain]: sigProofCoreClaim,
-      [CircuitId.AtomicQuerySigV2]: sigProofCoreClaim,
-
-      [CircuitId.AtomicQueryMTPV2]: mtpProofCoreClaim,
-      [CircuitId.AtomicQueryMTPV2OnChain]: mtpProofCoreClaim,
-    }[this.proofRequest.circuitId];
-
-    // After defining core claim, we need to format it in a way,
-    // that it can be used in the circuit, e. g. to @iden3 libs understand it
-    this.circuitClaim = await formatRawClaimToCircuitClaim(
+    const { revStatus, coreClaim } = await checkVCAndGetCoreClaim(
       this.verifiableCredential,
-      coreClaim,
-      coreStateHash,
+      this.proofRequest.circuitId,
     );
 
     // Now, based on query, provided by requestor, we need to ensure,
     // that it is valid according to scheme in verifiable credential
-    this.query = await toCircuitsQuery(
+    const query = await toCircuitsQuery(
       this.proofRequest.query,
       this.verifiableCredential,
       coreClaim,
     );
 
-    this.timestamp = Math.floor(Date.now() / 1000);
+    this.commonInputsDetails = {
+      // If we here, that means proof is not in revocation tree,
+      // it could be named as "non revocation proof" (nonRevProof, ...etc)
+      // We need it to populate inputs later, so let's save it
+      claimNonRevStatus: revStatus,
 
-    if (!this.circuitClaim.signatureProof) {
-      throw new TypeError('circuitClaimData.signatureProof is not defined');
-    }
+      // After defining core claim, we need to format it in a way,
+      // that it can be used in the circuit, e. g. to @iden3 libs understand it
+      circuitClaim: await formatRawClaimToCircuitClaim(
+        this.verifiableCredential,
+        coreClaim,
+        coreStateHash,
+      ),
 
-    // preparedCredential.revStatus - says, that proof is not a part of revocation tree
-    // and we need to prepare aux data, to prove it
-    // these aux variables also need to populate inputs later
-    this.nodeAuxIssuerAuthNonRev = getNodeAuxValue(
-      this.circuitClaim.signatureProof.issuerAuthNonRevProof.proof,
-    );
-    this.nodeAuxNonRev = getNodeAuxValue(this.claimNonRevStatus.mtp);
-    this.nodAuxJSONLD = getNodeAuxValue(this.query.valueProof!.mtp);
+      // Now, based on query, provided by requestor, we need to ensure,
+      // that it is valid according to scheme in verifiable credential
+      query,
 
-    // after we prepared query, here will be a list of values,
-    // which we need to prove later
-    this.value = prepareCircuitArrayValues(
-      this.query.values,
-      defaultValueArraySize,
-    ).map((a) => a.toString());
+      nodeAuxNonRev: getNodeAuxValue(revStatus.mtp),
+      nodAuxJSONLD: getNodeAuxValue(query.valueProof!.mtp),
 
-    // https://docs.iden3.io/protocol/spec/#identity-profiles-new
-    // In case if circuit is on chain,
-    if (
-      this.proofRequest.circuitId === CircuitId.AtomicQuerySigV2OnChain ||
-      this.proofRequest.circuitId === CircuitId.AtomicQueryMTPV2OnChain
-    ) {
-      // Get GIST details from core state contract,
-      // it's necessary, because we replicate state in target network,
-      // and proof should be matched in both state contracts
-      const gistInfo = await getGISTProof({
-        rpcUrl: this.config.chainInfo.rarimoEvmRpcApiUrl,
-        contractAddress: this.config.chainInfo.rarimoStateContractAddress,
-        userId: this.identity.identityIdBigIntString,
-        rootHash: operationGistHash,
-      });
-      this.gistProof = toGISTProof(gistInfo);
+      timestamp: Math.floor(Date.now() / 1000),
 
-      // Used to verify that the provided proof belongs to the existing user session, e.g. account address
-      const challenge = fromLittleEndian(
-        Hex.decodeString(this.proofRequest.accountAddress!.substring(2)),
-      ).toString();
-      this.challenge = BigInt(this.proofRequest.challenge ?? challenge);
+      // after we prepared query, here will be a list of values,
+      // which we need to prove later
+      value: prepareCircuitArrayValues(query.values, defaultValueArraySize).map(
+        (a) => a.toString(),
+      ),
+    };
 
-      this.signatureChallenge = this.identity.privateKey.signPoseidon(
-        this.challenge,
-      );
-
-      // Used to verify that issuer details exist in the global state
-      this.globalNodeAux = getNodeAuxValue(this.gistProof.proof);
-      this.nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
-    }
-
-    // generate inputs according to circuit id
-    const circuiInfo = this.getCircuitInfo();
+    const circuitWasmUrl =
+      this.config.circuitsUrls[this.proofRequest.circuitId].wasmUrl;
+    const circuitKeyUrl =
+      this.config.circuitsUrls[this.proofRequest.circuitId].keyUrl;
 
     // get circuit files for proof generating
     const [wasm, provingKey] = await Promise.all([
-      getFileBytes(circuiInfo.wasm, this.config.loadingCircuitCb),
-      getFileBytes(circuiInfo.finalKey, this.config.loadingCircuitCb),
+      getFileBytes(circuitWasmUrl, this.config.loadingCircuitCb),
+      getFileBytes(circuitKeyUrl, this.config.loadingCircuitCb),
     ]);
+
+    // generate inputs according to circuit id
+    const getInputs = {
+      [CircuitId.AtomicQueryMTPV2]: async () => this.generateQueryMTPV2Inputs(),
+      [CircuitId.AtomicQueryMTPV2OnChain]: async () =>
+        this.generateQueryMTPV2OnChainInputs(operationGistHash),
+      [CircuitId.AtomicQuerySigV2]: async () => this.generateQuerySigV2Inputs(),
+      [CircuitId.AtomicQuerySigV2OnChain]: async () =>
+        this.generateQuerySigV2OnChainInputs(operationGistHash),
+    }[this.proofRequest.circuitId];
 
     // generate proof
     this.subjectProof = await proving.provingMethodGroth16AuthV2Instance.prove(
-      new TextEncoder().encode(circuiInfo.generateInputFn()),
+      new TextEncoder().encode(await getInputs()),
       provingKey,
       wasm,
     );
@@ -210,48 +165,28 @@ export class ZkpGen {
     return this.subjectProof;
   }
 
-  getCircuitInfo() {
-    const circuits = {
-      [CircuitId.AtomicQuerySigV2OnChain]: {
-        wasm: this.config.circuitsUrls[CircuitId.AtomicQuerySigV2OnChain]
-          .wasmUrl,
-        finalKey:
-          this.config.circuitsUrls[CircuitId.AtomicQuerySigV2OnChain].keyUrl,
-        generateInputFn: this.generateQuerySigV2OnChainInputs.bind(this),
-      },
-      [CircuitId.AtomicQuerySigV2]: {
-        wasm: this.config.circuitsUrls[CircuitId.AtomicQuerySigV2].wasmUrl,
-        finalKey: this.config.circuitsUrls[CircuitId.AtomicQuerySigV2].keyUrl,
-        generateInputFn: this.generateQuerySigV2Inputs.bind(this),
-      },
-      [CircuitId.AtomicQueryMTPV2]: {
-        wasm: this.config.circuitsUrls[CircuitId.AtomicQueryMTPV2].wasmUrl,
-        finalKey: this.config.circuitsUrls[CircuitId.AtomicQueryMTPV2].keyUrl,
-        generateInputFn: this.generateQueryMTPV2Inputs.bind(this),
-      },
-      [CircuitId.AtomicQueryMTPV2OnChain]: {
-        wasm: this.config.circuitsUrls[CircuitId.AtomicQueryMTPV2OnChain]
-          .wasmUrl,
-        finalKey:
-          this.config.circuitsUrls[CircuitId.AtomicQueryMTPV2OnChain].keyUrl,
-        generateInputFn: this.generateQueryMTPV2OnChainInputs.bind(this),
-      },
-    }[this.proofRequest.circuitId];
-
-    if (!circuits) {
-      throw new Error(
-        `circuit with id ${this.proofRequest.circuitId} is not supported by issuer`,
-      );
+  // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQuerySigV2OnChain.go#L48
+  async generateQuerySigV2OnChainInputs(operationGistHash: string) {
+    console.log('generateQuerySigV2OnChainInputs');
+    if (!this.commonInputsDetails) {
+      throw new TypeError('commonInputsDetails is not defined');
     }
 
-    return circuits;
-  }
-
-  // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQuerySigV2OnChain.go#L48
-  generateQuerySigV2OnChainInputs() {
-    if (!this.circuitClaim.signatureProof) {
+    if (!this.commonInputsDetails.circuitClaim.signatureProof) {
       throw new TypeError('circuitClaimData.signatureProof is not defined');
     }
+
+    // preparedCredential.revStatus - says, that proof is not a part of revocation tree
+    // and we need to prepare aux data, to prove it
+    // these aux variables also need to populate inputs later
+    const nodeAuxIssuerAuthNonRev = getNodeAuxValue(
+      this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthNonRevProof
+        .proof,
+    );
+
+    const onChainInputDetails = await this._getOnChainInputDetails(
+      operationGistHash,
+    );
 
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
@@ -274,99 +209,127 @@ export class ZkpGen {
         this.identity.authClaimNonRevProof,
         defaultMTLevels,
       ),
-      authClaimNonRevMtpAuxHi: this.nodeAuxAuth?.key.string(),
-      authClaimNonRevMtpAuxHv: this.nodeAuxAuth?.value.string(),
-      authClaimNonRevMtpNoAux: this.nodeAuxAuth?.noAux,
+      authClaimNonRevMtpAuxHi: onChainInputDetails.nodeAuxAuth?.key.string(),
+      authClaimNonRevMtpAuxHv: onChainInputDetails.nodeAuxAuth?.value.string(),
+      authClaimNonRevMtpNoAux: onChainInputDetails.nodeAuxAuth?.noAux,
 
-      challenge: this.challenge?.toString(),
-      challengeSignatureR8x: this.signatureChallenge?.R8[0].toString(),
-      challengeSignatureR8y: this.signatureChallenge?.R8[1].toString(),
-      challengeSignatureS: this.signatureChallenge?.S.toString(),
+      challenge: onChainInputDetails.challenge?.toString(),
+      challengeSignatureR8x:
+        onChainInputDetails.signatureChallenge?.R8[0].toString(),
+      challengeSignatureR8y:
+        onChainInputDetails.signatureChallenge?.R8[1].toString(),
+      challengeSignatureS: onChainInputDetails.signatureChallenge?.S.toString(),
 
-      gistRoot: this.gistProof?.root.string(),
+      gistRoot: onChainInputDetails.gistProof?.root.string(),
       gistMtp: prepareSiblingsStr(
-        this.gistProof!.proof,
+        onChainInputDetails.gistProof!.proof,
         defaultMTLevelsOnChain,
       ),
-      gistMtpAuxHi: this.globalNodeAux?.key.string(),
-      gistMtpAuxHv: this.globalNodeAux?.value.string(),
-      gistMtpNoAux: this.globalNodeAux?.noAux,
+      gistMtpAuxHi: onChainInputDetails.globalNodeAux?.key.string(),
+      gistMtpAuxHv: onChainInputDetails.globalNodeAux?.value.string(),
+      gistMtpNoAux: onChainInputDetails.globalNodeAux?.noAux,
 
       claimSubjectProfileNonce: '0',
 
-      issuerID: this.circuitClaim.issuerId.bigInt().toString(),
+      issuerID: this.commonInputsDetails.circuitClaim.issuerId
+        .bigInt()
+        .toString(),
 
       issuerAuthClaim:
-        this.circuitClaim.signatureProof.issuerAuthClaim?.marshalJson(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthClaim?.marshalJson(),
       issuerAuthClaimMtp: prepareSiblingsStr(
-        this.circuitClaim.signatureProof.issuerAuthIncProof.proof,
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof
+          .proof,
         defaultMTLevels,
       ),
       issuerAuthClaimsTreeRoot:
-        this.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.claimsTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.claimsTreeRoot.string(),
       issuerAuthRevTreeRoot:
-        this.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.revocationTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.revocationTreeRoot.string(),
       issuerAuthRootsTreeRoot:
-        this.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
 
       issuerAuthClaimNonRevMtp: prepareSiblingsStr(
-        this.circuitClaim.signatureProof.issuerAuthNonRevProof.proof,
+        this.commonInputsDetails.circuitClaim.signatureProof
+          .issuerAuthNonRevProof.proof,
         defaultMTLevels,
       ),
-      issuerAuthClaimNonRevMtpNoAux: this.nodeAuxIssuerAuthNonRev.noAux,
-      issuerAuthClaimNonRevMtpAuxHi: this.nodeAuxIssuerAuthNonRev.key.string(),
-      issuerAuthClaimNonRevMtpAuxHv:
-        this.nodeAuxIssuerAuthNonRev.value.string(),
+      issuerAuthClaimNonRevMtpNoAux: nodeAuxIssuerAuthNonRev.noAux,
+      issuerAuthClaimNonRevMtpAuxHi: nodeAuxIssuerAuthNonRev.key.string(),
+      issuerAuthClaimNonRevMtpAuxHv: nodeAuxIssuerAuthNonRev.value.string(),
 
-      issuerClaim: this.circuitClaim.claim.marshalJson(),
+      issuerClaim: this.commonInputsDetails.circuitClaim.claim.marshalJson(),
       isRevocationChecked: '1',
       issuerClaimNonRevMtp: prepareSiblingsStr(
-        this.claimNonRevStatus.mtp,
+        this.commonInputsDetails.claimNonRevStatus.mtp,
         defaultMTLevels,
       ),
-      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
-      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
-      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
+      issuerClaimNonRevMtpNoAux: this.commonInputsDetails.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi:
+        this.commonInputsDetails.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv:
+        this.commonInputsDetails.nodeAuxNonRev.value.string(),
       issuerClaimNonRevClaimsTreeRoot:
-        this.claimNonRevStatus.issuer.claimsTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.claimsTreeRoot.string(),
       issuerClaimNonRevRevTreeRoot:
-        this.claimNonRevStatus.issuer.revocationTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.revocationTreeRoot.string(),
       issuerClaimNonRevRootsTreeRoot:
-        this.claimNonRevStatus.issuer.rootOfRoots.string(),
-      issuerClaimNonRevState: this.claimNonRevStatus.issuer.state.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.rootOfRoots.string(),
+      issuerClaimNonRevState:
+        this.commonInputsDetails.claimNonRevStatus.issuer.state.string(),
 
       issuerClaimSignatureR8x:
-        this.circuitClaim.signatureProof.signature.R8[0].toString(),
+        this.commonInputsDetails.circuitClaim.signatureProof.signature.R8[0].toString(),
       issuerClaimSignatureR8y:
-        this.circuitClaim.signatureProof.signature.R8[1].toString(),
+        this.commonInputsDetails.circuitClaim.signatureProof.signature.R8[1].toString(),
       issuerClaimSignatureS:
-        this.circuitClaim.signatureProof.signature.S.toString(),
+        this.commonInputsDetails.circuitClaim.signatureProof.signature.S.toString(),
 
-      timestamp: this.timestamp,
+      timestamp: this.commonInputsDetails.timestamp,
 
-      claimSchema: this.circuitClaim.claim.getSchemaHash().bigInt().toString(),
-      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
+      claimSchema: this.commonInputsDetails.circuitClaim.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.commonInputsDetails.query.valueProof?.mtp
+        .existence
+        ? 0
+        : 1,
       claimPathMtp: prepareSiblingsStr(
-        this.query.valueProof!.mtp,
+        this.commonInputsDetails.query.valueProof!.mtp,
         defaultMTLevelsClaimsMerklization,
       ),
-      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
-      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
-      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
-      claimPathKey: this.query.valueProof?.path.toString(),
-      claimPathValue: this.query.valueProof?.value?.toString(),
+      claimPathMtpNoAux: this.commonInputsDetails.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.commonInputsDetails.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.commonInputsDetails.nodAuxJSONLD.value.string(),
+      claimPathKey: this.commonInputsDetails.query.valueProof?.path.toString(),
+      claimPathValue:
+        this.commonInputsDetails.query.valueProof?.value?.toString(),
 
-      slotIndex: this.query.slotIndex,
-      operator: this.query.operator,
-      value: this.value,
+      slotIndex: this.commonInputsDetails.query.slotIndex,
+      operator: this.commonInputsDetails.query.operator,
+      value: this.commonInputsDetails.value,
     });
   }
 
   // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQuerySigV2.go#L35
-  generateQuerySigV2Inputs() {
-    if (!this.circuitClaim.signatureProof) {
+  async generateQuerySigV2Inputs() {
+    console.log('generateQuerySigV2Inputs');
+    if (!this.commonInputsDetails) {
+      throw new TypeError('commonInputsDetails is not defined');
+    }
+
+    if (!this.commonInputsDetails.circuitClaim.signatureProof) {
       throw new TypeError('circuitClaimData.signatureProof is not defined');
     }
+
+    // preparedCredential.revStatus - says, that proof is not a part of revocation tree
+    // and we need to prepare aux data, to prove it
+    // these aux variables also need to populate inputs later
+    const nodeAuxIssuerAuthNonRev = getNodeAuxValue(
+      this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthNonRevProof
+        .proof,
+    );
 
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
@@ -378,77 +341,95 @@ export class ZkpGen {
 
       claimSubjectProfileNonce: '0',
 
-      issuerID: this.circuitClaim.issuerId.bigInt().toString(),
+      issuerID: this.commonInputsDetails.circuitClaim.issuerId
+        .bigInt()
+        .toString(),
 
       issuerAuthClaim:
-        this.circuitClaim.signatureProof.issuerAuthClaim?.marshalJson(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthClaim?.marshalJson(),
       issuerAuthClaimMtp: prepareSiblingsStr(
-        this.circuitClaim.signatureProof.issuerAuthIncProof.proof,
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof
+          .proof,
         defaultMTLevels,
       ),
       issuerAuthClaimsTreeRoot:
-        this.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.claimsTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.claimsTreeRoot.string(),
       issuerAuthRevTreeRoot:
-        this.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.revocationTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.revocationTreeRoot.string(),
       issuerAuthRootsTreeRoot:
-        this.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
+        this.commonInputsDetails.circuitClaim.signatureProof.issuerAuthIncProof.treeState?.rootOfRoots.string(),
 
       issuerAuthClaimNonRevMtp: prepareSiblingsStr(
-        this.circuitClaim.signatureProof.issuerAuthNonRevProof.proof,
+        this.commonInputsDetails.circuitClaim.signatureProof
+          .issuerAuthNonRevProof.proof,
         defaultMTLevels,
       ),
-      issuerAuthClaimNonRevMtpNoAux: this.nodeAuxIssuerAuthNonRev.noAux,
-      issuerAuthClaimNonRevMtpAuxHi: this.nodeAuxIssuerAuthNonRev.key.string(),
-      issuerAuthClaimNonRevMtpAuxHv:
-        this.nodeAuxIssuerAuthNonRev.value.string(),
+      issuerAuthClaimNonRevMtpNoAux: nodeAuxIssuerAuthNonRev.noAux,
+      issuerAuthClaimNonRevMtpAuxHi: nodeAuxIssuerAuthNonRev.key.string(),
+      issuerAuthClaimNonRevMtpAuxHv: nodeAuxIssuerAuthNonRev.value.string(),
 
-      issuerClaim: this.circuitClaim.claim.marshalJson(),
+      issuerClaim: this.commonInputsDetails.circuitClaim.claim.marshalJson(),
       isRevocationChecked: '1',
       issuerClaimNonRevMtp: prepareSiblingsStr(
-        this.claimNonRevStatus.mtp,
+        this.commonInputsDetails.claimNonRevStatus.mtp,
         defaultMTLevels,
       ),
-      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
-      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
-      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
+      issuerClaimNonRevMtpNoAux: this.commonInputsDetails.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi:
+        this.commonInputsDetails.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv:
+        this.commonInputsDetails.nodeAuxNonRev.value.string(),
       issuerClaimNonRevClaimsTreeRoot:
-        this.claimNonRevStatus.issuer.claimsTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.claimsTreeRoot.string(),
       issuerClaimNonRevRevTreeRoot:
-        this.claimNonRevStatus.issuer.revocationTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.revocationTreeRoot.string(),
       issuerClaimNonRevRootsTreeRoot:
-        this.claimNonRevStatus.issuer.rootOfRoots.string(),
-      issuerClaimNonRevState: this.claimNonRevStatus.issuer.state.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.rootOfRoots.string(),
+      issuerClaimNonRevState:
+        this.commonInputsDetails.claimNonRevStatus.issuer.state.string(),
 
       issuerClaimSignatureR8x:
-        this.circuitClaim.signatureProof.signature.R8[0].toString(),
+        this.commonInputsDetails.circuitClaim.signatureProof.signature.R8[0].toString(),
       issuerClaimSignatureR8y:
-        this.circuitClaim.signatureProof.signature.R8[1].toString(),
+        this.commonInputsDetails.circuitClaim.signatureProof.signature.R8[1].toString(),
       issuerClaimSignatureS:
-        this.circuitClaim.signatureProof.signature.S.toString(),
+        this.commonInputsDetails.circuitClaim.signatureProof.signature.S.toString(),
 
-      timestamp: this.timestamp,
+      timestamp: this.commonInputsDetails.timestamp,
 
-      claimSchema: this.circuitClaim.claim.getSchemaHash().bigInt().toString(),
-      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
+      claimSchema: this.commonInputsDetails.circuitClaim.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.commonInputsDetails.query.valueProof?.mtp
+        .existence
+        ? 0
+        : 1,
       claimPathMtp: prepareSiblingsStr(
-        this.query.valueProof!.mtp,
+        this.commonInputsDetails.query.valueProof!.mtp,
         defaultMTLevelsClaimsMerklization,
       ),
-      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
-      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
-      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
-      claimPathKey: this.query.valueProof?.path.toString(),
-      claimPathValue: this.query.valueProof?.value?.toString(),
+      claimPathMtpNoAux: this.commonInputsDetails.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.commonInputsDetails.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.commonInputsDetails.nodAuxJSONLD.value.string(),
+      claimPathKey: this.commonInputsDetails.query.valueProof?.path.toString(),
+      claimPathValue:
+        this.commonInputsDetails.query.valueProof?.value?.toString(),
 
-      slotIndex: this.query.slotIndex,
-      operator: this.query.operator,
-      value: this.value,
+      slotIndex: this.commonInputsDetails.query.slotIndex,
+      operator: this.commonInputsDetails.query.operator,
+      value: this.commonInputsDetails.value,
     });
   }
 
   // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQueryMTPV2.go#L34
-  generateQueryMTPV2Inputs() {
-    if (!this.circuitClaim.incProof) {
+  async generateQueryMTPV2Inputs() {
+    console.log('generateQueryMTPV2Inputs');
+    if (!this.commonInputsDetails) {
+      throw new TypeError('commonInputsDetails is not defined');
+    }
+
+    if (!this.commonInputsDetails.circuitClaim.incProof) {
       throw new TypeError('circuitClaimData.incProof is not defined');
     }
 
@@ -462,63 +443,84 @@ export class ZkpGen {
 
       claimSubjectProfileNonce: '0',
 
-      issuerID: this.circuitClaim.issuerId.bigInt().toString(),
+      issuerID: this.commonInputsDetails.circuitClaim.issuerId
+        .bigInt()
+        .toString(),
 
-      issuerClaim: this.circuitClaim.claim.marshalJson(),
+      issuerClaim: this.commonInputsDetails.circuitClaim.claim.marshalJson(),
       isRevocationChecked: '1',
       issuerClaimNonRevMtp: prepareSiblingsStr(
-        this.claimNonRevStatus.mtp,
+        this.commonInputsDetails.claimNonRevStatus.mtp,
         defaultMTLevels,
       ),
-      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
-      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
-      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
+      issuerClaimNonRevMtpNoAux: this.commonInputsDetails.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi:
+        this.commonInputsDetails.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv:
+        this.commonInputsDetails.nodeAuxNonRev.value.string(),
       issuerClaimNonRevClaimsTreeRoot:
-        this.claimNonRevStatus.issuer.claimsTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.claimsTreeRoot.string(),
       issuerClaimNonRevRevTreeRoot:
-        this.claimNonRevStatus.issuer.revocationTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.revocationTreeRoot.string(),
       issuerClaimNonRevRootsTreeRoot:
-        this.claimNonRevStatus.issuer.rootOfRoots.string(),
-      issuerClaimNonRevState: this.claimNonRevStatus.issuer.state.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.rootOfRoots.string(),
+      issuerClaimNonRevState:
+        this.commonInputsDetails.claimNonRevStatus.issuer.state.string(),
 
       issuerClaimMtp: prepareSiblingsStr(
-        this.circuitClaim.incProof.proof,
+        this.commonInputsDetails.circuitClaim.incProof.proof,
         defaultMTLevels,
       ),
       issuerClaimClaimsTreeRoot:
-        this.circuitClaim.incProof.treeState?.claimsTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.claimsTreeRoot.string(),
       issuerClaimRevTreeRoot:
-        this.circuitClaim.incProof.treeState?.revocationTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.revocationTreeRoot.string(),
       issuerClaimRootsTreeRoot:
-        this.circuitClaim.incProof.treeState?.rootOfRoots.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.rootOfRoots.string(),
       issuerClaimIdenState:
-        this.circuitClaim.incProof.treeState?.state.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.state.string(),
 
-      timestamp: this.timestamp,
+      timestamp: this.commonInputsDetails.timestamp,
 
-      claimSchema: this.circuitClaim.claim.getSchemaHash().bigInt().toString(),
-      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
+      claimSchema: this.commonInputsDetails.circuitClaim.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.commonInputsDetails.query.valueProof?.mtp
+        .existence
+        ? 0
+        : 1,
       claimPathMtp: prepareSiblingsStr(
-        this.query.valueProof!.mtp,
+        this.commonInputsDetails.query.valueProof!.mtp,
         defaultMTLevelsClaimsMerklization,
       ),
-      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
-      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
-      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
-      claimPathKey: this.query.valueProof?.path.toString(),
-      claimPathValue: this.query.valueProof?.value?.toString(),
+      claimPathMtpNoAux: this.commonInputsDetails.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.commonInputsDetails.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.commonInputsDetails.nodAuxJSONLD.value.string(),
+      claimPathKey: this.commonInputsDetails.query.valueProof?.path.toString(),
+      claimPathValue:
+        this.commonInputsDetails.query.valueProof?.value?.toString(),
 
-      slotIndex: this.query.slotIndex,
-      operator: this.query.operator,
-      value: this.value,
+      slotIndex: this.commonInputsDetails.query.slotIndex,
+      operator: this.commonInputsDetails.query.operator,
+      value: this.commonInputsDetails.value,
     });
   }
 
   // https://github.com/iden3/go-circuits/blob/main/credentialAtomicQueryMTPV2OnChain.go#L46
-  generateQueryMTPV2OnChainInputs() {
-    if (!this.circuitClaim.incProof) {
+  async generateQueryMTPV2OnChainInputs(operationGistHash: string) {
+    console.log('generateQueryMTPV2OnChainInputs');
+    if (!this.commonInputsDetails) {
+      throw new TypeError('commonInputsDetails is not defined');
+    }
+
+    if (!this.commonInputsDetails.circuitClaim.incProof) {
       throw new TypeError('circuitClaimData.incProof is not defined');
     }
+
+    const onChainInputDetails = await this._getOnChainInputDetails(
+      operationGistHash,
+    );
 
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
@@ -541,75 +543,127 @@ export class ZkpGen {
         this.identity.authClaimNonRevProof,
         defaultMTLevels,
       ),
-      authClaimNonRevMtpAuxHi: this.nodeAuxAuth?.key.string(),
-      authClaimNonRevMtpAuxHv: this.nodeAuxAuth?.value.string(),
-      authClaimNonRevMtpNoAux: this.nodeAuxAuth?.noAux,
+      authClaimNonRevMtpAuxHi: onChainInputDetails.nodeAuxAuth?.key.string(),
+      authClaimNonRevMtpAuxHv: onChainInputDetails.nodeAuxAuth?.value.string(),
+      authClaimNonRevMtpNoAux: onChainInputDetails.nodeAuxAuth?.noAux,
 
-      challenge: this.challenge?.toString(),
-      challengeSignatureR8x: this.signatureChallenge?.R8[0].toString(),
-      challengeSignatureR8y: this.signatureChallenge?.R8[1].toString(),
-      challengeSignatureS: this.signatureChallenge?.S.toString(),
+      challenge: onChainInputDetails.challenge?.toString(),
+      challengeSignatureR8x:
+        onChainInputDetails.signatureChallenge?.R8[0].toString(),
+      challengeSignatureR8y:
+        onChainInputDetails.signatureChallenge?.R8[1].toString(),
+      challengeSignatureS: onChainInputDetails.signatureChallenge?.S.toString(),
 
-      gistRoot: this.gistProof?.root.string(),
+      gistRoot: onChainInputDetails.gistProof?.root.string(),
       gistMtp: prepareSiblingsStr(
-        this.gistProof!.proof,
+        onChainInputDetails.gistProof!.proof,
         defaultMTLevelsOnChain,
       ),
-      gistMtpAuxHi: this.globalNodeAux?.key.string(),
-      gistMtpAuxHv: this.globalNodeAux?.value.string(),
-      gistMtpNoAux: this.globalNodeAux?.noAux,
+      gistMtpAuxHi: onChainInputDetails.globalNodeAux?.key.string(),
+      gistMtpAuxHv: onChainInputDetails.globalNodeAux?.value.string(),
+      gistMtpNoAux: onChainInputDetails.globalNodeAux?.noAux,
 
       claimSubjectProfileNonce: '0',
 
-      issuerID: this.circuitClaim.issuerId.bigInt().toString(),
+      issuerID: this.commonInputsDetails.circuitClaim.issuerId
+        .bigInt()
+        .toString(),
 
-      issuerClaim: this.circuitClaim.claim.marshalJson(),
+      issuerClaim: this.commonInputsDetails.circuitClaim.claim.marshalJson(),
       isRevocationChecked: '1',
       issuerClaimNonRevMtp: prepareSiblingsStr(
-        this.claimNonRevStatus.mtp,
+        this.commonInputsDetails.claimNonRevStatus.mtp,
         defaultMTLevels,
       ),
-      issuerClaimNonRevMtpNoAux: this.nodeAuxNonRev.noAux,
-      issuerClaimNonRevMtpAuxHi: this.nodeAuxNonRev.key.string(),
-      issuerClaimNonRevMtpAuxHv: this.nodeAuxNonRev.value.string(),
+      issuerClaimNonRevMtpNoAux: this.commonInputsDetails.nodeAuxNonRev.noAux,
+      issuerClaimNonRevMtpAuxHi:
+        this.commonInputsDetails.nodeAuxNonRev.key.string(),
+      issuerClaimNonRevMtpAuxHv:
+        this.commonInputsDetails.nodeAuxNonRev.value.string(),
       issuerClaimNonRevClaimsTreeRoot:
-        this.claimNonRevStatus.issuer.claimsTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.claimsTreeRoot.string(),
       issuerClaimNonRevRevTreeRoot:
-        this.claimNonRevStatus.issuer.revocationTreeRoot.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.revocationTreeRoot.string(),
       issuerClaimNonRevRootsTreeRoot:
-        this.claimNonRevStatus.issuer.rootOfRoots.string(),
-      issuerClaimNonRevState: this.claimNonRevStatus.issuer.state.string(),
+        this.commonInputsDetails.claimNonRevStatus.issuer.rootOfRoots.string(),
+      issuerClaimNonRevState:
+        this.commonInputsDetails.claimNonRevStatus.issuer.state.string(),
 
       issuerClaimMtp: prepareSiblingsStr(
-        this.circuitClaim.incProof.proof,
+        this.commonInputsDetails.circuitClaim.incProof.proof,
         defaultMTLevels,
       ),
       issuerClaimClaimsTreeRoot:
-        this.circuitClaim.incProof.treeState?.claimsTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.claimsTreeRoot.string(),
       issuerClaimRevTreeRoot:
-        this.circuitClaim.incProof.treeState?.revocationTreeRoot.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.revocationTreeRoot.string(),
       issuerClaimRootsTreeRoot:
-        this.circuitClaim.incProof.treeState?.rootOfRoots.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.rootOfRoots.string(),
       issuerClaimIdenState:
-        this.circuitClaim.incProof.treeState?.state.string(),
+        this.commonInputsDetails.circuitClaim.incProof.treeState?.state.string(),
 
-      timestamp: this.timestamp,
+      timestamp: this.commonInputsDetails.timestamp,
 
-      claimSchema: this.circuitClaim.claim.getSchemaHash().bigInt().toString(),
-      claimPathNotExists: this.query.valueProof?.mtp.existence ? 0 : 1,
+      claimSchema: this.commonInputsDetails.circuitClaim.claim
+        .getSchemaHash()
+        .bigInt()
+        .toString(),
+      claimPathNotExists: this.commonInputsDetails.query.valueProof?.mtp
+        .existence
+        ? 0
+        : 1,
       claimPathMtp: prepareSiblingsStr(
-        this.query.valueProof!.mtp,
+        this.commonInputsDetails.query.valueProof!.mtp,
         defaultMTLevelsClaimsMerklization,
       ),
-      claimPathMtpNoAux: this.nodAuxJSONLD.noAux,
-      claimPathMtpAuxHi: this.nodAuxJSONLD.key.string(),
-      claimPathMtpAuxHv: this.nodAuxJSONLD.value.string(),
-      claimPathKey: this.query.valueProof?.path.toString(),
-      claimPathValue: this.query.valueProof?.value?.toString(),
+      claimPathMtpNoAux: this.commonInputsDetails.nodAuxJSONLD.noAux,
+      claimPathMtpAuxHi: this.commonInputsDetails.nodAuxJSONLD.key.string(),
+      claimPathMtpAuxHv: this.commonInputsDetails.nodAuxJSONLD.value.string(),
+      claimPathKey: this.commonInputsDetails.query.valueProof?.path.toString(),
+      claimPathValue:
+        this.commonInputsDetails.query.valueProof?.value?.toString(),
 
-      slotIndex: this.query.slotIndex,
-      operator: this.query.operator,
-      value: this.value,
+      slotIndex: this.commonInputsDetails.query.slotIndex,
+      operator: this.commonInputsDetails.query.operator,
+      value: this.commonInputsDetails.value,
     });
+  }
+
+  async _getOnChainInputDetails(
+    operationGistHash: string,
+  ): Promise<OnChainInputDetails> {
+    // https://docs.iden3.io/protocol/spec/#identity-profiles-new
+    // Get GIST details from core state contract,
+    // it's necessary, because we replicate state in target network,
+    // and proof should be matched in both state contracts
+    const gistInfo = await getGISTProof({
+      rpcUrl: this.config.chainInfo.rarimoEvmRpcApiUrl,
+      contractAddress: this.config.chainInfo.rarimoStateContractAddress,
+      userId: this.identity.identityIdBigIntString,
+      rootHash: operationGistHash,
+    });
+    const gistProof = toGISTProof(gistInfo);
+
+    // Used to verify that the provided proof belongs to the existing user session, e.g. account address
+    const challenge = BigInt(
+      this.proofRequest.challenge ??
+        fromLittleEndian(
+          Hex.decodeString(this.proofRequest.accountAddress!.substring(2)),
+        ).toString(),
+    );
+
+    const signatureChallenge = this.identity.privateKey.signPoseidon(challenge);
+
+    // Used to verify that issuer details exist in the global state
+    const globalNodeAux = getNodeAuxValue(gistProof.proof);
+    const nodeAuxAuth = getNodeAuxValue(this.identity.authClaimNonRevProof);
+
+    return {
+      gistProof,
+      challenge,
+      signatureChallenge,
+      globalNodeAux,
+      nodeAuxAuth,
+    };
   }
 }

@@ -15,6 +15,7 @@ import {
 } from '@iden3/js-jsonld-merklization';
 import type { NodeAux, ProofJSON } from '@iden3/js-merkletree';
 import { Hash, Proof, ZERO_HASH } from '@iden3/js-merkletree';
+import { CircuitId } from '@rarimo/rarime-connector';
 import type { ProofQuery } from '@rarimo/rarime-connector';
 import get from 'lodash/get';
 
@@ -167,7 +168,10 @@ const merklize = async (credential: W3CCredential): Promise<Merklizer> => {
 // helpers used in other files
 // ==========================================================================
 
-export const checkVCAndGetClaims = async (credential: W3CCredential) => {
+export const checkVCAndGetCoreClaim = async (
+  credential: W3CCredential,
+  circuitId: CircuitId,
+) => {
   const revStatus = await getRevocationStatus(credential.credentialStatus.id);
 
   if (revStatus.mtp.existence) {
@@ -216,10 +220,17 @@ export const checkVCAndGetClaims = async (credential: W3CCredential) => {
     throw new TypeError('core claim is not set in proofs');
   }
 
+  const coreClaim = {
+    [CircuitId.AtomicQuerySigV2OnChain]: sigProofCoreClaim,
+    [CircuitId.AtomicQuerySigV2]: sigProofCoreClaim,
+
+    [CircuitId.AtomicQueryMTPV2]: mtpProofCoreClaim,
+    [CircuitId.AtomicQueryMTPV2OnChain]: mtpProofCoreClaim,
+  }[circuitId];
+
   return {
     revStatus,
-    mtpProofCoreClaim,
-    sigProofCoreClaim,
+    coreClaim,
   };
 };
 
