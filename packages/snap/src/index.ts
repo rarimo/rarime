@@ -2,7 +2,7 @@
 import './polyfill';
 
 import type { OnUpdateHandler } from '@metamask/snaps-sdk';
-import { heading, panel, text } from '@metamask/snaps-sdk';
+import { panel, text } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
 import { RPCMethods } from '@rarimo/rarime-connector';
 
