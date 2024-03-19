@@ -109,7 +109,7 @@ export const onUpdate: OnUpdateHandler = async (args: {
   await snap.request({
     method: 'snap_dialog',
     params: {
-      type: 'alert',
+      type: 'confirmation',
       content: panel([
         text('New features added in this version:'),
         text('• Cosmos compatible wallet'),
