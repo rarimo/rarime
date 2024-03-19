@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `packages/site` package
 
+### Removed
+- `packages/site` package
+
 ## [2.0.3] - 2024-02-06
 ### Changed
 - `@rarimo/rarime`:
