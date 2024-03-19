@@ -7,6 +7,14 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "license": "(MIT-0 OR Apache-2.0)",
+  "files": [
+    "dist/",
+    "images/",
+    "assets/circuits/auth",
+    "assets/circuits/credentialAtomicQueryMTPV2OnChain",
+    "snap.manifest.json",
+    "README.md"
+  ],
   "scripts": {
     "build": "yarn clean && node build.js && yarn build:post && yarn bundle:eval && yarn bundle:manifest",
     "build:clean": "yarn clean && yarn build",
