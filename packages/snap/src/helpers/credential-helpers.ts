@@ -1,41 +1,44 @@
-import { Claim } from '@iden3/js-iden3-core';
-import { sha256 } from 'ethers/lib/utils';
-import { DocumentNode } from 'graphql/language';
+import type { Claim } from '@iden3/js-iden3-core';
 import type {
   CreateProofRequestParams,
   ProofQuery,
 } from '@rarimo/rarime-connector';
+import { sha256 } from 'ethers/lib/utils';
+import type { DocumentNode } from 'graphql/language';
+
+import { CeramicProvider } from './ceramic-helpers';
+import { genPkHexFromEntropy } from './identity-helpers';
+import { getCoreClaimFromProof } from './proof-helpers';
+import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
+import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
 import { ProofType, StorageKeys } from '../enums';
-import {
+import { Identity } from '../identity';
+import { getItemFromStore, setItemInStore } from '../rpc';
+import type {
   SaveCredentialsRequestParams,
-  ClearVc,
   ClearVcMutation,
   ClearVcMutationVariables,
-  CreateVc,
   CreateVcMutationVariables,
   CredentialStatus,
-  GetAllVerifiableCredentials,
   GetAllVerifiableCredentialsQuery,
   GetAllVerifiableCredentialsQueryVariables,
-  GetVerifiableCredentialsByClaimId,
   GetVerifiableCredentialsByClaimIdQuery,
   GetVerifiableCredentialsByClaimIdQueryVariables,
-  GetVerifiableCredentialsByQueryHash,
   GetVerifiableCredentialsByQueryHashQuery,
   GetVerifiableCredentialsByQueryHashQueryVariables,
   RevocationStatus,
   W3CCredential,
   GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables,
   GetVerifiableCredentialsByClaimIdAndQueryHashQuery,
+} from '../types';
+import {
+  ClearVc,
+  CreateVc,
+  GetAllVerifiableCredentials,
+  GetVerifiableCredentialsByClaimId,
+  GetVerifiableCredentialsByQueryHash,
   GetVerifiableCredentialsByClaimIdAndQueryHash,
 } from '../types';
-import { getItemFromStore, setItemInStore } from '../rpc';
-import VerifiableRuntimeCompositeV2 from '../../ceramic/composites/VerifiableCredentialsV2-runtime.json';
-import VerifiableRuntimeComposite from '../../ceramic/composites/VerifiableCredentials-runtime.json';
-import { Identity } from '../identity';
-import { getCoreClaimFromProof } from './proof-helpers';
-import { CeramicProvider } from './ceramic-helpers';
-import { genPkHexFromEntropy } from './identity-helpers';
 
 const _SALT = 'pu?)Rx829U3ot.iB)D+z9Iyh';
 
@@ -64,7 +67,7 @@ const loadAllCredentialsListPages = async <
   Res extends
     | GetAllVerifiableCredentialsQuery
     | GetVerifiableCredentialsByClaimIdQuery
-    | GetVerifiableCredentialsByQueryHashQuery
+    | GetVerifiableCredentialsByQueryHashQuery,
 >(
   request: DocumentNode,
   variables: V,
@@ -125,11 +128,11 @@ export const getAuthenticatedCeramicProvider = async (
 export class VCManager {
   ceramicProvider: CeramicProvider;
 
-  private saltedEntropy: string;
+  readonly #saltedEntropy: string;
 
   constructor(ceramicProvider: CeramicProvider, saltedEntropy: string) {
     this.ceramicProvider = ceramicProvider;
-    this.saltedEntropy = saltedEntropy;
+    this.#saltedEntropy = saltedEntropy;
   }
 
   static async create(opts?: {
@@ -175,8 +178,8 @@ export class VCManager {
     );
   }
 
-  private personalHashStr(str: string) {
-    return sha256(Buffer.from(str + this.saltedEntropy));
+  #personalHashStr(str: string) {
+    return sha256(Buffer.from(str + this.#saltedEntropy));
   }
 
   public async getDecryptedVCsByQueryHash(
@@ -188,9 +191,9 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedOwnerDid = this.personalHashStr(client.did.id);
+    const hashedOwnerDid = this.#personalHashStr(client.did.id);
 
-    const hashedQueryHash = this.personalHashStr(queryHash);
+    const hashedQueryHash = this.#personalHashStr(queryHash);
 
     const data = await loadAllCredentialsListPages<
       GetVerifiableCredentialsByQueryHashQueryVariables,
@@ -233,12 +236,12 @@ export class VCManager {
     const claimIds = getClaimIdsFromOffer(claimOffer);
     const queryHash = hashVC(JSON.stringify(query.type), issuerDid, ownerDid);
 
-    const hashedQueryHash = this.personalHashStr(queryHash);
+    const hashedQueryHash = this.#personalHashStr(queryHash);
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
-        const hashedClaimId = this.personalHashStr(claimId);
-        const hashedOwnerDid = this.personalHashStr(ownerDid);
+        const hashedClaimId = this.#personalHashStr(claimId);
+        const hashedOwnerDid = this.#personalHashStr(ownerDid);
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables,
@@ -295,8 +298,8 @@ export class VCManager {
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
-        const hashedClaimId = this.personalHashStr(claimId);
-        const hashedOwnerDid = this.personalHashStr(ownerDid);
+        const hashedClaimId = this.#personalHashStr(claimId);
+        const hashedOwnerDid = this.#personalHashStr(ownerDid);
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdQueryVariables,
@@ -331,7 +334,7 @@ export class VCManager {
     );
   }
 
-  private async getPreparedVCFields(credential: W3CCredential) {
+  async #getPreparedVCFields(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
     const ownerDid = client.did?.id;
@@ -349,9 +352,9 @@ export class VCManager {
     const claimId = getClaimIdFromVCId(credential.id);
 
     const [hashedOwnerDid, hashedQueryHash, hashedClaimId] = await Promise.all([
-      this.personalHashStr(ownerDid),
-      this.personalHashStr(queryHash),
-      this.personalHashStr(claimId),
+      this.#personalHashStr(ownerDid),
+      this.#personalHashStr(queryHash),
+      this.#personalHashStr(claimId),
     ]);
 
     return {
@@ -374,7 +377,7 @@ export class VCManager {
   public async clearMatchedVcs(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
-    const { hashedOwnerDid, hashedQueryHash } = await this.getPreparedVCFields(
+    const { hashedOwnerDid, hashedQueryHash } = await this.#getPreparedVCFields(
       credential,
     );
 
@@ -413,11 +416,8 @@ export class VCManager {
   public async encryptAndSaveVC(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
-    const {
-      hashedOwnerDid,
-      hashedQueryHash,
-      hashedClaimId,
-    } = await this.getPreparedVCFields(credential);
+    const { hashedOwnerDid, hashedQueryHash, hashedClaimId } =
+      await this.#getPreparedVCFields(credential);
 
     const encryptedVC = await this.ceramicProvider.encrypt(credential);
 
@@ -446,7 +446,7 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedOwnerDid = this.personalHashStr(ownerDid);
+    const hashedOwnerDid = this.#personalHashStr(ownerDid);
 
     const data = await loadAllCredentialsListPages<
       GetAllVerifiableCredentialsQueryVariables,
@@ -535,21 +535,20 @@ export const migrateVCsToLastCeramicModel = async () => {
 
       const ceramicVCs = await vcManager.getAllDecryptedVCs();
 
-      const vcs = [...storeCredentials, ...ceramicVCs, ...oldKeyHexVCs].reduce(
-        (acc, vc) => {
-          const isVcExist = Boolean(
-            acc.find((el) => {
-              const elId = getClaimIdFromVCId(el.id);
-              const vcId = getClaimIdFromVCId(vc.id);
+      const vcs = [...storeCredentials, ...ceramicVCs, ...oldKeyHexVCs].reduce<
+        W3CCredential[]
+      >((acc, vc) => {
+        const isVcExist = Boolean(
+          acc.find((el) => {
+            const elId = getClaimIdFromVCId(el.id);
+            const vcId = getClaimIdFromVCId(vc.id);
 
-              return elId === vcId;
-            }),
-          );
+            return elId === vcId;
+          }),
+        );
 
-          return [...acc, ...(isVcExist ? [] : [vc])];
-        },
-        [] as W3CCredential[],
-      );
+        return [...acc, ...(isVcExist ? [] : [vc])];
+      }, []);
 
       await Promise.all(
         vcs.map(async (vc) => {

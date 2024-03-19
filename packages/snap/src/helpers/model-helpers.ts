@@ -1,7 +1,8 @@
+import type { Claim as CoreClaim, Id } from '@iden3/js-iden3-core';
 import { Proof } from '@iden3/js-merkletree';
-import { Claim as CoreClaim, Id } from '@iden3/js-iden3-core';
-import { ProofType } from '../enums';
-import {
+
+import type { ProofType } from '../enums';
+import type {
   BJJSignatureProof,
   CredentialStatus,
   State,

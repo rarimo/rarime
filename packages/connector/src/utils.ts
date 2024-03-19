@@ -1,7 +1,8 @@
 import { compare } from 'compare-versions';
-import { GetSnapsResponse } from './types';
-import { SUPPORTED_METAMASK_VERSION } from './consts';
+
 import { defaultSnapOrigin } from '.';
+import { SUPPORTED_METAMASK_VERSION } from './consts';
+import type { GetSnapsResponse } from './types';
 
 export const getProvider = async () => {
   let mmFound = false;

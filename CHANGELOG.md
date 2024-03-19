@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `@rarimo/rarime`:
   - `CreateIdentity` - accept `privateKeyHex` optional param for identity creation
+- Bump Yarn version to 4.1.1
+- Use SWC instead of TSC for the build process
+- Update Jest config for testing
+- Use latest MetaMask snap libraries
+- Use `workspace` version inside packages
+
+### Removed
+- `packages/site` package
 
 ### Removed
 - `packages/site` package

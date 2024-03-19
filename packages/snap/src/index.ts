@@ -1,34 +1,20 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
-import {
-  copyable,
-  divider,
-  heading,
-  panel,
-  text,
-  Component,
-} from '@metamask/snaps-sdk';
-import {
+import { DID } from '@iden3/js-iden3-core';
+import type { Component } from '@metamask/snaps-sdk';
+import { copyable, divider, heading, panel, text } from '@metamask/snaps-sdk';
+import type { JsonRpcRequest } from '@metamask/utils';
+import type {
   CheckCredentialExistenceRequestParams,
   RemoveCredentialsRequestParams,
   CreateIdentityRequestParams,
-  RPCMethods,
   SaveCredentialsResponse,
 } from '@rarimo/rarime-connector';
-import { DID } from '@iden3/js-iden3-core';
-import type { JsonRpcRequest } from '@metamask/utils';
+import { RPCMethods } from '@rarimo/rarime-connector';
 import { utils } from 'ethers';
-import { Identity } from './identity';
-import { getItemFromStore, setItemInStore } from './rpc';
-import { CircuitId, StorageKeys } from './enums';
-import {
-  SaveCredentialsRequestParams,
-  CreateProofRequestParams,
-  GetStateInfoResponse,
-  MerkleProof,
-  TextField,
-} from './types';
+
 import { AuthZkp } from './auth-zkp';
+import { CircuitId, StorageKeys } from './enums';
 import {
   checkIfStateSynced,
   genPkHexFromEntropy,
@@ -43,11 +29,20 @@ import {
   parseDidV2,
   VCManager,
 } from './helpers';
-import { ZkpGen } from './zkp-gen';
+import { Identity } from './identity';
+import { getItemFromStore, setItemInStore } from './rpc';
+import type {
+  SaveCredentialsRequestParams,
+  CreateProofRequestParams,
+  GetStateInfoResponse,
+  MerkleProof,
+  TextField,
+} from './types';
 import {
   isValidCreateProofRequest,
   isValidSaveCredentialsOfferRequest,
 } from './typia-generated';
+import { ZkpGen } from './zkp-gen';
 
 export const onRpcRequest = async ({
   request,
@@ -67,10 +62,8 @@ export const onRpcRequest = async ({
         throw new Error('Identity not created');
       }
 
-      const {
-        claimOffer,
-        proofRequest,
-      } = request.params as CheckCredentialExistenceRequestParams;
+      const { claimOffer, proofRequest } =
+        request.params as CheckCredentialExistenceRequestParams;
 
       const vcManager = await VCManager.create();
 
@@ -136,7 +129,7 @@ export const onRpcRequest = async ({
             heading('Remove Credentials'),
             divider(),
 
-            ...vcs.reduce((acc, el, idx) => {
+            ...vcs.reduce<Component[]>((acc, el, idx) => {
               const vcTargetType = el.type[1];
               const vcID = el.id;
 
@@ -146,7 +139,7 @@ export const onRpcRequest = async ({
                 text(`ID: ${vcID}`),
                 divider(),
               ]);
-            }, [] as Component[]),
+            }, []),
           ]),
         },
       });
@@ -155,7 +148,7 @@ export const onRpcRequest = async ({
         throw new Error('User rejected request');
       }
 
-      await Promise.all(vcs.map((vc) => vcManager.clearMatchedVcs(vc)));
+      await Promise.all(vcs.map(async (vc) => vcManager.clearMatchedVcs(vc)));
 
       return undefined;
     }
@@ -167,7 +160,7 @@ export const onRpcRequest = async ({
       }
 
       // FIXME: mb multiple offers?
-      const offer = (request.params as any) as SaveCredentialsRequestParams;
+      const offer = request.params as any as SaveCredentialsRequestParams;
 
       isValidSaveCredentialsOfferRequest(offer);
 

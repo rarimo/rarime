@@ -1,4 +1,3 @@
-import { SnapConnector } from './types';
 import {
   createIdentity,
   createProof,
@@ -10,6 +9,7 @@ import {
   exportIdentity,
   getIdentity,
 } from './methods';
+import type { SnapConnector } from './types';
 
 export class MetamaskSnap {
   public readonly snapId: string;

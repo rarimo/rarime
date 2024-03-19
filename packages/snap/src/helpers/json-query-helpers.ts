@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-parameter-properties */
 import type { ProofQuery } from '@rarimo/rarime-connector';
-import { W3CCredential } from '../types';
+
+import type { W3CCredential } from '../types';
 
 export enum SearchError {
   NotDefinedQueryKey = 'not defined query key',

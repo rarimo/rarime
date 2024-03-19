@@ -8,89 +8,48 @@ console.log('Bundle replace code to SES', bundlePath);
 // eslint-disable-next-line node/no-sync
 let bundleString = fs.readFileSync(bundlePath, 'utf8');
 
+console.log('[Start]: MetaMask Snaps transform');
+
 bundleString = postProcessBundle(bundleString, {
   stripComments: true,
 }).code;
 
-bundleString = 'var Worker = {};\n'.concat(bundleString);
+// Alias `window` as `self`
+bundleString = 'var self = window;\n'.concat(bundleString);
+
+console.log('[End]: MetaMask Snaps transform');
+
+console.log('[Start]: Custom transform');
 
 bundleString = bundleString.replace(
   "/** @type {import('cborg').TagDecoder[]} */",
   '',
 );
 
-// Remove eval
-bundleString = bundleString.replaceAll(`eval(`, 'evalIn(');
+// [Polygon ID] Fix Worker
+bundleString = 'var Worker = {};\n'.concat(bundleString);
 
-// Remove eval
-bundleString = bundleString.replaceAll(`process.browser`, 'true'); // Remove eval
-
-bundleString = bundleString.replaceAll(
-  `Response,
-      Request,`,
-  'Request,',
-);
-
-// fix promise
+// [Polygon ID] Fix promise
 bundleString = bundleString.replaceAll(
   `new Function("return this;")().Promise`,
   'Promise',
 );
 
-// fix single thread
+// [Polygon ID] fix single thread
 bundleString = bundleString.replaceAll(`if (singleThread)`, `if (true)`);
 
-// fix single thread
+// [Polygon ID] fix single thread
 bundleString = bundleString.replaceAll(
   `singleThread: singleThread ? true : false`,
   `singleThread: true`,
 );
 
-// undefined Response
-bundleString = bundleString.replaceAll(
-  `class ResponseWithURL extends Response {
-      constructor(url, body, options) {
-        super(body, options);
-        Object.defineProperty(this, 'url', {
-          value: url
-        });
-      }
-    }`,
-  '',
-);
+// [Polygon ID] Remove fs
+bundleString = bundleString.replaceAll('fs2.readFileSync;', 'null;');
+bundleString = bundleString.replaceAll('fs3.readFileSync;', 'null;');
 
-// undefined Response
-bundleString = bundleString.replaceAll(
-  `class ResponseWithURL extends Response {
-  constructor(url, body, options) {
-    super(body, options);
-    Object.defineProperty(this, 'url', {
-      value: url
-    });
-  }
-}`,
-  '',
-);
+console.log('[End]: Custom transform');
 
-// undefined Response
-bundleString = bundleString.replaceAll(
-  `var ResponseWithURL = class extends Response2 {
-      /**
-       * @param {string} url
-       * @param {BodyInit} body
-       * @param {ResponseInit} options
-       */
-      constructor(url, body, options) {
-        super(body, options);
-        Object.defineProperty(this, "url", { value: url });
-      }
-    };`,
-  '',
-);
-
-// Fix TextEncoder and TextDecoder
-bundleString = bundleString.replace('var empty2 = null;', 'var empty2 = {};');
-
-// eslint-disable-next-line node/no-sync
 fs.writeFileSync(bundlePath, bundleString);
-console.log('Bundle replaced code to SES', bundlePath);
+
+console.log('Finished post-processing bundle');

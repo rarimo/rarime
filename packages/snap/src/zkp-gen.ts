@@ -1,12 +1,18 @@
+import type { Signature } from '@iden3/js-crypto';
+import { Hex } from '@iden3/js-crypto';
+import { fromLittleEndian } from '@iden3/js-iden3-core';
 import { proving, type ZKProof } from '@iden3/js-jwz';
 
-import { Hex, Signature } from '@iden3/js-crypto';
-import { fromLittleEndian } from '@iden3/js-iden3-core';
-import { type Identity } from './identity';
-
+import { config } from './config';
+import {
+  defaultMTLevels,
+  defaultMTLevelsClaimsMerklization,
+  defaultMTLevelsOnChain,
+  defaultValueArraySize,
+} from './const';
+import { CircuitId } from './enums';
 import {
   buildTreeState,
-  CircuitClaim,
   getGISTProof,
   getNodeAuxValue,
   getPreparedCredential,
@@ -17,10 +23,11 @@ import {
   newCircuitClaimData,
   prepareCircuitArrayValues,
   prepareSiblingsStr,
-  Query,
   toCircuitsQuery,
   toGISTProof,
 } from './helpers';
+import type { CircuitClaim, Query } from './helpers';
+import { type Identity } from './identity';
 import type {
   ClaimNonRevStatus,
   CreateProofRequest,
@@ -28,14 +35,6 @@ import type {
   NodeAuxValue,
   W3CCredential,
 } from './types';
-import { config } from './config';
-import {
-  defaultMTLevels,
-  defaultMTLevelsClaimsMerklization,
-  defaultMTLevelsOnChain,
-  defaultValueArraySize,
-} from './const';
-import { CircuitId } from './enums';
 
 export class ZkpGen {
   identity: Identity = {} as Identity;

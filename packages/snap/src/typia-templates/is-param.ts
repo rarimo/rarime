@@ -1,5 +1,9 @@
 import typia from 'typia';
-import { SaveCredentialsRequestParams, CreateProofRequest } from '../types';
+
+import type {
+  SaveCredentialsRequestParams,
+  CreateProofRequest,
+} from '../types';
 
 const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
   let errorMessage = 'invalid_argument: ';
@@ -12,7 +16,7 @@ const formatErrorMessages = (errors: typia.IValidation.IError[]): string => {
   return errorMessage;
 };
 
-const handleIValidation = (result: typia.IValidation<unknown>) => {
+const handleIValidation = (result: typia.IValidation) => {
   if (result.success) {
     return undefined;
   }

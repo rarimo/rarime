@@ -1,9 +1,10 @@
-import { Signature } from '@iden3/js-crypto';
-import { Claim } from '@iden3/js-iden3-core';
-import { Hash, Proof } from '@iden3/js-merkletree';
+import type { Signature } from '@iden3/js-crypto';
+import type { Claim } from '@iden3/js-iden3-core';
+import type { Hash, Proof } from '@iden3/js-merkletree';
 import type { ProofQuery } from '@rarimo/rarime-connector';
-import { Query } from '../helpers';
-import { CircuitId } from '../enums';
+
+import type { CircuitId } from '../enums';
+import type { Query } from '../helpers';
 
 export type CreateProofRequest = {
   id?: number;
