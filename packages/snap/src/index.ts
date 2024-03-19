@@ -1,6 +1,8 @@
 // eslint-disable-next-line import/no-unassigned-import
 import './polyfill';
 
+import type { OnUpdateHandler } from '@metamask/snaps-sdk';
+import { heading, panel, text } from '@metamask/snaps-sdk';
 import type { JsonRpcRequest } from '@metamask/utils';
 import { RPCMethods } from '@rarimo/rarime-connector';
 
@@ -97,4 +99,23 @@ export const onRpcRequest = async ({
     default:
       throw new Error('Method not found.');
   }
+};
+
+export const onUpdate: OnUpdateHandler = async (args: {
+  request: JsonRpcRequest;
+}) => {
+  console.log('onUpdate', JSON.stringify(args));
+
+  await snap.request({
+    method: 'snap_dialog',
+    params: {
+      type: 'alert',
+      content: panel([
+        text('New features added in this version:'),
+        text('• Cosmos compatible wallet'),
+        text('• Import & Export identity'),
+        text('• Remove credentials'),
+      ]),
+    },
+  });
 };
