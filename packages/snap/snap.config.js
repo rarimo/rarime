@@ -1,7 +1,7 @@
 module.exports = {
-  cliOptions: {
-    src: './src/index.ts',
+  input: './src/index.ts',
+  server: {
     port: 8081,
-    eval: false,
   },
+  evaluate: false
 };
