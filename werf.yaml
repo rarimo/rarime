@@ -30,8 +30,3 @@ from: nginx:alpine
 git:
   - add: /nginx.conf
     to: /etc/nginx/nginx.conf
-import:
-  - image: builder
-    add: /app/packages/site/public
-    to: /usr/share/nginx/html
-    after: setup
