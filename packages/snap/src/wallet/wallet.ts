@@ -93,16 +93,16 @@ export type WalletOptions = {
 };
 
 export class Wallet {
-  private readonly privateKey: Uint8Array;
+  readonly #privateKey: Uint8Array;
 
-  private readonly pubkey: Uint8Array;
+  readonly #pubkey: Uint8Array;
 
-  private readonly address: string;
+  readonly #address: string;
 
   constructor(privateKey: Uint8Array, publicKey: Uint8Array, address: string) {
-    this.privateKey = privateKey;
-    this.pubkey = publicKey;
-    this.address = address;
+    this.#privateKey = privateKey;
+    this.#pubkey = publicKey;
+    this.#address = address;
   }
 
   static create(privateKey: string, addressPrefix: string) {
@@ -117,9 +117,9 @@ export class Wallet {
   getAccounts() {
     return [
       {
-        address: this.address,
+        address: this.#address,
         algo: 'secp256k1',
-        pubkey: this.pubkey,
+        pubkey: this.#pubkey,
       },
     ];
   }
@@ -135,7 +135,7 @@ export class Wallet {
 
     const hash = sha256(serializeSignDoc(signDoc));
 
-    const signature = await secp.sign(hash, this.privateKey, {
+    const signature = await secp.sign(hash, this.#privateKey, {
       canonical: true,
       extraEntropy: true,
       der: false,
@@ -165,7 +165,7 @@ export class Wallet {
     }
     const hash = sha256(serializeStdSignDoc(signDoc));
     const extraEntropy = options?.extraEntropy ? true : undefined;
-    const signature = await secp.sign(hash, this.privateKey, {
+    const signature = await secp.sign(hash, this.#privateKey, {
       // canonical: true,
       extraEntropy,
       // der: false,

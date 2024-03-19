@@ -28,8 +28,6 @@ module.exports = {
         '@typescript-eslint/unbound-method': 0,
         '@typescript-eslint/no-unnecessary-type-assertion': 0,
         '@typescript-eslint/restrict-plus-operands': 0,
-        // TEMP:
-        'no-restricted-syntax': 0,
       },
     },
 

@@ -126,11 +126,11 @@ export const getAuthenticatedCeramicProvider = async (
 export class VCManager {
   ceramicProvider: CeramicProvider;
 
-  private readonly saltedEntropy: string;
+  readonly #saltedEntropy: string;
 
   constructor(ceramicProvider: CeramicProvider, saltedEntropy: string) {
     this.ceramicProvider = ceramicProvider;
-    this.saltedEntropy = saltedEntropy;
+    this.#saltedEntropy = saltedEntropy;
   }
 
   static async create(opts?: {
@@ -176,8 +176,8 @@ export class VCManager {
     );
   }
 
-  private personalHashStr(str: string) {
-    return sha256(Buffer.from(str + this.saltedEntropy));
+  #personalHashStr(str: string) {
+    return sha256(Buffer.from(str + this.#saltedEntropy));
   }
 
   public async getDecryptedVCsByQueryHash(
@@ -189,9 +189,9 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedOwnerDid = this.personalHashStr(client.did.id);
+    const hashedOwnerDid = this.#personalHashStr(client.did.id);
 
-    const hashedQueryHash = this.personalHashStr(queryHash);
+    const hashedQueryHash = this.#personalHashStr(queryHash);
 
     const data = await loadAllCredentialsListPages<
       GetVerifiableCredentialsByQueryHashQueryVariables,
@@ -234,12 +234,12 @@ export class VCManager {
     const claimIds = getClaimIdsFromOffer(claimOffer);
     const queryHash = hashVC(JSON.stringify(query.type), issuerDid, ownerDid);
 
-    const hashedQueryHash = this.personalHashStr(queryHash);
+    const hashedQueryHash = this.#personalHashStr(queryHash);
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
-        const hashedClaimId = this.personalHashStr(claimId);
-        const hashedOwnerDid = this.personalHashStr(ownerDid);
+        const hashedClaimId = this.#personalHashStr(claimId);
+        const hashedOwnerDid = this.#personalHashStr(ownerDid);
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdAndQueryHashQueryVariables,
@@ -296,8 +296,8 @@ export class VCManager {
 
     const encryptedVCs = await Promise.all(
       claimIds.map(async (claimId) => {
-        const hashedClaimId = this.personalHashStr(claimId);
-        const hashedOwnerDid = this.personalHashStr(ownerDid);
+        const hashedClaimId = this.#personalHashStr(claimId);
+        const hashedOwnerDid = this.#personalHashStr(ownerDid);
 
         const data = await loadAllCredentialsListPages<
           GetVerifiableCredentialsByClaimIdQueryVariables,
@@ -332,7 +332,7 @@ export class VCManager {
     );
   }
 
-  private async getPreparedVCFields(credential: W3CCredential) {
+  async #getPreparedVCFields(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
     const ownerDid = client.did?.id;
@@ -350,9 +350,9 @@ export class VCManager {
     const claimId = getClaimIdFromVCId(credential.id);
 
     const [hashedOwnerDid, hashedQueryHash, hashedClaimId] = await Promise.all([
-      this.personalHashStr(ownerDid),
-      this.personalHashStr(queryHash),
-      this.personalHashStr(claimId),
+      this.#personalHashStr(ownerDid),
+      this.#personalHashStr(queryHash),
+      this.#personalHashStr(claimId),
     ]);
 
     return {
@@ -375,7 +375,7 @@ export class VCManager {
   public async clearMatchedVcs(credential: W3CCredential) {
     const client = this.ceramicProvider.client();
 
-    const { hashedOwnerDid, hashedQueryHash } = await this.getPreparedVCFields(
+    const { hashedOwnerDid, hashedQueryHash } = await this.#getPreparedVCFields(
       credential,
     );
 
@@ -415,7 +415,7 @@ export class VCManager {
     const client = this.ceramicProvider.client();
 
     const { hashedOwnerDid, hashedQueryHash, hashedClaimId } =
-      await this.getPreparedVCFields(credential);
+      await this.#getPreparedVCFields(credential);
 
     const encryptedVC = await this.ceramicProvider.encrypt(credential);
 
@@ -444,7 +444,7 @@ export class VCManager {
       throw new TypeError('Client not authenticated');
     }
 
-    const hashedOwnerDid = this.personalHashStr(ownerDid);
+    const hashedOwnerDid = this.#personalHashStr(ownerDid);
 
     const data = await loadAllCredentialsListPages<
       GetAllVerifiableCredentialsQueryVariables,
