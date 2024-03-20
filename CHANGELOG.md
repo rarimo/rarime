@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ExportIdentity` RPC method
   - `GetIdentity` RPC method
 - GitHub Actions for pull request checks and publishing RC/stable versions
+- `@rarimo/zkp-iden3` for generating Zero-Knowledge Proofs for the Iden3 protocol
 
 ### Changed
 - `@rarimo/rarime`:
