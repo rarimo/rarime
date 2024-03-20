@@ -1,8 +1,3 @@
-export const readBytesFile = async (path: string) => {
-  const response = await fetch(path);
-  return new Uint8Array(await response?.arrayBuffer?.());
-};
-
 export const getSnapFileBytes = async (path: string) => {
   const response = await snap.request({
     method: 'snap_getFile',
@@ -19,12 +14,4 @@ export const getSnapFileBytes = async (path: string) => {
   }
 
   return bytes;
-};
-
-export const getFileBytes = async (path: string) => {
-  try {
-    return await readBytesFile(new URL(path).href);
-  } catch (error) {
-    return await getSnapFileBytes(path);
-  }
 };

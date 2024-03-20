@@ -1,11 +1,11 @@
 import { ComposeClient } from '@composedb/client';
 import type { RuntimeCompositeDefinition } from '@composedb/types';
 import { Hex } from '@iden3/js-crypto';
-import { DID as CeramicDID } from 'dids';
+import { DID } from 'dids';
 import { Ed25519Provider } from 'key-did-provider-ed25519';
 import { getResolver } from 'key-did-resolver';
 
-import { CERAMIC_URL } from '../config';
+import { CERAMIC_URL } from '@/config';
 
 export class CeramicProvider {
   readonly #pkHex: string;
@@ -31,7 +31,7 @@ export class CeramicProvider {
   }
 
   async auth() {
-    const did = new CeramicDID({
+    const did = new DID({
       provider: new Ed25519Provider(Hex.decodeString(this.#pkHex)),
       resolver: getResolver(),
     });
