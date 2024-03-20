@@ -1,12 +1,11 @@
-name: Publish to NPM
+name: Publish RC to NPM
 
 on:
   push:
     tags:
-      - '*.*.*'
+      - '[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
 
 jobs:
-
   publish:
     runs-on: ubuntu-latest
     strategy:
@@ -21,6 +20,8 @@ jobs:
         run: |
           yarn install
           yarn build
-          yarn publish
+          yarn lint
+          yarn test
+          yarn publish-rc
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

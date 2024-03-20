@@ -24,7 +24,8 @@
     "lint:eslint": "eslint . --cache --ext js,ts",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",
     "lint:misc": "prettier '**/*.json' '**/*.md' '!**/CHANGELOG.md' '**/*.yml' --ignore-path .gitignore",
-    "publish": "yarn workspaces foreach --no-private exec yarn npm publish",
+    "publish-rc": "yarn build && yarn workspaces foreach --no-private --all exec yarn npm publish --tag next",
+    "publish-stable": "yarn build && yarn workspaces foreach --no-private --all exec yarn npm publish",
     "rsc": "node scripts/release-sanity-check.js",
     "start": "yarn build:connector && yarn workspaces foreach --parallel --interlaced --verbose --all run start",
     "test": "yarn workspaces foreach -pv --no-private --all run test"

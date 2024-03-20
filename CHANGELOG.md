@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `RemoveCredentials` credentials RPC method
   - `ExportIdentity` RPC method
   - `GetIdentity` RPC method
+- GitHub Actions for pull request checks and publishing RC/stable versions
 
 ### Changed
 - `@rarimo/rarime`:
@@ -27,9 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `packages/site` package
-
-### Removed
-- `packages/site` package
+- Unused CI scripts
 
 ## [2.0.3] - 2024-02-06
 ### Changed
