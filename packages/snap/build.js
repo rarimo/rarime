@@ -5,10 +5,22 @@ const path = require('path');
 
 stdLibBrowser = {
   ...stdLibBrowser,
-  "@iden3/js-iden3-core": path.join(__dirname, '../../node_modules/@iden3/js-iden3-core/dist/browser/esm/index.js'),
-  "@iden3/js-jwz": path.join(__dirname, '../../node_modules/@iden3/js-jwz/dist/browser/esm/index.js'),
-  "@iden3/js-crypto": path.join(__dirname, '../../node_modules/@iden3/js-crypto/dist/browser/esm/index.js'),
-  "@iden3/js-jsonld-merklization": path.join(__dirname, '../../node_modules/@iden3/js-jsonld-merklization/dist/node/esm/index.js'),
+  '@iden3/js-iden3-core': path.join(
+    __dirname,
+    '../../node_modules/@iden3/js-iden3-core/dist/browser/esm/index.js',
+  ),
+  '@iden3/js-jwz': path.join(
+    __dirname,
+    '../../node_modules/@iden3/js-jwz/dist/browser/esm/index.js',
+  ),
+  '@iden3/js-crypto': path.join(
+    __dirname,
+    '../../node_modules/@iden3/js-crypto/dist/browser/esm/index.js',
+  ),
+  '@iden3/js-jsonld-merklization': path.join(
+    __dirname,
+    '../../node_modules/@iden3/js-jsonld-merklization/dist/node/esm/index.js',
+  ),
 };
 
 console.log('START building ESM bundle...');
@@ -21,9 +33,7 @@ esbuild.build({
   sourcemap: false,
   format: 'cjs',
   legalComments: 'none',
-  plugins: [
-    plugin(stdLibBrowser),
-  ],
+  plugins: [plugin(stdLibBrowser)],
   define: {
     Buffer: 'Buffer',
     process: 'process',

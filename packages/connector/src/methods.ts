@@ -1,19 +1,19 @@
 /* eslint-disable no-invalid-this */
 import { getUpdateStateDetails, getUpdateStateTx } from './helpers';
-import { MetamaskSnap } from './snap';
-import {
+import type { MetamaskSnap } from './snap';
+import type {
   CheckCredentialExistenceRequestParams,
   CreateIdentityRequestParams,
   CreateProofRequestParams,
   RemoveCredentialsRequestParams,
   IdentityDidPair,
-  RPCMethods,
   SaveCredentialsRequestParams,
   SaveCredentialsResponse,
   W3CCredential,
   ZKPProofResponse,
   ZKPProofSnapResponse,
 } from './types';
+import { RPCMethods } from './types';
 
 const sendSnapMethod = async <T>(
   request: unknown,

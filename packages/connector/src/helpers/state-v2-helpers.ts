@@ -1,18 +1,19 @@
 /* eslint-disable camelcase */
+
+import type { TransactionRequest } from '@ethersproject/providers';
 import { utils } from 'ethers';
 
-import { TransactionRequest } from '@ethersproject/providers';
-import {
+import { FetcherError } from './error-helper';
+import { sleep } from './promise.helpers';
+import { CORE_POLLING_INTERVAL } from '../consts';
+import { LightweightStateV2__factory } from '../contracts';
+import type {
   ChainInfo,
   StateInfo,
   Operation,
   OperationProof,
   UpdateStateDetails,
 } from '../types';
-import { LightweightStateV2__factory } from '../contracts';
-import { CORE_POLLING_INTERVAL } from '../consts';
-import { FetcherError } from './error-helper';
-import { sleep } from './promise.helpers';
 
 export const loadDataFromRarimoCore = async <T>(
   url: string,

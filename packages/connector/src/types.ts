@@ -1,4 +1,4 @@
-import { TransactionRequest } from '@ethersproject/providers';
+import type { TransactionRequest } from '@ethersproject/providers';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -23,9 +23,7 @@ export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
   Pick<W3CCredential, 'issuer'>;
 
 export type SnapConnector = {
-  createIdentity(
-    params?: CreateIdentityRequestParams,
-  ): Promise<{
+  createIdentity(params?: CreateIdentityRequestParams): Promise<{
     identityIdString: string;
     identityIdBigIntString: string;
   }>;

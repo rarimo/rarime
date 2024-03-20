@@ -11,10 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `RemoveCredentials` credentials RPC method
   - `ExportIdentity` RPC method
   - `GetIdentity` RPC method
+- GitHub Actions for pull request checks and publishing RC/stable versions
 
 ### Changed
 - `@rarimo/rarime`:
   - `CreateIdentity` - accept `privateKeyHex` optional param for identity creation
+- Bump Yarn version to 4.1.1
+- Use SWC instead of TSC for the build process
+- Update Jest config for testing
+- Use latest MetaMask snap libraries
+- Use `workspace` version inside packages
+
+### Removed
+- `packages/site` package
+- Unused CI scripts
 
 ## [2.0.3] - 2024-02-06
 ### Changed
