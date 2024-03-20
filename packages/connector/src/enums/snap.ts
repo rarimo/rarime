@@ -8,4 +8,10 @@ export enum RPCMethods {
   GetCredentials = 'get_credentials',
   ExportIdentity = 'export_identity',
   GetIdentity = 'get_identity',
+
+  WalletSignDirect = 'wallet_signDirect',
+  WalletSignAmino = 'wallet_signAmino',
+  WalletGetKey = 'wallet_getKey',
+  WalletSuggestChain = 'wallet_suggestChain',
+  WalletGetSupportedChains = 'wallet_getSupportedChains',
 }

@@ -1,4 +1,15 @@
+import type { AccountData, AminoSignResponse } from '@cosmjs/amino';
+
 import type { RPCMethods } from '@/enums';
+import type {
+  ChainInfo,
+  WalletRequestAminoSignParams,
+  WalletRequestDirectSignParams,
+  WalletRequestGetKeyParams,
+  WalletRequestSuggestChainParams,
+  WalletSignDirectResponse,
+  CHAINS,
+} from '@/wallet';
 import type {
   CheckCredentialExistenceRequestParams,
   CreateIdentityRequestParams,
@@ -32,6 +43,12 @@ export type SnapRequestParams = {
 
   [RPCMethods.CheckStateContractSync]: never;
   [RPCMethods.CreateProof]: CreateProofRequestParams;
+
+  [RPCMethods.WalletSignDirect]: WalletRequestDirectSignParams;
+  [RPCMethods.WalletSignAmino]: WalletRequestAminoSignParams;
+  [RPCMethods.WalletGetKey]: WalletRequestGetKeyParams;
+  [RPCMethods.WalletSuggestChain]: WalletRequestSuggestChainParams;
+  [RPCMethods.WalletGetSupportedChains]: never;
 };
 
 export type SnapRequestsResponses = {
@@ -46,4 +63,10 @@ export type SnapRequestsResponses = {
 
   [RPCMethods.CheckStateContractSync]: boolean;
   [RPCMethods.CreateProof]: ZKPProofSnapResponse;
+
+  [RPCMethods.WalletSignDirect]: WalletSignDirectResponse;
+  [RPCMethods.WalletSignAmino]: AminoSignResponse;
+  [RPCMethods.WalletGetKey]: AccountData;
+  [RPCMethods.WalletSuggestChain]: { message: string; chainInfo: ChainInfo };
+  [RPCMethods.WalletGetSupportedChains]: typeof CHAINS;
 };
