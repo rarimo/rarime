@@ -1,6 +1,6 @@
 name: Lint and test
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build_and_test:
@@ -9,15 +9,14 @@ jobs:
       fail-fast: false
       matrix:
         nodejs: [18]
-
     steps:
       - uses: actions/checkout@v3
-
-      # https://github.com/actions/setup-node
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.nodejs }}
-
-      - run: yarn install
-      - run: yarn build
-      - run: yarn lint && yarn test
+      - name: Lint and test
+        run: |
+          yarn install
+          yarn build
+          yarn lint
+          yarn test
