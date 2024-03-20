@@ -7,7 +7,7 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "pR/GHO8ZzuPevQqqoN4Qt1F5Yo/90qjJom/1cLj2EAk=",
+    "shasum": "nrGz6gduclcvGp8OGetbqt0y1rdDNmycW7LeQsGmioU=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -27,7 +27,8 @@
     "snap_dialog": {},
     "endowment:rpc": {
       "dapps": true,
-      "snaps": true
+      "snaps": true,
+      "maxRequestTime": 180000
     },
     "snap_manageState": {},
     "endowment:network-access": {},
