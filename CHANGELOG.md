@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 [Unreleased]
+
 ### Added
 - `@rarimo/rarime`:
   - `RemoveCredentials` credentials RPC method
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Jest config for testing
 - Use latest MetaMask snap libraries
 - Use `workspace` version inside packages
+- Extended snap RPC timeouts to 3 minutes
 - `@rarimo/rarime-connector`:
   - Move interaction with state contracts to connector package
   - Extract `RarimeSnapBase` as a base snap instance and `ZkpSnap` as an instance for ZKP interactions

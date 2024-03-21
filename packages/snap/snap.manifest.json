@@ -27,7 +27,8 @@
     "snap_dialog": {},
     "endowment:rpc": {
       "dapps": true,
-      "snaps": true
+      "snaps": true,
+      "maxRequestTime": 180000
     },
     "snap_manageState": {},
     "endowment:network-access": {},

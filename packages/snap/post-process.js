@@ -1,6 +1,6 @@
 const fs = require('fs');
 const pathUtils = require('path');
-const { postProcessBundle } = require('@metamask/snaps-utils');
+const { postProcessBundle } = require('@metamask/snaps-utils/node');
 
 const bundlePath = pathUtils.join('dist', 'bundle.js');
 console.log('Bundle replace code to SES', bundlePath);
