@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use latest MetaMask snap libraries
 - Use `workspace` version inside packages
 - Extended snap RPC timeouts to 3 minutes
+- `@rarimo/rarime-connector`:
+  - Move interaction with state contracts to connector package
+  - Extract `RarimeSnapBase` as a base snap instance and `ZkpSnap` as an instance for ZKP interactions
+  - Define global reusable types & helpers
 
 ### Removed
 - `packages/site` package

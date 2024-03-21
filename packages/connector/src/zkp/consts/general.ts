@@ -1,0 +1,1 @@
+export const CORE_POLLING_INTERVAL = 5_000;
