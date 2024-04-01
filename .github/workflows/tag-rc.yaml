@@ -21,6 +21,5 @@ jobs:
           yarn install
           yarn publish-rc
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
