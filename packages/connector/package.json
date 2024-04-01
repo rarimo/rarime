@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime-connector",
-  "version": "2.1.0-rc.22",
+  "version": "2.1.0-rc.23",
   "description": "Facilitates interaction between a DApp and RariMe MetaMask snap",
   "repository": {
     "type": "git",
@@ -43,8 +43,7 @@
     "lint": "yarn run lint:style && yarn run lint:types",
     "lint:style": "eslint --color 'src/**/*.{js,ts,tsx}'",
     "lint:style:fix": "yarn run lint:style --fix",
-    "lint:types": "tsc --noEmit --pretty",
-    "prepublishOnly": "yarn build"
+    "lint:types": "tsc --noEmit --pretty"
   },
   "dependencies": {
     "@ethersproject/providers": "5.7.2",

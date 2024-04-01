@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0-rc.22",
+  "version": "2.1.0-rc.23",
   "description": "Securely store and manage all of your identity credentials. Use them across chains with ZK-protected privacy guarantees.",
   "proposedName": "RariMe",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "hQDkgpNvwErKaKx95PjLMOm586ewjOgCzbTOMHvDT1Q=",
+    "shasum": "iVGV8cdWVOZPAU0tcmzOkbVWqUKdqsN1dBht9/mm84E=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
