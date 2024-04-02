@@ -3,6 +3,7 @@ import type { SnapConfig } from '@metamask/snaps-cli';
 const config: SnapConfig = {
   bundler: 'webpack', // default: 'browserify'
   input: 'src/index.ts',
+  evaluate: true,
   output: {
     path: 'dist',
   },

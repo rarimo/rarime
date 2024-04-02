@@ -72,8 +72,6 @@ vcs = await authProof.getVerifiableCredentials(); // W3CCredential[]
 ### Generate Proof
 
 ```ts
-// const isSynced = await checkIfStateSynced(chainInfo)
-
 const did = parseDidV2(vcs[0].issuer);
 
 const issuerId = DID.idFromDID(did);
@@ -84,11 +82,6 @@ const stateData = await loadDataFromRarimoCore<GetStateInfoResponse>(
   `/rarimo/rarimo-core/identity/state/${issuerHexId}`,
   chainInfo.rarimoApiUrl,
 );
-// const merkleProof = await loadDataFromRarimoCore<MerkleProof>(
-//   `/rarimo/rarimo-core/identity/state/${issuerHexId}/proof`,
-//   chainInfo.rarimoApiUrl,
-//   stateData.state.createdAtBlock,
-// )
 
 const operation = await getCoreOperationByIndex(
   chainInfo,
