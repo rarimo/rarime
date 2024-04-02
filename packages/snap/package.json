@@ -1,6 +1,6 @@
 {
   "name": "@rarimo/rarime",
-  "version": "2.1.0-rc.3",
+  "version": "2.1.0-rc.24",
   "description": "RariMe is a MetaMask Snap that safely holds any of your credentials and allows you to prove your identity without revealing any personal data. Powered by Rarimo Protocol and  Zero-Knowledge Proof technology.",
   "repository": {
     "type": "git",
@@ -8,10 +8,10 @@
   },
   "license": "(MIT-0 OR Apache-2.0)",
   "files": [
-    "dist/",
-    "images/",
-    "assets/circuits/auth",
-    "assets/circuits/credentialAtomicQueryMTPV2OnChain",
+    "dist/**/*",
+    "images/**/*",
+    "assets/circuits/auth/**/*",
+    "assets/circuits/credentialAtomicQueryMTPV2OnChain/**/*",
     "snap.manifest.json",
     "README.md"
   ],
@@ -30,7 +30,6 @@
     "lint:eslint": "eslint . --cache --ext js,ts",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",
     "lint:misc": "prettier '**/*.json' '**/*.md' '!CHANGELOG.md' --ignore-path .gitignore",
-    "prepublishOnly": "yarn && yarn build",
     "serve": "mm-snap serve",
     "start": "nodemon --watch src/ --ext ts --exec 'yarn build && yarn serve'",
     "typia:generate": "typia generate --input src/typia-templates --output src/typia-generated --project tsconfig.json",
