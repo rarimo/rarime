@@ -1,1 +1,1 @@
-export const SUPPORTED_METAMASK_VERSION = '11.12.0';
+export const SUPPORTED_METAMASK_VERSION = '11.13.0';
