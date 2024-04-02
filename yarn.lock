@@ -5900,6 +5900,7 @@ __metadata:
     "@metamask/snaps-utils": "npm:^7.0.3"
     "@rarimo/rarime-connector": "workspace:^"
     "@rarimo/zkp-iden3": "workspace:^"
+    "@typechain/ethers-v5": "npm:11.1.1"
     "@types/intl": "npm:1.2.0"
     "@types/lodash": "npm:^4.14.202"
     "@types/uuid": "npm:9.0.2"
