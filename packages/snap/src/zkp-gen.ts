@@ -114,6 +114,8 @@ export class ZkpGen {
       this.circuitClaimData.signatureProof.issuerAuthNonRevProof.proof,
     );
     this.nodeAuxNonRev = getNodeAuxValue(this.nonRevProof.proof);
+    console.log('117');
+    console.log(this.nodeAuxNonRev);
     this.nodAuxJSONLD = getNodeAuxValue(this.query.valueProof!.mtp);
     this.value = prepareCircuitArrayValues(
       this.query.values,
@@ -457,6 +459,14 @@ export class ZkpGen {
   }
 
   generateQueryMTPV2OnChainInputs() {
+    console.log('generateQueryMTPV2OnChainInputs');
+
+    console.log('this.nodeAuxIssuerAuthNonRev');
+    console.log(this.nodeAuxIssuerAuthNonRev);
+
+    console.log('this.nodeAuxNonRev');
+    console.log(this.nodeAuxNonRev);
+
     return JSON.stringify({
       /* we have no constraints for "requestID" in this circuit, it is used as a unique identifier for the request */
       /* and verifier can use it to identify the request, and verify the proof of specific request in case of multiple query requests */
