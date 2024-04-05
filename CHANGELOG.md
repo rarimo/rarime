@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `workspace` version inside packages
 - Extended snap RPC timeouts to 3 minutes
 
+### Fixed
+- `@rarimo/rarime`:
+  - fixed handling `nodeAux` named as `node_aux` in some legacy credentials
+
 ### Removed
 - `packages/site` package
 - Unused CI scripts
