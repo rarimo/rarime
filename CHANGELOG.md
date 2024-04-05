@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `@rarimo/rarime`:
-  - `nodeAux` could be received as `node_aux` from backend, and could be `primitive` type or `object`
+  - fixed handling `nodeAux` named as `node_aux` in some legacy credentials
 
 ### Removed
 - `packages/site` package
