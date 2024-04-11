@@ -6,31 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 [Unreleased]
-
-### Added
-- `@rarimo/rarime`:
-  - `RemoveCredentials` credentials RPC method
-  - `ExportIdentity` RPC method
-  - `GetIdentity` RPC method
-- GitHub Actions for pull request checks and publishing RC/stable versions
-
 ### Changed
-- `@rarimo/rarime`:
-  - `CreateIdentity` - accept `privateKeyHex` optional param for identity creation
-- Bump Yarn version to 4.1.1
-- Use SWC instead of TSC for the build process
-- Update Jest config for testing
-- Use latest MetaMask snap libraries
-- Use `workspace` version inside packages
-- Extended snap RPC timeouts to 3 minutes
 - `@rarimo/rarime-connector`:
   - Move interaction with state contracts to connector package
   - Extract `RarimeSnapBase` as a base snap instance and `ZkpSnap` as an instance for ZKP interactions
   - Define global reusable types & helpers
 
+## [2.1.0] - 2024-04-08
+### Added
+- `@rarimo/rarime`:
+  - `RemoveCredentials` credentials RPC method;
+  - `ExportIdentity` RPC method;
+  - `GetIdentity` RPC method;
+- GitHub Actions for pull request checks and publishing RC/stable versions;
+
+### Changed
+- Extended snap RPC timeouts to 3 minutes;
+- `@rarimo/rarime`:
+  - `CreateIdentity` - accept `privateKeyHex` optional param for identity creation;
+- Bump Yarn version to 4.1.1;
+- Use SWC instead of TSC for the build process;
+- Update Jest config for testing;
+- Use latest MetaMask snap libraries;
+- Use `workspace` version inside packages;
+
+### Fixed
+- `@rarimo/rarime`:
+  - fixed handling `nodeAux` named as `node_aux` in some legacy credentials;
+
 ### Removed
-- `packages/site` package
-- Unused CI scripts
+- `packages/site` package;
+- Unused CI scripts;
 
 ## [2.0.3] - 2024-02-06
 ### Changed
@@ -192,7 +198,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
 
-[Unreleased]: https://github.com/rarimo/rarime/compare/2.0.3...HEAD
+[Unreleased]: https://github.com/rarimo/rarime/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/rarimo/rarime/compare/2.0.3...2.1.0
 [2.0.3]: https://github.com/rarimo/rarime/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/rarimo/rarime/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/rarimo/rarime/compare/2.0.0...2.0.1

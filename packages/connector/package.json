@@ -17,11 +17,6 @@
       "default": "./dist/esm/index.js"
     }
   },
-  "files": [
-    "dist/**/*",
-    "README.md",
-    "package.json"
-  ],
   "main": "./dist/cjs/index.js",
   "unpkg": "./dist/index.js",
   "module": "./dist/esm/index.js",
@@ -34,6 +29,11 @@
       ]
     }
   },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "package.json"
+  ],
   "scripts": {
     "build": "yarn clean && yarn build:types && yarn build:cjs && yarn build:esm && node ./postbuild.js",
     "build:cjs": "npx swc src -d ./dist/cjs --config-file ./.swcrc -C module.type=commonjs --copy-files",

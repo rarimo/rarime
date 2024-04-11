@@ -16,11 +16,14 @@ import {
 import {
   newHashFromBigInt,
   newHashFromHex,
+  newHashFromString,
   Proof,
   ZERO_HASH,
 } from '@iden3/js-merkletree';
 import type { Hash, NodeAux } from '@iden3/js-merkletree';
 import type { ProofQuery } from '@rarimo/rarime-connector';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { getRevocationStatus, loadDataByUrl } from './credential-helpers';
 import { parseDidV2 } from './identity-helpers';
@@ -528,6 +531,8 @@ export const prepareCircuitArrayValues = (
 };
 
 export const getNodeAuxValue = (p: Proof | undefined): NodeAuxValue => {
+  const nodeAux = isEmpty(p?.nodeAux) ? get(p, 'node_aux') : p?.nodeAux;
+
   // proof of inclusion
   if (p?.existence) {
     return {
@@ -538,10 +543,19 @@ export const getNodeAuxValue = (p: Proof | undefined): NodeAuxValue => {
   }
 
   // proof of non-inclusion (NodeAux exists)
-  if (p?.nodeAux?.value !== undefined && p?.nodeAux?.key !== undefined) {
+  if (nodeAux?.value !== undefined && nodeAux?.key !== undefined) {
+    const key =
+      typeof nodeAux.key === 'string' || typeof nodeAux.key === 'number'
+        ? newHashFromString(nodeAux.key as unknown as string)
+        : nodeAux.key;
+    const value =
+      typeof nodeAux.value === 'string' || typeof nodeAux.value === 'number'
+        ? newHashFromString(nodeAux.value as unknown as string)
+        : nodeAux.value;
+
     return {
-      key: p.nodeAux.key,
-      value: p.nodeAux.value,
+      key,
+      value,
       noAux: '0',
     };
   }
