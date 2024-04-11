@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 [Unreleased]
+### Changed
+- `@rarimo/rarime-connector`:
+  - Move interaction with state contracts to connector package
+  - Extract `RarimeSnapBase` as a base snap instance and `ZkpSnap` as an instance for ZKP interactions
+  - Define global reusable types & helpers
 
 ## [2.1.0] - 2024-04-08
-
 ### Added
 - `@rarimo/rarime`:
   - `RemoveCredentials` credentials RPC method;

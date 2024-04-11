@@ -1,8 +1,12 @@
 import { compare } from 'compare-versions';
 
-import { defaultSnapOrigin } from '.';
-import { SUPPORTED_METAMASK_VERSION } from './consts';
-import type { GetSnapsResponse } from './types';
+import { SUPPORTED_METAMASK_VERSION } from '@/consts';
+import type { RPCMethods } from '@/enums';
+import type {
+  GetSnapsResponse,
+  SnapRequestParams,
+  SnapRequestsResponses,
+} from '@/types';
 
 export const getProvider = async () => {
   let mmFound = false;
@@ -45,37 +49,11 @@ export const getProvider = async () => {
   return window.ethereum;
 };
 
-export const getWalletSnaps = async (): Promise<GetSnapsResponse> => {
-  return await window.ethereum.request({
-    method: 'wallet_getSnaps',
-  });
-};
-
 export const isMetamaskInstalled = async (): Promise<boolean> => {
   try {
     const provider = await getProvider();
     return Boolean(provider?.isMetaMask);
   } catch {
-    return false;
-  }
-};
-
-export const isSnapInstalled = async (
-  snapOrigin?: string,
-  version?: string,
-): Promise<boolean> => {
-  try {
-    await getProvider();
-    const snapId = snapOrigin ?? defaultSnapOrigin;
-    return Boolean(
-      Object.values(await getWalletSnaps()).find(
-        (permission) =>
-          permission.id === snapId &&
-          (!version || permission.version === version),
-      ),
-    );
-  } catch (e) {
-    console.log('Failed to obtain installed snaps', e);
     return false;
   }
 };
@@ -88,4 +66,27 @@ export const checkSnapSupport = async () => {
   const currentVersion = version.match(/\/v?(\d+\.\d+\.\d+)/u)?.[1] ?? null;
   const isMobile = version.endsWith('Mobile');
   return compare(currentVersion, SUPPORTED_METAMASK_VERSION, '>=') && !isMobile;
+};
+
+export const getWalletSnaps = async (): Promise<GetSnapsResponse> => {
+  const provider = await getProvider();
+
+  return await provider.request({
+    method: 'wallet_getSnaps',
+  });
+};
+
+export const sendSnapMethod = async <Method extends RPCMethods>(
+  request: { method: Method; params?: SnapRequestParams[Method] },
+  snapId: string,
+): Promise<SnapRequestsResponses[Method]> => {
+  const provider = await getProvider();
+
+  return await provider.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      request,
+      snapId,
+    },
+  });
 };

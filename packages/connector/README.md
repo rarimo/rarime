@@ -2,387 +2,184 @@
 
 RariMe connector is used to install snap and exposes methods for calling snap on dApps and other applications.
 
-## Usage
+## Getting started
 
-Connector has an exposed function for installing the snap.
+### Installation
 
-```typescript
-async function enableSnap(
-  snapOrigin?: string,
-  version?: string,
-): Promise<MetamaskSnap>;
+```bash
+npm install @rarimo/rarime-connector
 ```
 
-After snap installation, this function returns `MetamaskSnap` object that can be used to retrieve snap connector.
-An example of initializing snap and invoking snap connector is shown below.
-
-```typescript
-// install snap and get connector
-const snap = await enableSnap();
-const connector = await snap.getConnector();
-
-// invoke connector
-const identity = await connector.createIdentity();
-
-console.log(`Snap installed, identity created: ${identity}`);
+```bash
+yarn add @rarimo/rarime-connector
 ```
 
-For ease of use, the connector package also exposes this functions:
+### Create a snap connector instance
 
 ```typescript
-isMetamaskInstalled(): Promise<boolean>
-isSnapInstalled(snapOrigin?: string, version?: string): Promise<boolean>
+import { ZkpSnap } from '@rarimo/rarime-connector';
+
+export const zkpSnap = new ZkpSnap();
 ```
 
-## Connector Methods
-
-### Create an identity
-
-To create an identity you need to call this method:
+### Establish connection
 
 ```typescript
-createIdentity(): Promise<string>
+await zkpSnap.enable();
 ```
 
-Returns DID.
-
-### Get identity
-
-Returns DID in string and BigInt string formats. Throws error if the DID wasn't initialised yet.
+### Check connection status
 
 ```typescript
+const isInstalled = await zkpSnap.isInstalled();
+```
+
+### Additional helpers
+
+```typescript
+import { isMetamaskInstalled } from '@rarimo/rarime-connector';
+
+const init = async () => {
+  const isInstalled = await isMetamaskInstalled();
+
+  if (isInstalled) {
+    // ...
+  }
+};
+```
+
+## ZKP quick examples
+
+### Establish connection
+
+```typescript
+import { ZkpSnap } from '@rarimo/rarime-connector';
+
+const zkpSnap = new ZkpSnap();
+
+await zkpSnap.enable();
+```
+
+### Create/import identity
+
+```typescript
+// Create an identity
 const { identityIdString, identityIdBigIntString } =
-  await connector.getIdentity();
-```
+  await zkpSnap.createIdentity();
 
-or
+console.log(identityIdString, identityIdBigIntString);
 
-```typescript
-const privateKeyHex = '0x...';
-
+// or import identity
 const { identityIdString, identityIdBigIntString } =
-  await connector.getIdentity({
-    privateKeyHex,
+  await zkpSnap.createIdentity({
+    privateKeyHex: '0x...',
   });
+
+console.log(identityIdString, identityIdBigIntString);
 ```
 
-Returns DID.
-
-### Export identity
-
-To export your identity you need to call this method:
+### Show private key in metamask dialog
 
 ```typescript
-ExportIdentity(): Promise<string>
+await zkpSnap.exportIdentity();
 ```
 
-Show Your identity private key in metamask dialog.
-
-### Save Verifiable Credentials
-
-To save Verifiable Credentials you need to call this method with params:
+### Get identity pubKey and it's bigInt representation
 
 ```typescript
-saveCredentials(params: SaveCredentialsRequestParams): Promise<W3CCredential[]>
+const { identityIdString, identityIdBigIntString } =
+  await zkpSnap.getIdentity();
+console.log(identityIdString, identityIdBigIntString);
 ```
+
+### Check Verifiable Credentials existence or save new one to the private store
+
+If you want to save Verifiable Credentials to private store, then first things first get your `ClaimOffer`, for example from issuer api.
+
+`claimOffer` - is a `challenge` for generating AuthV2 proof
 
 ```typescript
-type SaveCredentialsRequestParams = {
-  body: {
-    credentials: [
-      {
-        description: string;
-        id: string;
-      },
-    ];
-    url: string;
-  };
-  from: string;
-  id: string;
-  thid?: string;
-  to: string;
-  typ?: string;
-  type: string;
-};
+const claimOffer: SaveCredentialsRequestParams = await api.get(
+  `/example/issuer/api/${identityIdString}/[claim-type]`,
+);
 ```
 
-Returns saved Verifiable Credentials
+After that, you can save Verifiable Credential to the private store
 
 ```typescript
-type W3CCredential = {
-  id: string;
-  '@context': string[];
-  type: string[];
-  expirationDate?: string;
-  issuanceDate?: string;
-  credentialSubject: { [key: string]: object | string | number };
-  credentialStatus: CredentialStatus;
-  issuer: string;
-  credentialSchema: CredentialSchema;
-  proof?: { [key: string]: any } | any[];
-};
-
-type CredentialStatus = {
-  id: string;
-  type: string;
-  revocationNonce?: number;
-  statusIssuer?: CredentialStatus;
-};
-
-type CredentialSchema = {
-  id: string;
-  type: string;
-};
+const { type, issuer } = await zkpSnap.saveCredentials(claimOffer);
 ```
 
-### Create a proof
-
-Make sure you are on the correct network before creating a proof!
-To create a proof you need to call this method with params:
+Or if you sure, that you have a saved Verifiable Credential in your private store, you can use query based request to ensure that it exists
 
 ```typescript
-createProof(params: CreateProofRequestParams): Promise<ZKPProofResponse>
-```
+const proofRequest: CreateProofRequestParams = {
+  circuitId: CircuitId.AtomicQueryMTPV2OnChain,
+  accountAddress: 'your_metamask_address' as string,
+  issuerDid: '...',
 
-```typescript
-type CreateProofRequestParams = {
-  id?: number;
-  accountAddress?: string; // Metamask user address for on-chain proofs
-  circuitId:
-    | 'credentialAtomicQueryMTPV2'
-    | 'credentialAtomicQueryMTPV2OnChain'
-    | 'credentialAtomicQuerySigV2'
-    | 'credentialAtomicQuerySigV2OnChain';
-  challenge?: string; // bigint string
-  query: ProofQuery;
-};
-
-type ProofQuery = {
-  allowedIssuers?: string[];
-  credentialSubject?: { [key: string]: any };
-  schema?: string;
-  claimId?: string;
-  credentialSubjectId?: string;
-  context?: string;
-  type?: string;
-};
-```
-
-Returns ZKPProofResponse - zkpProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
-
-```typescript
-type ZKPProofResponse = {
-  updateStateTx?: TransactionRequest; // ethers TransactionRequest
-  zkpProof: ZKProof;
-  statesMerkleData?: {
-    issuerId: string;
-    state: StateInfo;
-    merkleProof: string[];
-  };
-};
-
-type ZKProof = {
-  proof: ProofData;
-  pub_signals: string[];
-};
-type ProofData = {
-  pi_a: string[];
-  pi_b: string[][];
-  pi_c: string[];
-  protocol: string;
-};
-type StateInfo = {
-  index: string;
-  hash: string;
-  createdAtTimestamp: string;
-  lastUpdateOperationIndex: string;
-};
-```
-
-### Check state contract sync
-
-```typescript
-checkStateContractSync(): Promise<boolean>
-```
-
-Returns true if the lightweight state contract on current chain doesn't need to be synced with the state contract on Rarimo chain.
-
-### Get Verifiable Credentials
-
-- Only supported domains
-
-```typescript
-getCredentials(): Promise<W3CCredential[]>
-```
-
-Returns all Verifiable Credentials saved inside the snap storage
-
-```typescript
-type W3CCredential = {
-  id: string;
-  '@context': string[];
-  type: string[];
-  expirationDate?: string;
-  issuanceDate?: string;
-  credentialSubject: { [key: string]: object | string | number };
-  credentialStatus: CredentialStatus;
-  issuer: string;
-  credentialSchema: CredentialSchema;
-  proof?: { [key: string]: any } | any[];
-};
-
-type CredentialStatus = {
-  id: string;
-  type: string;
-  revocationNonce?: number;
-  statusIssuer?: CredentialStatus;
-};
-
-type CredentialSchema = {
-  id: string;
-  type: string;
-};
-```
-
-## Snap connector usage examples
-
-### Create a proof
-
-```javascript
-const connector = await snap.getConnector();
-
-const proof = connector.createProof({
-  circuitId: 'credentialAtomicQueryMTPV2OnChain',
-  accountAddress: '0x......',
-  challenge: '1251760352881625298994789945427452069454957821390', // BigInt string
   query: {
     allowedIssuers: ['*'],
     credentialSubject: {
-      isNatural: {
+      yourProperty: {
         $eq: 1,
       },
     },
-    type: 'IdentityProviders',
+    type: ['VerifiableCredential', 'YourCredentialType'],
   },
+};
+
+const { type, issuer } = await zkpSnap.checkCredentialExistence({
+  claimOffer,
+  proofRequest,
+});
+console.log(type, issuer);
+```
+
+### Remove Verifiable Credentials from the private store
+
+```typescript
+await zkpSnap.removeCredentials({
+  ids: ['id1', 'id2'],
 });
 ```
 
-where:
+### Get All Verifiable Credentials
 
-- **circuitId**: type of proof
-- **accountAddress**(optional): Metamask user address for on-chain proofs
-- **challenge**(optional): text that will be signed
-- **query**
-  - **allowedIssuers**: types of issuers allowed
-    - **\***: all types of Issuers are allowed
-  - **context**: URL for getting the vocabulary for the credential
-  - **type**: type of credentials allowed
-  - **credentialSubject**: query request to a query circuit
-
-### Save Verifiable Credentials
-
-```javascript
-const connector = await snap.getConnector();
-
-const vc = connector.saveCredentials({
-  body: {
-    credentials: [
-      {
-        description: 'Natural Person',
-        id: '86531650-023c-4c6c-a437-a82e137ead68',
-      },
-    ],
-    url: 'http://127.0.0.1:8000/integrations/issuer/v1/public/claims/offers/callback',
-  },
-  from: 'did:iden3:tJnRoZ1KqUPbsfVGrk8io51iqoRc5dGhj5LLMHSrD',
-  id: '026035f6-42f6-4a2d-b516-0b11d2674850',
-  thid: '348b7198-7cb1-46f4-bc0a-98a358f65539',
-  to: 'did:iden3:tTxif8ahrSqRWavS8Qatrp4ZEJvPdu3ELSMgqTEQN',
-  typ: 'application/iden3comm-plain-json',
-  type: 'https://iden3-communication.io/credentials/1.0/offer',
-});
+```typescript
+const vcs = await zkpSnap.getCredentials();
+console.log(vcs);
 ```
 
-where:
+#### important!
 
-- **id**: request identifier
-- **thid**: ID of the message thread
-- **from**: identifier of the person from whom the offer was received
-- **to**: identifier of the person who received the offer
-- **typ**: media type of the message. In our case, it is the type of the protocol of the packed message application/iden3comm-plain-json
-- **type**: type of iden3comm protocol message
-- **body**
-  - **credentials[0]**
-    - **description**: description of the schema
-    - **id**: credential id
-  - **url**: URL to which requested information is sent and response is received
+Note that calling `removeCredentials` and `getCredentials` methods in `@rarimo/rarime` snap are stricted to domain origins whitelist
 
-### Remove Verifiable Credentials
+### Check if state contract on Rarimo chain is synced with the lightweight state contract on current connected chain in metamask
 
-```javascript
-await connector.removeCredentials({
-  ids: [
-    'https://example.issuer.node.api.com/v1/credentials/86531650-023c-4c6c-a437-a82e137ead68',
-  ],
-});
+```typescript
+const isStateSynced = await zkpSnap.checkStateContractSync();
 ```
 
-where:
+### Find credentials by `query`, Generate Proof and return proof data within state update details if it necessary
 
-- **ids**: list of credential IDs to remove, e.g. `W3CCredential.id`
+```typescript
+const proofRequest: CreateProofRequestParams = {
+  circuitId: CircuitId.AtomicQueryMTPV2OnChain,
+  accountAddress: 'your_metamask_address' as string,
+  issuerDid: '...',
 
-### Send proof to custom verifier contract
-
-```javascript
-const connector = await snap.getConnector();
-
-const proofData = connector.createProof({
-  circuitId: 'credentialAtomicQueryMTPV2OnChain',
-  accountAddress: '0x......',
   query: {
     allowedIssuers: ['*'],
     credentialSubject: {
-      isNatural: {
+      yourProperty: {
         $eq: 1,
       },
     },
-    type: 'IdentityProviders',
+    type: ['VerifiableCredential', 'YourCredentialType'],
   },
-});
+};
 
-const provider = new providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
-
-if (proofData.updateStateTx) {
-  const updateStateTx = await signer.sendTransaction(proofData.updateStateTx);
-  await updateStateTx.wait();
-}
-
-const contractInterface = DemoVerifier__factory.createInterface();
-
-// Can be another data depending on your contract
-const data = contractInterface.encodeFunctionData('proveIdentity', [
-  {
-    issuerId: proofData.statesMerkleData.issuerId,
-    issuerState: proofData.statesMerkleData.state.hash,
-    createdAtTimestamp: proofData.statesMerkleData.state.createdAtTimestamp,
-    merkleProof: proofData.statesMerkleData.merkleProof.map(
-      (el) => utils.arrayify(el), // utils from ethers
-    ),
-  },
-  proofData.zkpProof.pub_signals.map((el) => BigInt(el)),
-  [proofData.zkpProof.proof.pi_a[0], proofData.zkpProof.proof.pi_a[1]],
-  [
-    [proofData.zkpProof.proof.pi_b[0][1], proofData.zkpProof.proof.pi_b[0][0]],
-    [proofData.zkpProof.proof.pi_b[1][1], proofData.zkpProof.proof.pi_b[1][0]],
-  ],
-  [proofData.zkpProof.proof.pi_c[0], proofData.zkpProof.proof.pi_c[1]],
-]);
-
-const verifyTx = await signer.sendTransaction({
-  to: 'verifierContractAddress',
-  data,
-});
-
-await verifyTx.wait();
+const { updateStateDetails, updateStateTx, zkpProof, statesMerkleData } =
+  await zkpSnap.createProof(proofRequest);
 ```
