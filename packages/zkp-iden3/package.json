@@ -1,0 +1,105 @@
+{
+  "name": "@rarimo/zkp-iden3",
+  "version": "3.0.0-rc.0",
+  "description": "Tools that generate zero-knowledge proofs for the Iden3 protocol.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rarimo/js-sdk.git",
+    "directory": "packages/zkp-iden3"
+  },
+  "license": "(MIT-0 OR Apache-2.0)",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "node": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./assets": {
+      "default": "./dist/assets/**/*"
+    }
+  },
+  "main": "./dist/cjs/index.js",
+  "unpkg": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "browser": "./dist/esm/index.js",
+  "types": "index.d.ts",
+  "typesVersions": {
+    ">=4.2": {
+      "*": [
+        "./dist/types/*"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "yarn clean && yarn build:types && yarn build:cjs && yarn build:esm && node ./postbuild.js",
+    "build:cjs": "npx swc src -d ./dist/cjs --config-file ./.swcrc -C module.type=commonjs",
+    "build:esm": "npx swc src -d ./dist/esm --config-file ./.swcrc -C module.type=es6 isModule=true",
+    "build:types": "tsc -p tsconfig.build.json --outDir ./dist/types --declaration --emitDeclarationOnly",
+    "clean": "rm -rf dist",
+    "test": "jest --verbose",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.8.7",
+    "@ceramicnetwork/http-client": "2.27.0",
+    "@composedb/client": "^0.6.0",
+    "@cosmjs/amino": "^0.32.2",
+    "@distributedlab/fetcher": "^1.0.0-rc.13",
+    "@distributedlab/tools": "^1.0.0-rc.13",
+    "@ethersproject/abi": "5.0.0",
+    "@ethersproject/bytes": "5.7.0",
+    "@ethersproject/keccak256": "5.7.0",
+    "@ethersproject/providers": "5.7.2",
+    "@glazed/did-datastore": "0.3.2",
+    "@iden3/js-crypto": "1.0.3",
+    "@iden3/js-iden3-core": "1.2.1",
+    "@iden3/js-jsonld-merklization": "1.1.2",
+    "@iden3/js-jwz": "1.3.0",
+    "@iden3/js-merkletree": "1.1.2",
+    "@leapwallet/buffer-boba": "^0.1.8",
+    "@leapwallet/parser-parfait": "^0.7.0",
+    "@noble/hashes": "^1.3.3",
+    "@noble/secp256k1": "1.7.1",
+    "@rarimo/client": "^2.0.0",
+    "@rarimo/rarime-connector": "workspace:^",
+    "@rarimo/shared": "^2.0.0",
+    "@types/lodash": "^4.14.202",
+    "@types/uuid": "9.0.2",
+    "base64-js": "^1.5.1",
+    "bech32": "^2.0.0",
+    "buffer": "6.0.3",
+    "cosmjs-types": "^0.9.0",
+    "dids": "4.0.4",
+    "ethers": "5.7.2",
+    "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
+    "idb-keyval": "^6.2.1",
+    "key-did-provider-ed25519": "3.0.2",
+    "key-did-resolver": "3.0.0",
+    "lodash": "^4.17.21",
+    "long": "^5.2.3",
+    "rfc4648": "^1.5.3",
+    "tslib": "^2.5.0",
+    "uuid": "9.0.0"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.1.62",
+    "@swc/core": "1.3.53",
+    "@swc/jest": "^0.2.26",
+    "@types/jest": "^29.4.0",
+    "@types/node": "^18.14.2",
+    "tsc-alias": "^1.8.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "node": "./dist/cjs/index.js",
+  "typedocOptions": {
+    "entryPoints": [
+      "src/index.ts"
+    ]
+  }
+}
