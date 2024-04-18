@@ -35,7 +35,7 @@ export const saveCredentials = async ({
   isValidSaveCredentialsOfferRequest(offer);
 
   const dialogContent = [
-    heading('Credentials'),
+    heading('Accept credentials'),
     divider(),
     text(`From: ${offer.from}`),
     text(`Url: ${offer.body.url}`),

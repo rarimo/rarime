@@ -9,9 +9,6 @@ declare global {
   }
 }
 
-// TODO: remove
-export type RarimoNetworkType = 'mainnet' | 'beta';
-
 export type ChainZkpInfo = {
   targetChainId: number;
   targetRpcUrl: string;
@@ -20,8 +17,6 @@ export type ChainZkpInfo = {
   rarimoApiUrl: string;
   rarimoEvmRpcApiUrl: string;
   rarimoStateContractAddress: string;
-
-  rarimoNetworkType: RarimoNetworkType;
 };
 
 export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &

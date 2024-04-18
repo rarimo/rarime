@@ -48,7 +48,7 @@ export const removeCredentials = async ({
     params: {
       type: 'confirmation',
       content: panel([
-        heading('Remove Credentials'),
+        heading('Remove the following credentials'),
         divider(),
 
         ...vcs.reduce<Component[]>((acc, el, idx) => {

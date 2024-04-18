@@ -59,8 +59,6 @@ export const SUPPORTED_CHAINS: Record<number, ChainZkpInfo> = {
     rarimoApiUrl: config.RARIMO_CORE_URL.mainnet,
     rarimoEvmRpcApiUrl: config.RARIMO_EVM_RPC_URL.mainnet,
     rarimoStateContractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS.mainnet,
-
-    rarimoNetworkType: 'mainnet',
   },
   [CHAINS.EthereumMainet]: {
     targetChainId: CHAINS.EthereumMainet,
@@ -70,8 +68,6 @@ export const SUPPORTED_CHAINS: Record<number, ChainZkpInfo> = {
     rarimoApiUrl: config.RARIMO_CORE_URL.mainnet,
     rarimoEvmRpcApiUrl: config.RARIMO_EVM_RPC_URL.mainnet,
     rarimoStateContractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS.mainnet,
-
-    rarimoNetworkType: 'mainnet',
   },
   [CHAINS.Bsc]: {
     targetChainId: CHAINS.Bsc,
@@ -81,8 +77,6 @@ export const SUPPORTED_CHAINS: Record<number, ChainZkpInfo> = {
     rarimoApiUrl: config.RARIMO_CORE_URL.mainnet,
     rarimoEvmRpcApiUrl: config.RARIMO_EVM_RPC_URL.mainnet,
     rarimoStateContractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS.mainnet,
-
-    rarimoNetworkType: 'mainnet',
   },
   [CHAINS.Avalance]: {
     targetChainId: CHAINS.Avalance,
@@ -92,8 +86,6 @@ export const SUPPORTED_CHAINS: Record<number, ChainZkpInfo> = {
     rarimoApiUrl: config.RARIMO_CORE_URL.mainnet,
     rarimoEvmRpcApiUrl: config.RARIMO_EVM_RPC_URL.mainnet,
     rarimoStateContractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS.mainnet,
-
-    rarimoNetworkType: 'mainnet',
   },
   [CHAINS.Sepolia]: {
     targetChainId: CHAINS.Sepolia,
@@ -103,8 +95,6 @@ export const SUPPORTED_CHAINS: Record<number, ChainZkpInfo> = {
     rarimoApiUrl: config.RARIMO_CORE_URL.beta,
     rarimoEvmRpcApiUrl: config.RARIMO_EVM_RPC_URL.beta,
     rarimoStateContractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS.beta,
-
-    rarimoNetworkType: 'beta',
   },
   [CHAINS.Goerly]: {
     targetChainId: CHAINS.Goerly,
@@ -114,8 +104,6 @@ export const SUPPORTED_CHAINS: Record<number, ChainZkpInfo> = {
     rarimoApiUrl: config.RARIMO_CORE_URL.beta,
     rarimoEvmRpcApiUrl: config.RARIMO_EVM_RPC_URL.beta,
     rarimoStateContractAddress: config.RARIMO_STATE_CONTRACT_ADDRESS.beta,
-
-    rarimoNetworkType: 'beta',
   },
 };
 

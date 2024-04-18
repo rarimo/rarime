@@ -15,7 +15,7 @@ import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import { CeramicProvider } from '@/zkp/helpers/ceramic-helpers';
-import { genPkHexFromEntropy } from '@/zkp/helpers/identity-helpers';
+import { derivePrivateKeyHex } from '@/zkp/helpers/identity-helpers';
 import type {
   ClearVcMutation,
   ClearVcMutationVariables,
@@ -500,7 +500,7 @@ export const migrateVCsToLastCeramicModel = async () => {
     return;
   }
 
-  const entropyKeyHex = await genPkHexFromEntropy();
+  const entropyKeyHex = await derivePrivateKeyHex();
 
   const entropyIdentity = await Identity.create(
     {
@@ -519,7 +519,7 @@ export const migrateVCsToLastCeramicModel = async () => {
     return;
   }
 
-  const saltedEntropyHex = await genPkHexFromEntropy(_SALT);
+  const saltedEntropyHex = await derivePrivateKeyHex(_SALT);
 
   const oldKeyHexManager = await VCManager.create({
     saltedEntropy: saltedEntropyHex,
