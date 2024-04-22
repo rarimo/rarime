@@ -51,9 +51,9 @@ await window.ethereum.request({
 To save Verifiable Credentials you need to call this method with params:
 
 ```javascript
-import { CORE_CHAINS } from '@rarimo/rarime-connector'
+import { CORE_CHAINS } from '@rarimo/rarime-connector';
 
-const coreChain = CORE_CHAINS['rarimo_42-1']
+const coreChain = CORE_CHAINS['rarimo_42-1'];
 
 const claimOffer = {
   body: {
@@ -71,7 +71,7 @@ const claimOffer = {
   to: 'did:iden3:tTxif8ahrSqRWavS8Qatrp4ZEJvPdu3ELSMgqTEQN',
   typ: 'application/iden3comm-plain-json',
   type: 'https://iden3-communication.io/credentials/1.0/offer',
-}
+};
 
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
@@ -131,10 +131,10 @@ Returns ZKProof for off-chain and updateStateTx, statesMerkleData, ZKProof for o
 To create a proof you need to call this method with params:
 
 ```javascript
-import { CORE_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector'
+import { CORE_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
 
-const coreChain = CHAINS['rarimo_42-1']
-const targetChain = SUPPORTED_CHAINS['11155111'] // Sepolia chain
+const coreChain = CHAINS['rarimo_42-1'];
+const targetChain = SUPPORTED_CHAINS['11155111']; // Sepolia chain
 const createProofRequestParams = {
   circuitId: 'credentialAtomicQuerySigV2OnChain',
   issuerDid: 'did:iden3:[...]',
@@ -149,8 +149,7 @@ const createProofRequestParams = {
     },
     type: 'IdentityProviders',
   },
-}
-
+};
 
 await window.ethereum.request({
   method: 'wallet_invokeSnap',
@@ -185,10 +184,10 @@ where:
 Returns `true` if the state contract on current chain need to be synced:
 
 ```javascript
-import { CORE_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector'
+import { CORE_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
 
-const coreChain = CHAINS['rarimo_42-1']
-const targetChain = SUPPORTED_CHAINS['11155111'] // Sepolia chain
+const coreChain = CHAINS['rarimo_42-1'];
+const targetChain = SUPPORTED_CHAINS['11155111']; // Sepolia chain
 
 await window.ethereum.request({
   method: 'wallet_invokeSnap',

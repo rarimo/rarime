@@ -62,14 +62,18 @@ await zkpSnap.enable();
 
 ### Create/import identity
 
+Create an identity
+
 ```typescript
-// Create an identity
 const { identityIdString, identityIdBigIntString } =
   await zkpSnap.createIdentity();
 
 console.log(identityIdString, identityIdBigIntString);
+```
 
-// or import identity
+Or import identity
+
+```typescript
 const { identityIdString, identityIdBigIntString } =
   await zkpSnap.createIdentity({
     privateKeyHex: '0x...',
