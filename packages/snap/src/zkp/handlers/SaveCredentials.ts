@@ -67,7 +67,7 @@ export const saveCredentials = async ({
   );
 
   const authProof = new AuthZkp(identity, offer, {
-    coreEvmRpcApiUrl: coreChainInfo.rpc,
+    coreEvmRpcApiUrl: coreChainInfo.rpcEvm,
     coreStateContractAddress: coreChainInfo.stateContractAddress,
     loadingCircuitCb: getSnapFileBytes,
     circuitsUrls: {

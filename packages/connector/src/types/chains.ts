@@ -67,6 +67,7 @@ export type ChainInfo = {
   /**
    * ZKP integration
    */
+  rpcEvm: string;
   stateContractAddress: string;
 };
 

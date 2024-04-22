@@ -49,6 +49,7 @@ export const CHAINS: Record<string, ChainInfo> = {
       bech32PrefixConsPub: 'rarimovalconspub',
     },
     beta: true,
+    rpcEvm: 'https://rpc.evm.node1.mainnet-beta.rarimo.com',
     stateContractAddress: '0x753a8678c85d5fb70A97CFaE37c84CE2fD67EDE8',
   },
   [CoreChains.Mainnet]: {
@@ -93,7 +94,8 @@ export const CHAINS: Record<string, ChainInfo> = {
       bech32PrefixConsAddr: 'rarimovalcons',
       bech32PrefixConsPub: 'rarimovalconspub',
     },
-    beta: true,
+    beta: false,
+    rpcEvm: 'https://rpc.evm.mainnet.rarimo.com',
     stateContractAddress: '0x5ac96945a771d417B155Cb07A3D7E4b8e2F33FdE',
   },
 };

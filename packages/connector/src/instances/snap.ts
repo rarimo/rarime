@@ -106,7 +106,7 @@ export class RarimeSnapBase {
   }> => {
     let targetChainId = chainId;
 
-    if (targetChainId) {
+    if (!targetChainId) {
       const rawProvider = await getProvider();
 
       const provider = new providers.Web3Provider(rawProvider);

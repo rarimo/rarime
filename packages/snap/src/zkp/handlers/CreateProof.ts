@@ -134,7 +134,7 @@ export const createProof = async ({
   );
 
   const zkpGen = new ZkpGen(identity, createProofRequest, vc, {
-    coreEvmRpcApiUrl: coreChainInfo.rpc,
+    coreEvmRpcApiUrl: coreChainInfo.rpcEvm,
     coreStateContractAddress: coreChainInfo.stateContractAddress,
     loadingCircuitCb: getSnapFileBytes,
     circuitsUrls: {
@@ -160,7 +160,7 @@ export const createProof = async ({
   // ================ LOAD STATE DETAILS  =====================
 
   const isSynced = await checkIfStateSynced(
-    coreChainInfo.rpc,
+    coreChainInfo.rpcEvm,
     coreChainInfo.stateContractAddress,
     targetChainInfo.targetRpcUrl,
     targetChainInfo.targetStateContractAddress,
