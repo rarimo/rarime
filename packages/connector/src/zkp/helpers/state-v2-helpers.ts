@@ -7,7 +7,6 @@ import { FetcherError } from '@/helpers/error-helper';
 import { sleep } from '@/helpers/promise';
 import { CORE_POLLING_INTERVAL } from '@/zkp/consts';
 import type {
-  ChainZkpInfo,
   StateInfo,
   Operation,
   OperationProof,
@@ -90,7 +89,8 @@ export const getUpdateStateDetails = async (
 
 export const getUpdateStateTx = async (
   accountId: string,
-  chainInfo: ChainZkpInfo,
+  targetChainId: number,
+  targetStateContractAddress: string,
   state: StateInfo,
   operation: Operation,
   rarimoCoreUrl: string,
@@ -108,9 +108,9 @@ export const getUpdateStateTx = async (
     proof,
   ]);
   return {
-    to: chainInfo.targetStateContractAddress,
+    to: targetStateContractAddress,
     from: accountId,
-    chainId: chainInfo.targetChainId,
+    chainId: targetChainId,
     data: txData,
   };
 };
@@ -151,15 +151,13 @@ export const getGISTProof = async ({
 
 // getRarimoGISTRoot returns the latest GIST root from the Rarimo state contract
 export const getRarimoGISTRoot = async (
-  chainInfo: ChainZkpInfo,
+  coreRpcUrl: string,
+  coreStateContractAddress: string,
 ): Promise<bigint> => {
-  const rawProvider = new providers.JsonRpcProvider(
-    chainInfo.targetRpcUrl,
-    'any',
-  );
+  const rawProvider = new providers.JsonRpcProvider(coreRpcUrl, 'any');
 
   const contractInstance = StateV2__factory.connect(
-    chainInfo.targetStateContractAddress,
+    coreStateContractAddress,
     rawProvider,
   );
 
@@ -170,12 +168,13 @@ export const getRarimoGISTRoot = async (
 
 // getCurrentChainGISTRoot returns the GIST root from a lightweight state contract deployed on the current chain
 export const getCurrentChainGISTRoot = async (
-  chainInfo: ChainZkpInfo,
+  targetRpcUrl: string,
+  targetStateContractAddress: string,
 ): Promise<bigint> => {
-  const provider = new providers.JsonRpcProvider(chainInfo.targetRpcUrl, 'any');
+  const provider = new providers.JsonRpcProvider(targetRpcUrl, 'any');
 
   const contractInstance = LightweightStateV2__factory.connect(
-    chainInfo.targetStateContractAddress,
+    targetStateContractAddress,
     provider,
   );
   const root = await contractInstance.getGISTRoot();
@@ -184,24 +183,33 @@ export const getCurrentChainGISTRoot = async (
 
 // checkIfStateSynced returns true if the GIST root from the Rarimo state contract matches the GIST root from the current chain
 export const checkIfStateSynced = async (
-  chainInfo: ChainZkpInfo,
+  coreRpcUrl: string,
+  coreStateContractAddress: string,
+  targetRpcUrl: string,
+  targetStateContractAddress: string,
 ): Promise<boolean> => {
   /*
     NOTE: for now we assume that the state must be synced if the GIST roots don't match
           some more sophisticated logic could be added here in the future
    */
-  const rarimoGISTRoot = await getRarimoGISTRoot(chainInfo);
+  const rarimoGISTRoot = await getRarimoGISTRoot(
+    coreRpcUrl,
+    coreStateContractAddress,
+  );
 
-  const currentChainGISTRoot = await getCurrentChainGISTRoot(chainInfo);
+  const currentChainGISTRoot = await getCurrentChainGISTRoot(
+    targetRpcUrl,
+    targetStateContractAddress,
+  );
   return rarimoGISTRoot === currentChainGISTRoot;
 };
 
 export const getCoreOperationByIndex = async (
-  chainInfo: ChainZkpInfo,
+  rarimoApiUrl: string,
   index: string,
 ) => {
   return loadDataFromRarimoCore<OperationResponse>(
     `/rarimo/rarimo-core/rarimocore/operation/${index}`,
-    chainInfo.rarimoApiUrl,
+    rarimoApiUrl,
   );
 };

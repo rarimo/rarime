@@ -54,7 +54,7 @@ export const onRpcRequest = async ({
     }
 
     case RPCMethods.CheckStateContractSync: {
-      return checkStateContractSync();
+      return checkStateContractSync({ request });
     }
 
     case RPCMethods.GetCredentials: {

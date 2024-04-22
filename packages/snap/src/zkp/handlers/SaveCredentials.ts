@@ -11,11 +11,7 @@ import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import { isValidSaveCredentialsOfferRequest } from '@/typia-generated';
-import {
-  getProviderChainInfo,
-  getSnapFileBytes,
-  VCManager,
-} from '@/zkp/helpers';
+import { getSnapFileBytes, VCManager } from '@/zkp/helpers';
 
 export const saveCredentials = async ({
   request,
@@ -29,8 +25,8 @@ export const saveCredentials = async ({
     throw new Error('Identity not created');
   }
 
-  // FIXME: mb multiple offers?
-  const offer = request.params as SnapRequestParams[RPCMethods.SaveCredentials];
+  const [coreChainInfo, offer] =
+    request.params as SnapRequestParams[RPCMethods.SaveCredentials];
 
   isValidSaveCredentialsOfferRequest(offer);
 
@@ -70,10 +66,9 @@ export const saveCredentials = async ({
     identityStorage.privateKeyHex,
   );
 
-  const chainInfo = await getProviderChainInfo();
-
   const authProof = new AuthZkp(identity, offer, {
-    chainInfo,
+    coreEvmRpcApiUrl: coreChainInfo.rpc,
+    coreStateContractAddress: coreChainInfo.stateContractAddress,
     loadingCircuitCb: getSnapFileBytes,
     circuitsUrls: {
       wasmUrl: config.CIRCUIT_AUTH_WASM_URL,
