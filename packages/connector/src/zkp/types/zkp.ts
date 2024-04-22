@@ -1,6 +1,5 @@
 import type { TransactionRequest } from '@ethersproject/providers';
 
-import type { ChainZkpInfo } from '@/types';
 import type { CircuitId } from '@/zkp/enums';
 
 export type ClaimOffer = {
