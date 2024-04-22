@@ -5,7 +5,7 @@ enum CoreChains {
   MainnetBeta = 'rarimo_42-1',
 }
 
-export const CHAINS: Record<string, ChainInfo> = {
+export const CORE_CHAINS: Record<string, ChainInfo> = {
   [CoreChains.MainnetBeta]: {
     chainId: 'rarimo_42-1',
     chainName: 'Rarimo Testnet',
@@ -109,7 +109,7 @@ enum TargetChains {
   Goerly = 5,
 }
 
-export const SUPPORTED_CHAINS: Record<number, ChainZkpInfo> = {
+export const TARGET_CHAINS: Record<number, ChainZkpInfo> = {
   [TargetChains.Polygon]: {
     targetChainId: TargetChains.Polygon,
     targetRpcUrl: 'https://polygon-rpc.com',

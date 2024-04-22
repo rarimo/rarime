@@ -2,7 +2,7 @@ import { providers } from 'ethers';
 
 import versionJson from '../version.json';
 
-import { CHAINS, defaultSnapOrigin, SUPPORTED_CHAINS } from '@/consts';
+import { CORE_CHAINS, defaultSnapOrigin, TARGET_CHAINS } from '@/consts';
 import type { RPCMethods } from '@/enums';
 import {
   checkSnapSupport,
@@ -22,17 +22,16 @@ export class RarimeSnapBase {
 
   public readonly version: string;
 
-  public supportedCoreChains: Record<string, ChainInfo> = CHAINS;
+  public supportedCoreChains: Record<string, ChainInfo> = CORE_CHAINS;
 
-  public supportedTargetZkpChains: Record<number, ChainZkpInfo> =
-    SUPPORTED_CHAINS;
+  public supportedTargetZkpChains: Record<number, ChainZkpInfo> = TARGET_CHAINS;
 
   public constructor(
     snapId = defaultSnapOrigin,
     version = versionJson.version,
 
-    supportedCoreChains = CHAINS,
-    supportedTargetZkpChains = SUPPORTED_CHAINS,
+    supportedCoreChains = CORE_CHAINS,
+    supportedTargetZkpChains = TARGET_CHAINS,
   ) {
     this.snapId = snapId;
     this.version = version;
