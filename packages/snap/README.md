@@ -157,7 +157,11 @@ await window.ethereum.request({
     snapId: 'snapId',
     request: {
       method: 'create_proof',
-      params: [coreChain.chainId, targetChain.targetChainId, createProofRequestParams],
+      params: [
+        coreChain.chainId,
+        targetChain.targetChainId,
+        createProofRequestParams,
+      ],
     },
   },
 });
