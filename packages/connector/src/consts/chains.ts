@@ -1,12 +1,12 @@
 import type { ChainInfo, ChainZkpInfo } from '@/types';
 
-enum CoreChains {
+enum RarimoChains {
   Mainnet = 'rarimo_201411-1',
   MainnetBeta = 'rarimo_42-1',
 }
 
 export const RARIMO_CHAINS: Record<string, ChainInfo> = {
-  [CoreChains.MainnetBeta]: {
+  [RarimoChains.MainnetBeta]: {
     chainId: 'rarimo_42-1',
     chainName: 'Rarimo Testnet',
     chainSymbolImageUrl:
@@ -52,7 +52,7 @@ export const RARIMO_CHAINS: Record<string, ChainInfo> = {
     rpcEvm: 'https://rpc.evm.node1.mainnet-beta.rarimo.com',
     stateContractAddress: '0x753a8678c85d5fb70A97CFaE37c84CE2fD67EDE8',
   },
-  [CoreChains.Mainnet]: {
+  [RarimoChains.Mainnet]: {
     chainId: 'rarimo_201411-1',
     chainName: 'Rarimo',
     chainSymbolImageUrl:
@@ -115,41 +115,41 @@ export const TARGET_CHAINS: Record<number, ChainZkpInfo> = {
     targetRpcUrl: 'https://polygon-rpc.com',
     targetStateContractAddress: '0xf9bA419ad9c82451d31d89917db61253a1e46B3C',
 
-    coreChainId: CoreChains.Mainnet,
+    coreChainId: RarimoChains.Mainnet,
   },
   [TargetChains.EthereumMainet]: {
     targetChainId: TargetChains.EthereumMainet,
     targetRpcUrl: 'https://eth.llamarpc.com',
     targetStateContractAddress: '0xB11D49e873A1B4a8c54520A9b6a3c8E017AfE7BB',
 
-    coreChainId: CoreChains.Mainnet,
+    coreChainId: RarimoChains.Mainnet,
   },
   [TargetChains.Bsc]: {
     targetChainId: TargetChains.Bsc,
     targetRpcUrl: 'https://bsc-dataseed.binance.org',
     targetStateContractAddress: '0xF3e2491627b9eF3816A4143010B39B2B67F33E55',
 
-    coreChainId: CoreChains.Mainnet,
+    coreChainId: RarimoChains.Mainnet,
   },
   [TargetChains.Avalance]: {
     targetChainId: TargetChains.Avalance,
     targetRpcUrl: 'https://avax.meowrpc.com',
     targetStateContractAddress: '0xF3e2491627b9eF3816A4143010B39B2B67F33E55',
 
-    coreChainId: CoreChains.Mainnet,
+    coreChainId: RarimoChains.Mainnet,
   },
   [TargetChains.Sepolia]: {
     targetChainId: TargetChains.Sepolia,
     targetRpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
     targetStateContractAddress: '0x8a9F505bD8a22BF09b0c19F65C17426cd33f3912',
 
-    coreChainId: CoreChains.MainnetBeta,
+    coreChainId: RarimoChains.MainnetBeta,
   },
   [TargetChains.Goerly]: {
     targetChainId: TargetChains.Goerly,
     targetRpcUrl: 'https://ethereum-goerli.publicnode.com',
     targetStateContractAddress: '0x0F08e8EA245E63F2090Bf3fF3772402Da9c047ee',
 
-    coreChainId: CoreChains.MainnetBeta,
+    coreChainId: RarimoChains.MainnetBeta,
   },
 };
