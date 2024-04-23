@@ -1,22 +1,19 @@
-import versionJson from '../version.json';
-
-import { defaultSnapOrigin } from '@/consts';
 import { RPCMethods } from '@/enums';
 import { RarimeSnapBase } from '@/instances';
-import type { SnapRequestParams, SnapRequestsResponses } from '@/types';
+import type { SnapRequestsResponses } from '@/types';
 import { getUpdateStateDetails, getUpdateStateTx } from '@/zkp/helpers';
-import type { ZKPProofResponse } from '@/zkp/types';
+import type {
+  CheckCredentialExistenceRequestParams,
+  CreateIdentityRequestParams,
+  ZKPProofResponse,
+  ClaimOffer,
+  RemoveCredentialsRequestParams,
+  CreateProofRequestParams,
+} from '@/zkp/types';
 
 export class ZkpSnap extends RarimeSnapBase {
-  public constructor(
-    snapId = defaultSnapOrigin,
-    version = versionJson.version,
-  ) {
-    super(snapId, version);
-  }
-
   createIdentity = async (
-    params?: SnapRequestParams[RPCMethods.CreateIdentity],
+    params?: CreateIdentityRequestParams,
   ): Promise<SnapRequestsResponses[RPCMethods.CreateIdentity]> => {
     return this.sendSnapRequest(RPCMethods.CreateIdentity, params);
   };
@@ -34,19 +31,24 @@ export class ZkpSnap extends RarimeSnapBase {
   };
 
   checkCredentialExistence = async (
-    params: SnapRequestParams[RPCMethods.CheckCredentialExistence],
+    params: CheckCredentialExistenceRequestParams,
   ): Promise<SnapRequestsResponses[RPCMethods.CheckCredentialExistence]> => {
     return this.sendSnapRequest(RPCMethods.CheckCredentialExistence, params);
   };
 
   saveCredentials = async (
-    params: SnapRequestParams[RPCMethods.SaveCredentials],
+    params: ClaimOffer,
   ): Promise<SnapRequestsResponses[RPCMethods.SaveCredentials]> => {
-    return this.sendSnapRequest(RPCMethods.SaveCredentials, params);
+    const { coreChain } = await this._getChainInfo();
+
+    return this.sendSnapRequest(RPCMethods.SaveCredentials, [
+      coreChain,
+      params,
+    ]);
   };
 
   removeCredentials = async (
-    params: SnapRequestParams[RPCMethods.RemoveCredentials],
+    params: RemoveCredentialsRequestParams,
   ): Promise<SnapRequestsResponses[RPCMethods.RemoveCredentials]> => {
     return this.sendSnapRequest(RPCMethods.RemoveCredentials, params);
   };
@@ -64,17 +66,20 @@ export class ZkpSnap extends RarimeSnapBase {
   };
 
   createProof = async (
-    params: SnapRequestParams[RPCMethods.CreateProof],
+    params: CreateProofRequestParams,
   ): Promise<ZKPProofResponse> => {
-    const snapResponse = await this.sendSnapRequest(
-      RPCMethods.CreateProof,
+    const { coreChain, targetChain } = await this._getChainInfo();
+
+    const snapResponse = await this.sendSnapRequest(RPCMethods.CreateProof, [
+      coreChain,
+      targetChain,
       params,
-    );
+    ]);
 
     const updateStateDetails = await getUpdateStateDetails(
       snapResponse.stateData,
       snapResponse.operation,
-      snapResponse.rarimoCoreUrl,
+      coreChain.rest,
     );
 
     let updateStateTx;
@@ -82,10 +87,11 @@ export class ZkpSnap extends RarimeSnapBase {
     if (!snapResponse.isSynced) {
       updateStateTx = await getUpdateStateTx(
         params.accountAddress!,
-        snapResponse.chainInfo,
+        targetChain.targetChainId,
+        targetChain.targetStateContractAddress,
         snapResponse.stateData,
         snapResponse.operation,
-        snapResponse.rarimoCoreUrl,
+        coreChain.rest,
         updateStateDetails,
       );
     }

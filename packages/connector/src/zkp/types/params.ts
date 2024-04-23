@@ -1,4 +1,4 @@
-import type { CreateProofRequest } from './zkp';
+import type { ClaimOffer, CreateProofRequest } from './zkp';
 
 export type CreateIdentityRequestParams = {
   privateKeyHex?: string;
@@ -23,7 +23,7 @@ export type SaveCredentialsRequestParams = {
 };
 
 export type CheckCredentialExistenceRequestParams = {
-  claimOffer?: SaveCredentialsRequestParams;
+  claimOffer?: ClaimOffer;
   proofRequest?: CreateProofRequestParams;
 };
 

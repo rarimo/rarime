@@ -53,6 +53,7 @@
     "@metamask/snaps-sdk": "^3.0.1",
     "@metamask/snaps-utils": "^7.0.3",
     "@rarimo/rarime-connector": "workspace:^",
+    "@rarimo/zkp-iden3": "workspace:^",
     "buffer": "6.0.3",
     "dids": "4.0.4",
     "ethers": "5.7.2",
@@ -85,7 +86,6 @@
     "nodemon": "2.0.20",
     "npm-commands": "^1.2.1",
     "rimraf": "3.0.2",
-    "typechain": "8.3.1",
     "typescript": "4.7.4"
   },
   "packageManager": "yarn@3.2.1",

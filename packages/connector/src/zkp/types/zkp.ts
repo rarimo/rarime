@@ -2,26 +2,22 @@ import type { TransactionRequest } from '@ethersproject/providers';
 
 import type { CircuitId } from '@/zkp/enums';
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Window {
-    ethereum: any;
-  }
-}
-
-// TODO: remove
-export type RarimoNetworkType = 'mainnet' | 'beta';
-
-export type ChainZkpInfo = {
-  targetChainId: number;
-  targetRpcUrl: string;
-  targetStateContractAddress: string;
-
-  rarimoApiUrl: string;
-  rarimoEvmRpcApiUrl: string;
-  rarimoStateContractAddress: string;
-
-  rarimoNetworkType: RarimoNetworkType;
+export type ClaimOffer = {
+  body: {
+    Credentials: [
+      {
+        description: string;
+        id: string;
+      },
+    ];
+    url: string;
+  };
+  from: string;
+  id: string;
+  threadID?: string;
+  to: string;
+  typ?: string;
+  type: string;
 };
 
 export type SaveCredentialsResponse = Pick<W3CCredential, 'type'> &
@@ -136,8 +132,6 @@ export type OperationProof = {
 };
 
 export type ZKPProofSnapResponse = {
-  chainInfo: ChainZkpInfo;
-  rarimoCoreUrl: string;
   isSynced: boolean;
 
   issuerHexId: string;
