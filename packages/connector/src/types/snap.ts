@@ -2,7 +2,7 @@ import type { AccountData, AminoSignResponse } from '@cosmjs/amino';
 
 import type { RARIMO_CHAINS } from '@/consts';
 import type { RPCMethods } from '@/enums';
-import type { ChainInfo, ChainZkpInfo } from '@/types/chains';
+import type { ChainInfo } from '@/types/chains';
 import type {
   WalletRequestAminoSignParams,
   WalletRequestDirectSignParams,
@@ -38,18 +38,25 @@ export type GetSnapsResponse = {
   };
 };
 
+type RarimoChainId = string;
+type TargetChainId = string;
+
 export type SnapRequestParams = {
   [RPCMethods.CreateIdentity]: CreateIdentityRequestParams;
   [RPCMethods.ExportIdentity]: never;
   [RPCMethods.GetIdentity]: never;
 
-  [RPCMethods.SaveCredentials]: [ChainInfo, ClaimOffer];
+  [RPCMethods.SaveCredentials]: [RarimoChainId, ClaimOffer];
   [RPCMethods.RemoveCredentials]: RemoveCredentialsRequestParams;
   [RPCMethods.CheckCredentialExistence]: CheckCredentialExistenceRequestParams;
   [RPCMethods.GetCredentials]: never;
 
-  [RPCMethods.CheckStateContractSync]: [ChainInfo, ChainZkpInfo];
-  [RPCMethods.CreateProof]: [ChainInfo, ChainZkpInfo, CreateProofRequestParams];
+  [RPCMethods.CheckStateContractSync]: [RarimoChainId, TargetChainId];
+  [RPCMethods.CreateProof]: [
+    RarimoChainId,
+    TargetChainId,
+    CreateProofRequestParams,
+  ];
 
   [RPCMethods.WalletSignDirect]: WalletRequestDirectSignParams;
   [RPCMethods.WalletSignAmino]: WalletRequestAminoSignParams;

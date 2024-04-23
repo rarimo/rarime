@@ -5,7 +5,7 @@ import type {
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
 
-import { getChainDetails, validateChainId } from '@/wallet/chain';
+import { RarimoChainsManager } from '@/helpers';
 import { generateWallet } from '@/wallet/wallet';
 
 export const walletGetKey = async ({
@@ -17,11 +17,18 @@ export const walletGetKey = async ({
   const { chainId } =
     request.params as SnapRequestParams[RPCMethods.WalletGetKey];
 
-  await validateChainId(chainId);
+  const rarimoChainsManager = await RarimoChainsManager.create();
 
-  const chainDetails = await getChainDetails(chainId);
+  if (!(await rarimoChainsManager.isChainExist(chainId))) {
+    throw new Error('Invalid chainId');
+  }
 
-  const wallet = await generateWallet(chainDetails);
+  const rarimoChain = rarimoChainsManager.getChainDetails(chainId);
+
+  const wallet = await generateWallet({
+    addressPrefix: rarimoChain?.bech32Config?.bech32PrefixAccAddr,
+    coinType: rarimoChain?.bip44?.coinType,
+  });
 
   const accounts = wallet.getAccounts();
 

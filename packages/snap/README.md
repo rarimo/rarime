@@ -79,7 +79,7 @@ await window.ethereum.request({
     snapId: 'snapId',
     request: {
       method: 'save_credentials',
-      params: [coreChain, claimOffer],
+      params: [coreChain.chainId, claimOffer],
     },
   },
 });
@@ -157,7 +157,7 @@ await window.ethereum.request({
     snapId: 'snapId',
     request: {
       method: 'create_proof',
-      params: [coreChain, targetChain, createProofRequestParams],
+      params: [coreChain.chainId, targetChain.targetChainId, createProofRequestParams],
     },
   },
 });
@@ -195,7 +195,7 @@ await window.ethereum.request({
     snapId: 'snapId',
     request: {
       method: 'check_state_contract_sync',
-      params: [coreChain, targetChain],
+      params: [coreChain.chainId, targetChain.targetChainId],
     },
   },
 });

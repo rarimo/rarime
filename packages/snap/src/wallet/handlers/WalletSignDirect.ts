@@ -8,7 +8,7 @@ import type {
 import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import Long from 'long';
 
-import { getChainDetails, validateChainId } from '@/wallet/chain';
+import { RarimoChainsManager } from '@/helpers';
 import { parser } from '@/wallet/helpers';
 import { generateWallet } from '@/wallet/wallet';
 
@@ -42,13 +42,20 @@ export const walletSignDirect = async ({
 
   const { signerAddress, signDoc } = params;
 
-  await validateChainId(signDoc.chainId);
+  const rarimoChainsManager = await RarimoChainsManager.create();
+
+  if (!(await rarimoChainsManager.isChainExist(signDoc.chainId))) {
+    throw new Error('Invalid chainId');
+  }
 
   const { low, high, unsigned } = Long.fromString(signDoc.accountNumber, true);
 
-  const chainDetails = await getChainDetails(signDoc.chainId);
+  const rarimoChain = rarimoChainsManager.getChainDetails(signDoc.chainId);
 
-  const wallet = await generateWallet(chainDetails);
+  const wallet = await generateWallet({
+    addressPrefix: rarimoChain?.bech32Config?.bech32PrefixAccAddr,
+    coinType: rarimoChain?.bip44?.coinType,
+  });
 
   const accountNumber = new Long(low, high, unsigned);
 

@@ -3,10 +3,12 @@ import type {
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
 
-import { getAllChains } from '@/wallet/chain';
+import { RarimoChainsManager } from '@/helpers';
 
 export const walletGetSupportedChains = async (): Promise<
   SnapRequestsResponses[RPCMethods.WalletGetSupportedChains]
 > => {
-  return await getAllChains();
+  const rarimoChainsManager = await RarimoChainsManager.create();
+
+  return rarimoChainsManager.rarimoChains;
 };

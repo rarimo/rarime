@@ -6,7 +6,7 @@ import type {
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
 
-import { addChain, validateChain } from '@/wallet/chain';
+import { RarimoChainsManager } from '@/helpers';
 import { getChainPanel } from '@/wallet/ui';
 
 export const walletSuggestChain = async ({
@@ -19,8 +19,10 @@ export const walletSuggestChain = async ({
   const { chainInfo } =
     request.params as SnapRequestParams[RPCMethods.WalletSuggestChain];
 
-  validateChain(chainInfo);
+  RarimoChainsManager.validateChain(chainInfo);
+
   const panels = getChainPanel(origin, chainInfo);
+
   const confirmed = await snap.request({
     method: 'snap_dialog',
     params: {
@@ -32,7 +34,11 @@ export const walletSuggestChain = async ({
     throw new Error('User denied transaction');
   }
 
-  await addChain(chainInfo);
+  const rarimoChainsManager = await RarimoChainsManager.create();
+
+  await rarimoChainsManager.addChain(chainInfo);
+
+  // await addChain(chainInfo);
 
   return { message: 'Successfully added chain', chainInfo };
 };

@@ -12,11 +12,11 @@ import { BigNumber } from 'ethers';
 
 import { getGasPriceForChainName } from './helpers';
 import type { SignAminoOptions, StdSignDoc } from './types';
-import versionJson from '../version.json';
 
-import { defaultSnapOrigin, RARIMO_CHAINS } from '@/consts';
+import { defaultSnapOrigin, RARIMO_CHAINS, TARGET_CHAINS } from '@/consts';
 import { RPCMethods } from '@/enums';
 import { RarimeSnapBase } from '@/instances';
+import versionJson from '@/version.json';
 
 export class RarimeWallet
   extends RarimeSnapBase
@@ -28,8 +28,12 @@ export class RarimeWallet
     chainId: string,
     snapId = defaultSnapOrigin,
     version = versionJson.version,
+
+    supportedRarimoChains = RARIMO_CHAINS,
+    supportedTargetZkpChains = TARGET_CHAINS,
   ) {
-    super(snapId, version);
+    super(snapId, version, supportedRarimoChains, supportedTargetZkpChains);
+
     this.chainId = chainId;
   }
 
@@ -112,7 +116,7 @@ export class RarimeWallet
       throw new Error('Chain ID does not match signer chain ID');
     }
 
-    const chain = RARIMO_CHAINS[this.chainId];
+    const chain = this.supportedRarimoChains[this.chainId];
 
     // Override gasPrice
     if (!options?.preferNoSetFee) {

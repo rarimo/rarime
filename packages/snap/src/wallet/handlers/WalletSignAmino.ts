@@ -6,7 +6,7 @@ import type {
   SnapRequestsResponses,
 } from '@rarimo/rarime-connector';
 
-import { getChainDetails, validateChainId } from '@/wallet/chain';
+import { RarimoChainsManager } from '@/helpers';
 import { parser } from '@/wallet/helpers';
 import { generateWallet } from '@/wallet/wallet';
 
@@ -41,13 +41,21 @@ export const walletSignAmino = async ({
     throw new Error('ChainId is mandatory params');
   }
 
-  if (!params.isADR36) {
-    await validateChainId(receivedChainId);
+  const rarimoChainsManager = await RarimoChainsManager.create();
+
+  if (
+    !params.isADR36 &&
+    !(await rarimoChainsManager.isChainExist(receivedChainId))
+  ) {
+    throw new Error('Invalid chainId');
   }
 
-  const chainDetails = await getChainDetails(receivedChainId);
+  const rarimoChain = rarimoChainsManager.getChainDetails(receivedChainId);
 
-  const wallet = await generateWallet(chainDetails);
+  const wallet = await generateWallet({
+    addressPrefix: rarimoChain?.bech32Config?.bech32PrefixAccAddr,
+    coinType: rarimoChain?.bip44?.coinType,
+  });
 
   const defaultFee = signDoc.fee;
   const defaultMemo = signDoc.memo;

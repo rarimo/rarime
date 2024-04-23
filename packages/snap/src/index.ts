@@ -98,3 +98,5 @@ export const onRpcRequest = async ({
       throw new Error('Method not found.');
   }
 };
+
+export { onInstall, onUpdate } from '@/helpers';

@@ -6,18 +6,25 @@ import type {
 } from '@rarimo/rarime-connector';
 import { checkIfStateSynced } from '@rarimo/rarime-connector';
 
+import { getChains } from '@/helpers';
+
 export const checkStateContractSync = async ({
   request,
 }: {
   request: JsonRpcRequest;
 }): Promise<SnapRequestsResponses[RPCMethods.CheckStateContractSync]> => {
-  const [coreChainInfo, targetChainInfo] =
+  const [rarimoChainId, targetChainId] =
     request.params as SnapRequestParams[RPCMethods.CheckStateContractSync];
 
+  const { rarimoChain, targetChain } = await getChains(
+    rarimoChainId,
+    targetChainId,
+  );
+
   return checkIfStateSynced(
-    coreChainInfo.rpc,
-    coreChainInfo.stateContractAddress,
-    targetChainInfo.targetRpcUrl,
-    targetChainInfo.targetStateContractAddress,
+    rarimoChain.rpc,
+    rarimoChain.stateContractAddress,
+    targetChain.targetRpcUrl,
+    targetChain.targetStateContractAddress,
   );
 };
