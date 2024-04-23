@@ -2,7 +2,7 @@ import { providers } from 'ethers';
 
 import versionJson from '../version.json';
 
-import { CORE_CHAINS, defaultSnapOrigin, TARGET_CHAINS } from '@/consts';
+import { RARIMO_CHAINS, defaultSnapOrigin, TARGET_CHAINS } from '@/consts';
 import type { RPCMethods } from '@/enums';
 import {
   checkSnapSupport,
@@ -22,7 +22,7 @@ export class RarimeSnapBase {
 
   public readonly version: string;
 
-  public supportedCoreChains: Record<string, ChainInfo> = CORE_CHAINS;
+  public supportedRarimoChains: Record<string, ChainInfo> = RARIMO_CHAINS;
 
   public supportedTargetZkpChains: Record<number, ChainZkpInfo> = TARGET_CHAINS;
 
@@ -30,12 +30,12 @@ export class RarimeSnapBase {
     snapId = defaultSnapOrigin,
     version = versionJson.version,
 
-    supportedCoreChains = CORE_CHAINS,
+    supportedRarimoChains = RARIMO_CHAINS,
     supportedTargetZkpChains = TARGET_CHAINS,
   ) {
     this.snapId = snapId;
     this.version = version;
-    this.supportedCoreChains = supportedCoreChains;
+    this.supportedRarimoChains = supportedRarimoChains;
     this.supportedTargetZkpChains = supportedTargetZkpChains;
   }
 
@@ -120,7 +120,7 @@ export class RarimeSnapBase {
     }
 
     const targetChain = this.supportedTargetZkpChains[targetChainId];
-    const coreChain = this.supportedCoreChains[targetChain.coreChainId];
+    const coreChain = this.supportedRarimoChains[targetChain.coreChainId];
 
     return {
       coreChain,

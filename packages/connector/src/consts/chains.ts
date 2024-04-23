@@ -5,7 +5,7 @@ enum CoreChains {
   MainnetBeta = 'rarimo_42-1',
 }
 
-export const CORE_CHAINS: Record<string, ChainInfo> = {
+export const RARIMO_CHAINS: Record<string, ChainInfo> = {
   [CoreChains.MainnetBeta]: {
     chainId: 'rarimo_42-1',
     chainName: 'Rarimo Testnet',

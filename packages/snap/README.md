@@ -51,9 +51,9 @@ await window.ethereum.request({
 To save Verifiable Credentials you need to call this method with params:
 
 ```javascript
-import { CORE_CHAINS } from '@rarimo/rarime-connector';
+import { RARIMO_CHAINS } from '@rarimo/rarime-connector';
 
-const coreChain = CORE_CHAINS['rarimo_42-1'];
+const coreChain = RARIMO_CHAINS['rarimo_42-1'];
 
 const claimOffer = {
   body: {
@@ -131,7 +131,7 @@ Returns ZKProof for off-chain and updateStateTx, statesMerkleData, ZKProof for o
 To create a proof you need to call this method with params:
 
 ```javascript
-import { CORE_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
+import { RARIMO_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
 
 const coreChain = CHAINS['rarimo_42-1'];
 const targetChain = SUPPORTED_CHAINS['11155111']; // Sepolia chain
@@ -184,7 +184,7 @@ where:
 Returns `true` if the state contract on current chain need to be synced:
 
 ```javascript
-import { CORE_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
+import { RARIMO_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
 
 const coreChain = CHAINS['rarimo_42-1'];
 const targetChain = SUPPORTED_CHAINS['11155111']; // Sepolia chain
