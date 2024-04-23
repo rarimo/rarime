@@ -1,5 +1,5 @@
 import type { ChainInfo } from '@rarimo/rarime-connector';
-import { CHAINS } from '@rarimo/rarime-connector';
+import { RARIMO_CHAINS } from '@rarimo/rarime-connector';
 
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
@@ -8,7 +8,7 @@ import { ALLOWED_COIN_TYPES } from '@/wallet/constants';
 export const getAllChains = async () => {
   const storedChains = await snapStorage.getItem(StorageKeys.chains);
 
-  return { ...CHAINS, ...storedChains };
+  return { ...RARIMO_CHAINS, ...storedChains };
 };
 
 export const validateChain = (chainInfo: ChainInfo) => {

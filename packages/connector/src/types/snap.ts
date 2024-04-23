@@ -1,15 +1,14 @@
 import type { AccountData, AminoSignResponse } from '@cosmjs/amino';
 
+import type { RARIMO_CHAINS } from '@/consts';
 import type { RPCMethods } from '@/enums';
 import type { ChainInfo, ChainZkpInfo } from '@/types/chains';
 import type {
-  ChainInfo,
   WalletRequestAminoSignParams,
   WalletRequestDirectSignParams,
   WalletRequestGetKeyParams,
   WalletRequestSuggestChainParams,
   WalletSignDirectResponse,
-  CHAINS,
 } from '@/wallet';
 import type {
   CheckCredentialExistenceRequestParams,
@@ -18,7 +17,6 @@ import type {
   CreateProofRequestParams,
   IdentityDidPair,
   RemoveCredentialsRequestParams,
-  SaveCredentialsRequestParams,
   SaveCredentialsResponse,
   W3CCredential,
   ZKPProofSnapResponse,
@@ -77,5 +75,5 @@ export type SnapRequestsResponses = {
   [RPCMethods.WalletSignAmino]: AminoSignResponse;
   [RPCMethods.WalletGetKey]: AccountData;
   [RPCMethods.WalletSuggestChain]: { message: string; chainInfo: ChainInfo };
-  [RPCMethods.WalletGetSupportedChains]: typeof CHAINS;
+  [RPCMethods.WalletGetSupportedChains]: typeof RARIMO_CHAINS;
 };

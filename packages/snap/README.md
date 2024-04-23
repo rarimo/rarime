@@ -133,7 +133,7 @@ To create a proof you need to call this method with params:
 ```javascript
 import { RARIMO_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
 
-const coreChain = CHAINS['rarimo_42-1'];
+const coreChain = RARIMO_CHAINS['rarimo_42-1'];
 const targetChain = SUPPORTED_CHAINS['11155111']; // Sepolia chain
 const createProofRequestParams = {
   circuitId: 'credentialAtomicQuerySigV2OnChain',
@@ -186,7 +186,7 @@ Returns `true` if the state contract on current chain need to be synced:
 ```javascript
 import { RARIMO_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
 
-const coreChain = CHAINS['rarimo_42-1'];
+const coreChain = RARIMO_CHAINS['rarimo_42-1'];
 const targetChain = SUPPORTED_CHAINS['11155111']; // Sepolia chain
 
 await window.ethereum.request({

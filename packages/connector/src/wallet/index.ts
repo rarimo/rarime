@@ -10,12 +10,11 @@ import type {
 import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { BigNumber } from 'ethers';
 
-import { CHAINS } from './consts';
 import { getGasPriceForChainName } from './helpers';
 import type { SignAminoOptions, StdSignDoc } from './types';
 import versionJson from '../version.json';
 
-import { defaultSnapOrigin } from '@/consts';
+import { defaultSnapOrigin, RARIMO_CHAINS } from '@/consts';
 import { RPCMethods } from '@/enums';
 import { RarimeSnapBase } from '@/instances';
 
@@ -113,7 +112,7 @@ export class RarimeWallet
       throw new Error('Chain ID does not match signer chain ID');
     }
 
-    const chain = CHAINS[this.chainId];
+    const chain = RARIMO_CHAINS[this.chainId];
 
     // Override gasPrice
     if (!options?.preferNoSetFee) {
@@ -153,7 +152,6 @@ export class RarimeWallet
 
 // export const createWallet = (chainId: string) => {};
 
-export * from './consts';
 export * from './helpers';
 export * from './types';
 

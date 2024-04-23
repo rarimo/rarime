@@ -11,7 +11,7 @@ import {
 } from '@leapwallet/parser-parfait';
 import { text, heading, copyable } from '@metamask/snaps-sdk';
 import type { ChainInfo, StdSignDoc } from '@rarimo/rarime-connector';
-import { CHAINS } from '@rarimo/rarime-connector';
+import { RARIMO_CHAINS } from '@rarimo/rarime-connector';
 import * as base64js from 'base64-js';
 import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { BigNumber } from 'ethers';
@@ -412,7 +412,7 @@ export const parser = {
         heading(''),
       ];
 
-      const chain = CHAINS[signDoc.chainId];
+      const chain = RARIMO_CHAINS[signDoc.chainId];
 
       parsedMessages.forEach((msg) => {
         const panelMsg = getMessageDetails(msg.parsed, msg.raw, chain);
