@@ -1,6 +1,5 @@
 import { DID } from '@iden3/js-iden3-core';
 import {
-  type ChainZkpInfo,
   // checkIfStateSynced,
   CircuitId,
   getCoreOperationByIndex,
@@ -18,7 +17,7 @@ import { AuthZkp, Identity, ZkpGen } from '../instances';
 const issuerApi = 'https://issuer.polygon.robotornot.mainnet-beta.rarimo.com';
 const AUTH_BJJ_CREDENTIAL_HASH = 'cca3371a6cb1b715004407e325bd993c';
 const ID_TYPE = Uint8Array.from([1, 0]);
-const chainInfo: ChainZkpInfo = {
+const chainInfo = {
   targetChainId: 11155111,
   targetRpcUrl: 'https://endpoints.omniatech.io/v1/eth/sepolia/public',
   targetStateContractAddress: '0x8a9F505bD8a22BF09b0c19F65C17426cd33f3912',
@@ -80,7 +79,8 @@ describe('zkp flow', () => {
       const identity = await getIdentity();
 
       const authProof = new AuthZkp(identity, offer, {
-        chainInfo,
+        coreEvmRpcApiUrl: chainInfo.rarimoEvmRpcApiUrl,
+        coreStateContractAddress: chainInfo.rarimoStateContractAddress,
         circuitsUrls: {
           wasmUrl:
             'https://ipfs.tokend.io/ipfs/ipfs/QmYd41GHrKQLqbk96zHbmHU5rGVcxwmAgBpRqLCGLK7LQu',
@@ -120,7 +120,7 @@ describe('zkp flow', () => {
       // )
 
       const operation = await getCoreOperationByIndex(
-        chainInfo,
+        chainInfo.rarimoApiUrl,
         stateData.state.lastUpdateOperationIndex,
       );
 
@@ -142,7 +142,8 @@ describe('zkp flow', () => {
         },
         vcs[0],
         {
-          chainInfo,
+          coreEvmRpcApiUrl: chainInfo.rarimoEvmRpcApiUrl,
+          coreStateContractAddress: chainInfo.rarimoStateContractAddress,
           circuitsUrls: {
             [CircuitId.AtomicQuerySigV2]: {
               wasmUrl:

@@ -3,10 +3,7 @@ import { Hex } from '@iden3/js-crypto';
 import { fromLittleEndian } from '@iden3/js-iden3-core';
 import type { ZKProof } from '@iden3/js-jwz';
 import { proving } from '@iden3/js-jwz';
-import type {
-  ChainZkpInfo,
-  CreateProofRequest,
-} from '@rarimo/rarime-connector';
+import type { CreateProofRequest } from '@rarimo/rarime-connector';
 import { CircuitId, getGISTProof } from '@rarimo/rarime-connector';
 
 import {
@@ -37,8 +34,10 @@ import type {
 
 type Config = {
   loadingCircuitCb?: (path: string) => Promise<Uint8Array>;
-  chainInfo: ChainZkpInfo;
   circuitsUrls: Record<CircuitId, { wasmUrl: string; keyUrl: string }>;
+
+  coreEvmRpcApiUrl: string;
+  coreStateContractAddress: string;
 };
 
 type CommonInputsDetails = {
@@ -638,8 +637,8 @@ export class ZkpGen {
     // it's necessary, because we replicate state in target network,
     // and proof should be matched in both state contracts
     const gistInfo = await getGISTProof({
-      rpcUrl: this.config.chainInfo.rarimoEvmRpcApiUrl,
-      contractAddress: this.config.chainInfo.rarimoStateContractAddress,
+      rpcUrl: this.config.coreEvmRpcApiUrl,
+      contractAddress: this.config.coreStateContractAddress,
       userId: this.identity.identityIdBigIntString,
       rootHash: operationGistHash,
     });

@@ -1,4 +1,4 @@
-export const genPkHexFromEntropy = async (salt?: string) => {
+export const derivePrivateKeyHex = async (salt?: string) => {
   const entropy = await snap.request({
     method: 'snap_getEntropy',
     params: {

@@ -11,7 +11,7 @@ import { utils } from 'ethers';
 import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
-import { genPkHexFromEntropy } from '@/zkp/helpers';
+import { derivePrivateKeyHex } from '@/zkp/helpers';
 
 export const createIdentity = async ({
   request,
@@ -65,7 +65,7 @@ export const createIdentity = async ({
       schemaHashHex: config.AUTH_BJJ_CREDENTIAL_HASH,
       idType: config.ID_TYPE,
     },
-    params?.privateKeyHex || (await genPkHexFromEntropy()),
+    params?.privateKeyHex || (await derivePrivateKeyHex()),
   );
 
   await snapStorage.setItem(StorageKeys.identity, {

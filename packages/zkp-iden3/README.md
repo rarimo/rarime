@@ -1,6 +1,6 @@
 # @rarimo/zkp-iden3
 
-Tools that generate zero-knowledge proofs for the Iden3 protocol.
+Package to generate zero-knowledge proofs for the Iden3 protocol.
 
 ![version (scoped package)](https://badgen.net/npm/v/@rarimo/zkp-iden3)
 ![types](https://badgen.net/npm/types/@rarimo/zkp-iden3)

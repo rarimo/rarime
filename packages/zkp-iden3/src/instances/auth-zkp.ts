@@ -1,7 +1,6 @@
 import { fromBigEndian } from '@iden3/js-iden3-core';
 import { proving, Token } from '@iden3/js-jwz';
 import {
-  type ChainZkpInfo,
   getGISTProof,
   type SaveCredentialsRequestParams,
 } from '@rarimo/rarime-connector';
@@ -19,8 +18,10 @@ import type { W3CCredential } from '@/types';
 
 type Config = {
   loadingCircuitCb?: (path: string) => Promise<Uint8Array>;
-  chainInfo: ChainZkpInfo;
   circuitsUrls: { wasmUrl: string; keyUrl: string };
+
+  coreEvmRpcApiUrl: string;
+  coreStateContractAddress: string;
 };
 
 export class AuthZkp {
@@ -103,8 +104,8 @@ export class AuthZkp {
 
     const signature = this.identity.privateKey.signPoseidon(messageHashBigInt);
     const gistInfo = await getGISTProof({
-      rpcUrl: this.config.chainInfo.rarimoEvmRpcApiUrl,
-      contractAddress: this.config.chainInfo.rarimoStateContractAddress,
+      rpcUrl: this.config.coreEvmRpcApiUrl,
+      contractAddress: this.config.coreStateContractAddress,
       userId: this.identity.identityIdBigIntString,
     });
 
