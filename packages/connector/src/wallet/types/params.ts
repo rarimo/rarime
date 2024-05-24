@@ -1,6 +1,5 @@
+import type { StdSignDoc } from '@keplr-wallet/types';
 import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-
-import type { StdSignDoc } from './wallet';
 
 import type { ChainInfo } from '@/types';
 

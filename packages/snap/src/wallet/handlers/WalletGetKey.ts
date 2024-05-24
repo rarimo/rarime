@@ -19,7 +19,7 @@ export const walletGetKey = async ({
 
   const rarimoChainsManager = await RarimoChainsManager.create();
 
-  if (!(await rarimoChainsManager.isChainExist(chainId))) {
+  if (!rarimoChainsManager.isChainExist(chainId)) {
     throw new Error('Invalid chainId');
   }
 

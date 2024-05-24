@@ -7,11 +7,9 @@ import type {
   DirectSignResponse,
   OfflineDirectSigner,
 } from '@cosmjs/proto-signing';
+import type { StdSignDoc } from '@keplr-wallet/types';
 import type { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { BigNumber } from 'ethers';
-
-import { getGasPriceForChainName } from './helpers';
-import type { SignAminoOptions, StdSignDoc } from './types';
 
 import { defaultSnapOrigin, RARIMO_CHAINS, TARGET_CHAINS } from '@/consts';
 import { RPCMethods } from '@/enums';
@@ -98,7 +96,11 @@ export class RarimeWallet
   async signAmino(
     signerAddress: string,
     signDoc: StdSignDoc,
-    options?: SignAminoOptions,
+    options?: {
+      preferNoSetFee?: boolean;
+      isADR36?: boolean;
+      enableExtraEntropy?: boolean;
+    },
   ): Promise<AminoSignResponse> {
     if (this.chainId !== signDoc.chain_id) {
       throw new Error('Chain ID does not match signer chain ID');
@@ -116,34 +118,6 @@ export class RarimeWallet
       throw new Error('Chain ID does not match signer chain ID');
     }
 
-    const chain = this.supportedRarimoChains[this.chainId];
-
-    // Override gasPrice
-    if (!options?.preferNoSetFee) {
-      const gasPriceFromRegistry = await getGasPriceForChainName(
-        chain.chainName,
-      );
-
-      const gas: any =
-        'gasLimit' in signDoc.fee ? signDoc.fee.gasLimit : signDoc.fee.gas;
-
-      if (gasPriceFromRegistry) {
-        const amount = [
-          {
-            amount: BigNumber.from(
-              BigNumber.from(gasPriceFromRegistry)
-                .mul(BigNumber.from(gas))
-                .toNumber()
-                .toFixed(0),
-            ).toString(),
-
-            denom: chain.currencies[0].coinDenom,
-          },
-        ];
-        signDoc.fee.amount = amount;
-      }
-    }
-
     return this.sendSnapRequest(RPCMethods.WalletSignAmino, {
       chainId: this.chainId,
       signerAddress,
@@ -154,72 +128,4 @@ export class RarimeWallet
   }
 }
 
-// export const createWallet = (chainId: string) => {};
-
-export * from './helpers';
 export * from './types';
-
-// /**
-//  * Helps to do signArbitrary of the data provided
-//  *
-//  * @param chainId - chainId
-//  * @param signer - signer
-//  * @param data - data
-//  * @returns signature
-//  */
-// export async function signArbitrary(
-//   chainId: string,
-//   signer: string,
-//   data: string,
-//   signOptions?: { enableExtraEntropy?: boolean },
-// ) {
-//   const { signDoc } = getADR36SignDoc(signer, data);
-//   const result = await requestSignAmino.bind(this)(chainId, signer, signDoc, {
-//     isADR36: true,
-//     preferNoSetFee: true,
-//     enableExtraEntropy: signOptions?.enableExtraEntropy,
-//   });
-//   return result.signature;
-// }
-//
-// /**
-//  *
-//  * Gets the getADR36SignDoc of the signer and data
-//  *
-//  * @param signer - signer
-//  * @param data - data
-//  * @returns SignDoc and isADR36WithString
-//  */
-// function getADR36SignDoc(
-//   signer: string,
-//   data: string | Uint8Array,
-// ): { signDoc: StdSignDoc; isADR36WithString: boolean } {
-//   let isADR36WithString = false;
-//   let b64Data = '';
-//   if (typeof data === 'string') {
-//     b64Data = Buffer.from(data).toString('base64');
-//     isADR36WithString = true;
-//   } else {
-//     b64Data = Buffer.from(data).toString('base64');
-//   }
-//   const signDoc = {
-//     chain_id: '',
-//     account_number: '0',
-//     sequence: '0',
-//     fee: {
-//       gas: '0',
-//       amount: [],
-//     },
-//     msgs: [
-//       {
-//         type: 'sign/MsgSignData',
-//         value: {
-//           signer,
-//           b64Data,
-//         },
-//       },
-//     ],
-//     memo: '',
-//   };
-//   return { signDoc, isADR36WithString };
-// }

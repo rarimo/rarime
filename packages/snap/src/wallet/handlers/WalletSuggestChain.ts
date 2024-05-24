@@ -38,7 +38,5 @@ export const walletSuggestChain = async ({
 
   await rarimoChainsManager.addChain(chainInfo);
 
-  // await addChain(chainInfo);
-
   return { message: 'Successfully added chain', chainInfo };
 };

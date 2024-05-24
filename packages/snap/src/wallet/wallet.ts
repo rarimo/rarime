@@ -1,4 +1,4 @@
-import type { StdSignDoc } from '@cosmjs/amino';
+import type { Pubkey, StdSignature, StdSignDoc } from '@cosmjs/amino';
 import { ripemd160 } from '@noble/hashes/ripemd160';
 import { sha256 } from '@noble/hashes/sha256';
 import * as secp from '@noble/secp256k1';
@@ -8,16 +8,6 @@ import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
-
-export type Pubkey = {
-  readonly type: string;
-  readonly value: any;
-};
-
-export type StdSignature = {
-  readonly pub_key: Pubkey;
-  readonly signature: string;
-};
 
 export const encodeSecp256k1Pubkey = (pubkey: Uint8Array): Pubkey => {
   if (pubkey.length !== 33 || (pubkey[0] !== 0x02 && pubkey[0] !== 0x03)) {

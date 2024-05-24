@@ -43,10 +43,7 @@ export const walletSignAmino = async ({
 
   const rarimoChainsManager = await RarimoChainsManager.create();
 
-  if (
-    !params.isADR36 &&
-    !(await rarimoChainsManager.isChainExist(receivedChainId))
-  ) {
+  if (!params.isADR36 && !rarimoChainsManager.isChainExist(receivedChainId)) {
     throw new Error('Invalid chainId');
   }
 
