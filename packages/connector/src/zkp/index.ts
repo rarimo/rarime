@@ -42,7 +42,7 @@ export class ZkpSnap extends RarimeSnapBase {
     const { coreChain } = await this._getChainInfo();
 
     return this.sendSnapRequest(RPCMethods.SaveCredentials, [
-      coreChain,
+      coreChain.chainId,
       params,
     ]);
   };
@@ -71,8 +71,8 @@ export class ZkpSnap extends RarimeSnapBase {
     const { coreChain, targetChain } = await this._getChainInfo();
 
     const snapResponse = await this.sendSnapRequest(RPCMethods.CreateProof, [
-      coreChain,
-      targetChain,
+      coreChain.chainId,
+      String(targetChain.targetChainId),
       params,
     ]);
 

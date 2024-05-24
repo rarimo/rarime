@@ -1,5 +1,15 @@
+import type { AccountData, AminoSignResponse } from '@cosmjs/amino';
+
+import type { RARIMO_CHAINS } from '@/consts';
 import type { RPCMethods } from '@/enums';
-import type { ChainInfo, ChainZkpInfo } from '@/types/chains';
+import type { ChainInfo } from '@/types/chains';
+import type {
+  WalletRequestAminoSignParams,
+  WalletRequestDirectSignParams,
+  WalletRequestGetKeyParams,
+  WalletRequestSuggestChainParams,
+  WalletSignDirectResponse,
+} from '@/wallet';
 import type {
   CheckCredentialExistenceRequestParams,
   ClaimOffer,
@@ -28,18 +38,31 @@ export type GetSnapsResponse = {
   };
 };
 
+type RarimoChainId = string;
+type TargetChainId = string;
+
 export type SnapRequestParams = {
   [RPCMethods.CreateIdentity]: CreateIdentityRequestParams;
   [RPCMethods.ExportIdentity]: never;
   [RPCMethods.GetIdentity]: never;
 
-  [RPCMethods.SaveCredentials]: [ChainInfo, ClaimOffer];
+  [RPCMethods.SaveCredentials]: [RarimoChainId, ClaimOffer];
   [RPCMethods.RemoveCredentials]: RemoveCredentialsRequestParams;
   [RPCMethods.CheckCredentialExistence]: CheckCredentialExistenceRequestParams;
   [RPCMethods.GetCredentials]: never;
 
-  [RPCMethods.CheckStateContractSync]: [ChainInfo, ChainZkpInfo];
-  [RPCMethods.CreateProof]: [ChainInfo, ChainZkpInfo, CreateProofRequestParams];
+  [RPCMethods.CheckStateContractSync]: [RarimoChainId, TargetChainId];
+  [RPCMethods.CreateProof]: [
+    RarimoChainId,
+    TargetChainId,
+    CreateProofRequestParams,
+  ];
+
+  [RPCMethods.WalletSignDirect]: WalletRequestDirectSignParams;
+  [RPCMethods.WalletSignAmino]: WalletRequestAminoSignParams;
+  [RPCMethods.WalletGetKey]: WalletRequestGetKeyParams;
+  [RPCMethods.WalletSuggestChain]: WalletRequestSuggestChainParams;
+  [RPCMethods.WalletGetSupportedChains]: never;
 };
 
 export type SnapRequestsResponses = {
@@ -54,4 +77,10 @@ export type SnapRequestsResponses = {
 
   [RPCMethods.CheckStateContractSync]: boolean;
   [RPCMethods.CreateProof]: ZKPProofSnapResponse;
+
+  [RPCMethods.WalletSignDirect]: WalletSignDirectResponse;
+  [RPCMethods.WalletSignAmino]: AminoSignResponse;
+  [RPCMethods.WalletGetKey]: AccountData;
+  [RPCMethods.WalletSuggestChain]: { message: string; chainInfo: ChainInfo };
+  [RPCMethods.WalletGetSupportedChains]: typeof RARIMO_CHAINS;
 };

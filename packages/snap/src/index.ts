@@ -5,6 +5,13 @@ import type { JsonRpcRequest } from '@metamask/utils';
 import { RPCMethods } from '@rarimo/rarime-connector';
 
 import {
+  walletSignDirect,
+  walletSignAmino,
+  walletGetKey,
+  walletSuggestChain,
+  walletGetSupportedChains,
+} from '@/wallet';
+import {
   CheckCredentialExistence,
   checkStateContractSync,
   createIdentity,
@@ -63,6 +70,28 @@ export const onRpcRequest = async ({
 
     case RPCMethods.ExportIdentity: {
       return exportIdentity({ request, origin });
+    }
+
+    // WALLET
+
+    case RPCMethods.WalletSignDirect: {
+      return walletSignDirect({ request, origin });
+    }
+
+    case RPCMethods.WalletSignAmino: {
+      return walletSignAmino({ request, origin });
+    }
+
+    case RPCMethods.WalletGetKey: {
+      return walletGetKey({ request, origin });
+    }
+
+    case RPCMethods.WalletSuggestChain: {
+      return walletSuggestChain({ request, origin });
+    }
+
+    case RPCMethods.WalletGetSupportedChains: {
+      return walletGetSupportedChains();
     }
 
     default:

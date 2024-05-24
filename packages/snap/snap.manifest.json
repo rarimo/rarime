@@ -7,7 +7,7 @@
     "url": "https://github.com/rarimo/rarime.git"
   },
   "source": {
-    "shasum": "xB5FVBf7NayGVtDRsVxWfuGwCF8vvt6adWySQle9npI=",
+    "shasum": "qYWKcCxEVT7xl9bxffZGQo871IgaXVU8GjVPEv4zTw4=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -34,7 +34,8 @@
     "endowment:network-access": {},
     "endowment:webassembly": {},
     "endowment:ethereum-provider": {},
-    "snap_getEntropy": {}
+    "snap_getEntropy": {},
+    "endowment:lifecycle-hooks": {}
   },
   "manifestVersion": "0.1"
 }

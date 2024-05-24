@@ -1,6 +1,6 @@
 import type { ChainInfo, ChainZkpInfo } from '@/types';
 
-enum RarimoChains {
+export enum RarimoChains {
   Mainnet = 'rarimo_201411-1',
   MainnetBeta = 'rarimo_42-1',
 }
@@ -100,7 +100,7 @@ export const RARIMO_CHAINS: Record<string, ChainInfo> = {
   },
 };
 
-enum TargetChains {
+export enum TargetChains {
   EthereumMainet = 1,
   Bsc = 56,
   Polygon = 137,

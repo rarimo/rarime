@@ -9,7 +9,7 @@ import { AuthZkp, Identity } from '@rarimo/zkp-iden3';
 
 import { config } from '@/config';
 import { StorageKeys } from '@/enums';
-import { snapStorage } from '@/helpers';
+import { getRarimoChain, snapStorage } from '@/helpers';
 import { isValidSaveCredentialsOfferRequest } from '@/typia-generated';
 import { getSnapFileBytes, VCManager } from '@/zkp/helpers';
 
@@ -25,7 +25,7 @@ export const saveCredentials = async ({
     throw new Error('Identity not created');
   }
 
-  const [coreChainInfo, offer] =
+  const [rarimoChainId, offer] =
     request.params as SnapRequestParams[RPCMethods.SaveCredentials];
 
   isValidSaveCredentialsOfferRequest(offer);
@@ -66,9 +66,11 @@ export const saveCredentials = async ({
     identityStorage.privateKeyHex,
   );
 
+  const rarimoChain = await getRarimoChain(rarimoChainId);
+
   const authProof = new AuthZkp(identity, offer, {
-    coreEvmRpcApiUrl: coreChainInfo.rpcEvm,
-    coreStateContractAddress: coreChainInfo.stateContractAddress,
+    coreEvmRpcApiUrl: rarimoChain.rpcEvm,
+    coreStateContractAddress: rarimoChain.stateContractAddress,
     loadingCircuitCb: getSnapFileBytes,
     circuitsUrls: {
       wasmUrl: config.CIRCUIT_AUTH_WASM_URL,
