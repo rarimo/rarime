@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]
 
+## [2.1.1] - 2024-06-18
+
+### Fixed
+- `@rarimo/rarime-connector`
+- - request params: `wallet_invokeSnap` method should accept `params` only if it exists, passing `undefined` would cause an error at least in Metamask Flask version `11.16.10-flask.0` and Metamask version `11.16.11`
+
+[Unreleased]
+
 ## [2.1.0] - 2024-04-08
 
 ### Added
@@ -194,7 +202,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented `@rarimo/rarime-connector` and `@rarimo/rarime` packages
 
-[Unreleased]: https://github.com/rarimo/rarime/compare/2.1.0...HEAD
+[Unreleased]: https://github.com/rarimo/rarime/compare/2.1.1...HEAD
+[2.1.1]: https://github.com/rarimo/rarime/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/rarimo/rarime/compare/2.0.3...2.1.0
 [2.0.3]: https://github.com/rarimo/rarime/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/rarimo/rarime/compare/2.0.1...2.0.2
