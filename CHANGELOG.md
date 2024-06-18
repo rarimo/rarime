@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.1] - 2024-06-18
 
 ### Fixed
-- `@rarimo/rarime-connector` - request params
+- `@rarimo/rarime-connector`
+- - request params: `wallet_invokeSnap` method should accept `params` only if it exists, passing `undefined` would cause an error at least in Metamask Flask version `11.16.10-flask.0` and Metamask version `11.16.11`
 
 [Unreleased]
 
