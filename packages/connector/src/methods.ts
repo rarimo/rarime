@@ -16,13 +16,16 @@ import type {
 import { RPCMethods } from './types';
 
 const sendSnapMethod = async <T>(
-  request: unknown,
+  request: { method: string; params?: any },
   snapId: string,
 ): Promise<T> => {
   return await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: {
-      request,
+      request: {
+        method: request.method,
+        ...(request.params && { params: request.params }),
+      },
       snapId,
     },
   });
