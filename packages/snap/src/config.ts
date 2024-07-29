@@ -37,10 +37,6 @@ export const config = {
 
   CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL:
     './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit.wasm',
-  // CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL:
-  //   './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey',
-  // CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL:
-  //   'https://ipfs.tokend.io/ipfs/ipfs/QmU8fC3xwjMcmnsB88SrdKRZpskhxUwBRnaLMa1AcN9ERj',
   CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL: [
     './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey.part1',
     './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey.part2',
