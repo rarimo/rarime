@@ -21,10 +21,26 @@ export const getSnapFileBytes = async (path: string) => {
   return bytes;
 };
 
-export const getFileBytes = async (path: string) => {
-  try {
-    return await readBytesFile(new URL(path).href);
-  } catch (error) {
-    return await getSnapFileBytes(path);
+export const concatAndGetShardedFiles = async (
+  paths: string[],
+): Promise<Uint8Array> => {
+  const files = await Promise.all(paths.map(getSnapFileBytes));
+
+  return new Uint8Array(
+    files.reduce((acc, fileBytes) => {
+      return [...acc, ...fileBytes];
+    }, []),
+  );
+};
+
+export const getFileBytes = async (path: string | string[]) => {
+  if (typeof path === 'string') {
+    try {
+      return await readBytesFile(new URL(path).href);
+    } catch (error) {
+      return await getSnapFileBytes(path);
+    }
   }
+
+  return await concatAndGetShardedFiles(path);
 };
