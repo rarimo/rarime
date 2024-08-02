@@ -21,7 +21,7 @@ import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import type { TextField } from '@/types';
 import { isValidCreateProofRequest } from '@/typia-generated';
-import { getSnapFileBytes, VCManager } from '@/zkp/helpers';
+import { getFileBytes, VCManager } from '@/zkp/helpers';
 
 export const createProof = async ({
   request,
@@ -136,7 +136,7 @@ export const createProof = async ({
   const zkpGen = new ZkpGen(identity, createProofRequest, vc, {
     coreEvmRpcApiUrl: coreChainInfo.rpcEvm,
     coreStateContractAddress: coreChainInfo.stateContractAddress,
-    loadingCircuitCb: getSnapFileBytes,
+    loadingCircuitCb: getFileBytes,
     circuitsUrls: {
       [CircuitId.AtomicQuerySigV2]: {
         wasmUrl: config.CIRCUIT_SIG_V2_WASM_URL,

@@ -17,8 +17,8 @@ import type { Identity } from '@/instances/identity';
 import type { W3CCredential } from '@/types';
 
 type Config = {
-  loadingCircuitCb?: (path: string) => Promise<Uint8Array>;
-  circuitsUrls: { wasmUrl: string; keyUrl: string };
+  loadingCircuitCb?: (path: string | string[]) => Promise<Uint8Array>;
+  circuitsUrls: { wasmUrl: string; keyUrl: string | string[] };
 
   coreEvmRpcApiUrl: string;
   coreStateContractAddress: string;

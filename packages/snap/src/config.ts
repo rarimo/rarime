@@ -22,8 +22,11 @@ export const config = {
 
   CIRCUIT_MTP_V2_ON_CHAIN_WASM_URL:
     './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit.wasm',
-  CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL:
-    './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey',
+  CIRCUIT_MTP_V2_ON_CHAIN_FINAL_KEY_URL: [
+    './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey.part1',
+    './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey.part2',
+    './assets/circuits/credentialAtomicQueryMTPV2OnChain/circuit_final.zkey.part3',
+  ],
 };
 
 export const HOSTNAMES_WHITELIST = [

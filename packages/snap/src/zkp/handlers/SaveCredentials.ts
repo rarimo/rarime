@@ -11,7 +11,7 @@ import { config } from '@/config';
 import { StorageKeys } from '@/enums';
 import { snapStorage } from '@/helpers';
 import { isValidSaveCredentialsOfferRequest } from '@/typia-generated';
-import { getSnapFileBytes, VCManager } from '@/zkp/helpers';
+import { getFileBytes, VCManager } from '@/zkp/helpers';
 
 export const saveCredentials = async ({
   request,
@@ -69,7 +69,7 @@ export const saveCredentials = async ({
   const authProof = new AuthZkp(identity, offer, {
     coreEvmRpcApiUrl: coreChainInfo.rpcEvm,
     coreStateContractAddress: coreChainInfo.stateContractAddress,
-    loadingCircuitCb: getSnapFileBytes,
+    loadingCircuitCb: getFileBytes,
     circuitsUrls: {
       wasmUrl: config.CIRCUIT_AUTH_WASM_URL,
       keyUrl: config.CIRCUIT_AUTH_FINAL_KEY_URL,

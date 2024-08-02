@@ -1,4 +1,9 @@
-export const getSnapFileBytes = async (path: string) => {
+const readBytesFile = async (path: string) => {
+  const response = await fetch(path);
+  return new Uint8Array(await response?.arrayBuffer?.());
+};
+
+const getSnapFileBytes = async (path: string) => {
   const response = await snap.request({
     method: 'snap_getFile',
     params: { path },
@@ -14,4 +19,28 @@ export const getSnapFileBytes = async (path: string) => {
   }
 
   return bytes;
+};
+
+const concatAndGetShardedFiles = async (
+  paths: string[],
+): Promise<Uint8Array> => {
+  const files = await Promise.all(paths.map(getSnapFileBytes));
+
+  return new Uint8Array(
+    files.reduce((acc, fileBytes) => {
+      return [...acc, ...fileBytes];
+    }, []),
+  );
+};
+
+export const getFileBytes = async (path: string | string[]) => {
+  if (typeof path === 'string') {
+    try {
+      return await readBytesFile(new URL(path).href);
+    } catch (error) {
+      return await getSnapFileBytes(path);
+    }
+  }
+
+  return await concatAndGetShardedFiles(path);
 };

@@ -4,8 +4,16 @@ export const readBytesFile = async (path: string) => {
 };
 
 export const getFileBytes = async (
-  path: string,
-  loadCircuitsCb?: (path: string) => Promise<Uint8Array>,
+  path: string | string[],
+  loadCircuitsCb?: (path: string | string[]) => Promise<Uint8Array>,
 ): Promise<Uint8Array> => {
-  return loadCircuitsCb?.(path) || readBytesFile(path);
+  if (typeof path === 'string') {
+    return loadCircuitsCb?.(path) || readBytesFile(path);
+  }
+
+  if (!loadCircuitsCb) {
+    throw new TypeError('loadCircuitsCb is required for multiple paths');
+  }
+
+  return loadCircuitsCb?.(path);
 };
