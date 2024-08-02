@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 [Unreleased]
+### Added
+- `@rarimo/zkp-iden3` - package for generating Zero-Knowledge Proofs for the Iden3 protocol
+
+### Changed
+- `@rarimo/rarime-connector`:
+  - Move interaction with state contracts to connector package
+  - Extract `RarimeSnapBase` as a base snap instance and `ZkpSnap` as an instance for ZKP interactions
+  - Define global reusable types & helpers
 
 ## [2.1.2] - 2024-07-29
 
@@ -19,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - - request params: `wallet_invokeSnap` method should accept `params` only if it exists, passing `undefined` would cause an error at least in Metamask Flask version `11.16.10-flask.0` and Metamask version `11.16.11`
 
 ## [2.1.0] - 2024-04-08
-
 ### Added
 - `@rarimo/rarime`:
   - `RemoveCredentials` credentials RPC method;
