@@ -33,8 +33,11 @@ import type {
 } from '@/types';
 
 type Config = {
-  loadingCircuitCb?: (path: string) => Promise<Uint8Array>;
-  circuitsUrls: Record<CircuitId, { wasmUrl: string; keyUrl: string }>;
+  loadingCircuitCb?: (path: string | string[]) => Promise<Uint8Array>;
+  circuitsUrls: Record<
+    CircuitId,
+    { wasmUrl: string; keyUrl: string | string[] }
+  >;
 
   coreEvmRpcApiUrl: string;
   coreStateContractAddress: string;
