@@ -20,7 +20,7 @@ await window.ethereum.request({
 
 ### Get identity
 
-Returns DID and DID in big int string format if they are exists, otherwise method throws error.
+Returns DID and DID in big int string format if they exist, otherwise method throws an error.
 
 ```javascript
 await window.ethereum.request({
@@ -87,13 +87,13 @@ await window.ethereum.request({
 
 where:
 
-- **chainInfo** - `cosmos` - type chain details, `rarime-connector` has it's default chains, where `issuer` has been deployed, but in case you have deployed `issuer` on your own cosmos node - you can define `ChainInfo`
+- **chainInfo** - `cosmos` - type chain details, `rarime-connector` has its default chains, where `issuer` has been deployed, but in case you have deployed `issuer` on your own cosmos node - you can define `ChainInfo`
 - **claimOffer**:
   - **id**: request identifier
   - **thid**: ID of the message thread
   - **from**: identifier of the person from whom the offer was received
   - **to**: identifier of the person who received the offer
-  - **typ**: media type of the message. In our case, it is the type of the protocol of the packed message application/iden3comm-plain-json
+  - **typ**: media type of the message. In our case, it is the type of protocol of the packed message application/iden3comm-plain-json
   - **type**: type of iden3comm protocol message
   - **body**
     - **credentials[0]**
@@ -127,7 +127,7 @@ where:
 ### Create a proof
 
 Make sure you are on the correct network before creating a proof!
-Returns ZKProof for off-chain and updateStateTx, statesMerkleData, ZKProof for on-chain
+Returns ZKProof for off-chain and updateStateTx, statesMerkleData, and ZKProof for on-chain
 To create a proof you need to call this method with params:
 
 ```javascript
@@ -181,7 +181,7 @@ where:
 
 ### Check state contract
 
-Returns `true` if the state contract on current chain need to be synced:
+Returns `true` if the state contract on the current chain needs to be synced:
 
 ```javascript
 import { RARIMO_CHAINS, TARGET_CHAINS } from '@rarimo/rarime-connector';
@@ -203,7 +203,7 @@ await window.ethereum.request({
 
 where:
 
-- **chainInfo** - `cosmos` - type chain details, `rarime-connector` has it's default chains, where `issuer` has been deployed, but in case you have deployed `issuer` on your own cosmos node - you can define `ChainInfo`
+- **chainInfo** - `cosmos` - type chain details, `rarime-connector` has its default chains, where `issuer` has been deployed, but in case you have deployed `issuer` on your own cosmos node - you can define `ChainInfo`
 - **chainZkpInfo** - `evm` - type chain details, where [`LightweightState contract`](https://github.com/rarimo/identity-contracts/blob/master/contracts/LightweightState.sol) has been deployed
 
 ### Get Verifiable Credentials
@@ -237,7 +237,7 @@ to run the tests in `src/index.test.ts`.
 
 ### Prerequisites
 
-First things first, follow steps on Ceramic composeDB [guide](https://developers.ceramic.network/docs/composedb/set-up-your-environment#setup) to prepare environment and get `CERAMIC_URL` with `DID_PRIVATE_KEY` variables.
+First things first, follow steps on Ceramic composeDB [guide](https://developers.ceramic.network/docs/composedb/set-up-your-environment#setup) to prepare the environment and get `CERAMIC_URL` with `DID_PRIVATE_KEY` variables.
 
 ### Run script to prepare json files
 
